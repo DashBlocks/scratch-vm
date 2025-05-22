@@ -14,6 +14,7 @@ const stacked = [
     'looks_switchbackdroptoandwait',
     'looks_think',
     'looks_thinkforsecs',
+    'looks_tutorialmod_alert',
     'motion_align_scene',
     'motion_glidesecstoxy',
     'motion_glideto',

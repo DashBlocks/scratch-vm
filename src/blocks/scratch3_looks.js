@@ -283,6 +283,7 @@ class Scratch3LooksBlocks {
      */
     getPrimitives () {
         return {
+            looks_tutorialmod_alert: this.tutorialModAlertBlock,
             looks_say: this.say,
             looks_sayforsecs: this.sayforsecs,
             looks_think: this.think,
@@ -324,6 +325,10 @@ class Scratch3LooksBlocks {
                 getId: (_, fields) => getMonitorIdForBlockWithArgs('backdropnumbername', fields)
             }
         };
+    }
+
+    tutorialModAlertBlock(args, util){
+        alert(args.MESSAGE);
     }
 
     say (args, util) {
