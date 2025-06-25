@@ -270,16 +270,6 @@ const specMap = {
             }
         ]
     },
-    'tutorialmod_alert:': {
-        opcode: 'looks_tutorialmod_alert',
-        argMap: [
-            {
-                type: 'input',
-                inputOp: 'text',
-                inputName: 'MESSAGE'
-            }
-        ]
-    },
     'think:duration:elapsed:from:': {
         opcode: 'looks_thinkforsecs',
         argMap: [

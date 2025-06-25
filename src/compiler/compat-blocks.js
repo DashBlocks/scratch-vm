@@ -6,6 +6,9 @@
 // Please keep these lists alphabetical.
 
 const stacked = [
+    'control_error',
+    'control_get_error',
+    'control_try_catch_error',
     'looks_changestretchby',
     'looks_hideallsprites',
     'looks_say',
@@ -14,7 +17,6 @@ const stacked = [
     'looks_switchbackdroptoandwait',
     'looks_think',
     'looks_thinkforsecs',
-    'looks_tutorialmod_alert',
     'motion_align_scene',
     'motion_glidesecstoxy',
     'motion_glideto',
@@ -22,6 +24,7 @@ const stacked = [
     'motion_pointtowards',
     'motion_scroll_right',
     'motion_scroll_up',
+    'sensing_alert',
     'sensing_askandwait',
     'sensing_setdragmode',
     'sound_changeeffectby',
