@@ -1,8 +1,8 @@
 ## DashBlocks/scratch-vm
 
-Modified Scratch VM with a JIT compiler and more features.
+@TurboWarp/scratch-vm modified for use in [Dash](https://dashblocks.github.io/)
 
-This is a drop-in replacement for LLK/scratch-vm.
+This is a drop-in replacement for @TurboWarp/scratch-vm.
 
 ## Setup
 
