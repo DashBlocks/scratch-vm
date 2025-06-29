@@ -188,7 +188,9 @@ class Scratch3SensingBlocks {
     }
 
     prompt (args) {
-        return prompt(args.MESSAGE, args.VALUE);
+        const answer = prompt(args.MESSAGE, args.VALUE);
+        if (answer === null) return '';
+        return answer;
     }
 
     confirm (args) {
