@@ -1,4 +1,4 @@
-## TurboWarp/scratch-vm
+## DashBlocks/scratch-vm
 
 Modified Scratch VM with a JIT compiler and more features.
 
