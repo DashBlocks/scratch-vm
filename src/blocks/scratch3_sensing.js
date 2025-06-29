@@ -54,6 +54,8 @@ class Scratch3SensingBlocks {
     getPrimitives () {
         return {
             sensing_alert: this.alert,
+            sensing_prompt: this.prompt,
+            sensing_confirm: this.confirm,
             sensing_touchingobject: this.touchingObject,
             sensing_touchingcolor: this.touchingColor,
             sensing_coloristouchingcolor: this.colorTouchingColor,
@@ -183,6 +185,14 @@ class Scratch3SensingBlocks {
 
     alert (args) {
         return alert(args.MESSAGE);
+    }
+
+    prompt (args) {
+        return prompt(args.MESSAGE, args.VALUE);
+    }
+
+    confirm (args) {
+        return confirm(args.MESSAGE);
     }
 
     touchingObject (args, util) {
