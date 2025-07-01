@@ -25,6 +25,8 @@ const stacked = [
     'motion_scroll_right',
     'motion_scroll_up',
     'sensing_alert',
+    'sensing_prompt',
+    'sensing_confirm',
     'sensing_askandwait',
     'sensing_setdragmode',
     'sound_changeeffectby',
