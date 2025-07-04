@@ -547,6 +547,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'sensing.prompt'
             };
+        case 'sensing_confirm':
+            return {
+                kind: 'sensing.confirm'
+            };
         case 'sensing_coloristouchingcolor':
             return {
                 kind: 'sensing.colorTouchingColor',
