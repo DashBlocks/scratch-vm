@@ -666,7 +666,7 @@ class JSGenerator {
         case 'sensing.answer':
             return new TypedInput(`runtime.ext_scratch3_sensing._answer`, TYPE_STRING);
         case 'sensing.prompt':
-            return new TypedInput(`runtime.ext_scratch3_sensing.prompt`)
+            return new TypedInput(`runtime.ext_scratch3_sensing.prompt`, TYPE_STRING)
         case 'sensing.colorTouchingColor':
             return new TypedInput(`target.colorIsTouchingColor(colorToList(${this.descendInput(node.target).asColor()}), colorToList(${this.descendInput(node.mask).asColor()}))`, TYPE_BOOLEAN);
         case 'sensing.date':
