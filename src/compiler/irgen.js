@@ -543,6 +543,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'sensing.answer'
             };
+        case 'sensing_alert':
+            return {
+                kind: 'sensing.alert'
+            };
         case 'sensing_prompt':
             return {
                 kind: 'sensing.prompt'

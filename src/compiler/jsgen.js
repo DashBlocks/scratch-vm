@@ -665,6 +665,8 @@ class JSGenerator {
 
         case 'sensing.answer':
             return new TypedInput(`runtime.ext_scratch3_sensing._answer`, TYPE_STRING);
+        case 'sensing.alert':
+            return new TypedInput('alert()', TYPE_STRING)
         case 'sensing.prompt':
             return new TypedInput('prompt()', TYPE_STRING);
         case 'sensing_confirm':
