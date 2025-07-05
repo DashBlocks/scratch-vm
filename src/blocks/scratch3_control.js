@@ -24,9 +24,6 @@ class Scratch3ControlBlocks {
      */
     getPrimitives () {
         return {
-            control_get_error: this.getError,
-            control_try_catch_error: this.tryCatchError,
-            control_error: this.error,
             control_repeat: this.repeat,
             control_repeat_until: this.repeatUntil,
             control_while: this.repeatWhile,
@@ -36,6 +33,7 @@ class Scratch3ControlBlocks {
             control_wait_until: this.waitUntil,
             control_if: this.if,
             control_if_else: this.ifElse,
+            control_if_then_else: this.ifThenElse,
             control_stop: this.stop,
             control_create_clone_of: this.createClone,
             control_delete_this_clone: this.deleteClone,
@@ -52,39 +50,6 @@ class Scratch3ControlBlocks {
                 restartExistingThreads: false
             }
         };
-    }
-    
-    getError () {
-        return this.error || '';
-    }
-
-    tryCatchError (args, util) {
-        util.thread.__dashTryCatchError = false;
-        util.startBranch(1, false);
-        
-        util.yieldTick(() => {
-            if (util.thread.__dashTryCatchError) {
-                this.errorHandled = true;
-                util.startBranch(2, false);
-                
-                util.thread.__dashTryCatchError = false;
-                this.errorHandled = false;
-            }
-        });
-    }
-
-    error (args, util) {
-        log.error(new Error(args.MESSAGE));
-        this.error = args.MESSAGE;
-        
-        if (util.thread) {
-            util.thread.__dashTryCatchError = true;
-        }
-        if (this.errorHandled == false || typeof this.errorHandled === 'undefined') {
-            this.errorHandled = false;
-            util.stopAll();
-            alert(`Unhandled error occured: ${args.MESSAGE}. Project stopped`);
-        }
     }
 
     repeat (args, util) {
@@ -171,6 +136,15 @@ class Scratch3ControlBlocks {
             util.startBranch(1, false);
         } else {
             util.startBranch(2, false);
+        }
+    }
+
+    ifThenElse (args, util) {
+        const condition = Cast.toBoolean(args.CONDITION);
+        if (condition) {
+            return args.THEN;
+        } else {
+            return args.ELSE;
         }
     }
 
