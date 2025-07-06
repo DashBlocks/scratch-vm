@@ -189,7 +189,7 @@ class Scratch3SensingBlocks {
 
     prompt (args) {
         const answer = prompt(args.MESSAGE, args.VALUE);
-        if (answer === null) return '';
+        if (!answer) return '';
         return answer;
     }
 

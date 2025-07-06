@@ -667,8 +667,11 @@ class JSGenerator {
 
         case 'sensing.answer':
             return new TypedInput(`runtime.ext_scratch3_sensing._answer`, TYPE_STRING);
-        case 'sensing.prompt':
-            return new TypedInput(`const answer = prompt(${this.descendInput(node.message).asString()}, ${this.descendInput(node.value).asString()});if (answer === null) return '';return answer;`, TYPE_STRING);
+        case 'sensing.prompt': {
+            const answer = prompt(this.descendInput(node.message).asString(), this.descendInput(node.value).asString());
+            if (!answer) answer = '';
+            return new TypedInput(answer, TYPE_STRING);
+        }
         case 'sensing.confirm':
             return new TypedInput(`confirm(${this.descendInput(node.message).asString()})`, TYPE_BOOLEAN)
         case 'sensing.colorTouchingColor':
