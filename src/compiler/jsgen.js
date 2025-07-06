@@ -668,7 +668,7 @@ class JSGenerator {
         case 'sensing.answer':
             return new TypedInput(`runtime.ext_scratch3_sensing._answer`, TYPE_STRING);
         case 'sensing.prompt': {
-            const answer = prompt(this.descendInput(node.message).asString(), this.descendInput(node.value).asString());
+            let answer = prompt(this.descendInput(node.message).asString(), this.descendInput(node.value).asString());
             if (!answer) answer = '';
             return new TypedInput(answer, TYPE_STRING);
         }
