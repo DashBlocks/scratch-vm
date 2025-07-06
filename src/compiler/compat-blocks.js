@@ -6,9 +6,7 @@
 // Please keep these lists alphabetical.
 
 const stacked = [
-    'control_error',
-    'control_get_error',
-    'control_try_catch_error',
+    'control_if_then_else',
     'looks_changestretchby',
     'looks_hideallsprites',
     'looks_say',

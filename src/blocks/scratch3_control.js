@@ -141,11 +141,7 @@ class Scratch3ControlBlocks {
 
     ifThenElse (args, util) {
         const condition = Cast.toBoolean(args.CONDITION);
-        if (condition) {
-            return args.THEN;
-        } else {
-            return args.ELSE;
-        }
+        return condition ? args.THEN : args.ELSE;
     }
 
     stop (args, util) {
