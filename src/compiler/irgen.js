@@ -223,13 +223,6 @@ class ScriptTreeGenerator {
             };
         }
 
-        case 'control_if_then_else':
-            return {
-                kind: 'control.if_then_else',
-                condition: this.descendInputOfBlock(block, 'CONDITION'),
-                then: this.descendInputOfBlock(block, 'THEN'),
-                else: this.descendInputOfBlock(block, 'ELSE')
-            };
         case 'control_get_counter':
             return {
                 kind: 'counter.get'
@@ -549,17 +542,6 @@ class ScriptTreeGenerator {
         case 'sensing_answer':
             return {
                 kind: 'sensing.answer'
-            };
-        case 'sensing_prompt':
-            return {
-                kind: 'sensing.prompt',
-                message: this.descendInputOfBlock(block, 'MESSAGE'),
-                value: this.descendInputOfBlock(block, 'VALUE')
-            };
-        case 'sensing_confirm':
-            return {
-                kind: 'sensing.confirm',
-                message: this.descendInputOfBlock(block, 'MESSAGE')
             };
         case 'sensing_coloristouchingcolor':
             return {

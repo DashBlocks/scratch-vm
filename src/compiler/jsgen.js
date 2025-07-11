@@ -440,8 +440,6 @@ class JSGenerator {
         case 'constant':
             return this.safeConstantInput(node.value);
 
-        case 'control.if_then_else':
-            return new TypedInput(`(${this.descendInput(node.condition).asBoolean() ?? false} ? ${this.descendInput(node.then).asString() ?? ''} : ${this.descendInput(node.else).asString() ?? ''})`, TYPE_STRING)
         case 'counter.get':
             return new TypedInput('runtime.ext_scratch3_control._counter', TYPE_NUMBER);
 
@@ -667,13 +665,6 @@ class JSGenerator {
 
         case 'sensing.answer':
             return new TypedInput(`runtime.ext_scratch3_sensing._answer`, TYPE_STRING);
-        case 'sensing.prompt': {
-            let answer = prompt(this.descendInput(node.message), this.descendInput(node.value));
-            if (!answer) answer = '';
-            return new TypedInput(answer, TYPE_STRING);
-        }
-        case 'sensing.confirm':
-            return new TypedInput(`confirm(${this.descendInput(node.message).asString()})`, TYPE_BOOLEAN)
         case 'sensing.colorTouchingColor':
             return new TypedInput(`target.colorIsTouchingColor(colorToList(${this.descendInput(node.target).asColor()}), colorToList(${this.descendInput(node.mask).asColor()}))`, TYPE_BOOLEAN);
         case 'sensing.date':
