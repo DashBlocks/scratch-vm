@@ -1,6 +1,8 @@
 const Cast = require('../util/cast');
 const log = require('../util/log');
 
+import {isPaused, setPaused} from '../../../scratch-gui/src/addons/addons/debugger/module';
+
 class Scratch3ControlBlocks {
     constructor (runtime) {
         /**
@@ -34,6 +36,8 @@ class Scratch3ControlBlocks {
             control_if: this.if,
             control_if_else: this.ifElse,
             control_if_then_else: this.ifThenElse,
+            сontrol_resume: this.resume,
+            control_pause: this.pause,
             control_stop: this.stop,
             control_create_clone_of: this.createClone,
             control_delete_this_clone: this.deleteClone,
@@ -142,6 +146,14 @@ class Scratch3ControlBlocks {
     ifThenElse (args, util) {
         const condition = Cast.toBoolean(args.CONDITION);
         return condition ? args.THEN : args.ELSE;
+    }
+
+    resume (args, util) {
+        if (isPaused()) setPaused(false)
+    }
+
+    pause (args, util) {
+        if (!isPaused()) setPaused(true)
     }
 
     stop (args, util) {

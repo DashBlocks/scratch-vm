@@ -7,6 +7,8 @@
 
 const stacked = [
     'control_if_then_else',
+    'control_resume',
+    'control_pause',
     'looks_changestretchby',
     'looks_hideallsprites',
     'looks_say',
