@@ -27,6 +27,7 @@ class Scratch3EventBlocks {
             event_whentouchingobject: this.touchingObject,
             event_broadcast: this.broadcast,
             event_broadcastandwait: this.broadcastAndWait,
+            event_when: this.when,
             event_whengreaterthan: this.hatGreaterThanPredicate
         };
     }
@@ -52,6 +53,10 @@ class Scratch3EventBlocks {
             event_whenbackdropswitchesto: {
                 restartExistingThreads: true
             },
+            event_when: {
+                restartExistingThreads: false,
+                edgeActivated: true
+            },
             event_whengreaterthan: {
                 restartExistingThreads: false,
                 edgeActivated: true
@@ -64,6 +69,11 @@ class Scratch3EventBlocks {
 
     touchingObject (args, util) {
         return util.target.isTouchingObject(args.TOUCHINGOBJECTMENU);
+    }
+
+    when (args, util) {
+        const condition = Cast.toBoolean(args.CONDITION);
+        return condition;
     }
 
     hatGreaterThanPredicate (args, util) {
