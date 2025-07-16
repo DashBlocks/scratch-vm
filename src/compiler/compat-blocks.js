@@ -42,6 +42,7 @@ const stacked = [
 
 const inputs = [
     'control_if_then_else',
+    'control_is_paused',
     'motion_xscroll',
     'motion_yscroll',
     'sensing_prompt',
