@@ -39,6 +39,7 @@ class Scratch3ControlBlocks {
             control_if_then_else: this.ifThenElse,
             control_resume: this.resume,
             control_pause: this.pause,
+            control_is_paused: this.isPaused,
             control_stop: this.stop,
             control_create_clone_of: this.createClone,
             control_delete_this_clone: this.deleteClone,
