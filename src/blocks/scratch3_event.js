@@ -27,7 +27,6 @@ class Scratch3EventBlocks {
             event_whentouchingobject: this.touchingObject,
             event_broadcast: this.broadcast,
             event_broadcastandwait: this.broadcastAndWait,
-            event_when: this.when,
             event_whengreaterthan: this.hatGreaterThanPredicate
         };
     }
@@ -52,10 +51,6 @@ class Scratch3EventBlocks {
             },
             event_whenbackdropswitchesto: {
                 restartExistingThreads: true
-            },
-            event_when: {
-                restartExistingThreads: false,
-                edgeActivated: true
             },
             event_whengreaterthan: {
                 restartExistingThreads: false,
