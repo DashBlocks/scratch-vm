@@ -28,6 +28,7 @@ class Scratch3OperatorsBlocks {
             operator_not: this.not,
             operator_random: this.random,
             operator_join: this.join,
+            operator_newline: this.newline,
             operator_letter_of: this.letterOf,
             operator_length: this.length,
             operator_contains: this.contains,
@@ -95,6 +96,10 @@ class Scratch3OperatorsBlocks {
 
     join (args) {
         return Cast.toString(args.STRING1) + Cast.toString(args.STRING2);
+    }
+
+    newline (args) {
+        return "\n";
     }
 
     letterOf (args) {
