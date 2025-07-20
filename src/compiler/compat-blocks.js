@@ -5,6 +5,7 @@
 
 // Please keep these lists alphabetical.
 
+// TODO: Fix Dash blocks that aren't display what do they return by clicking on those.
 const stacked = [
     'control_if_then_else',
     'control_resume',
@@ -25,6 +26,7 @@ const stacked = [
     'motion_pointtowards',
     'motion_scroll_right',
     'motion_scroll_up',
+    'operator_newline',
     'sensing_alert',
     'sensing_prompt',
     'sensing_confirm',
@@ -45,6 +47,7 @@ const inputs = [
     'control_is_paused',
     'motion_xscroll',
     'motion_yscroll',
+    'operator_newline',
     'sensing_prompt',
     'sensing_confirm',
     'sensing_loud',
