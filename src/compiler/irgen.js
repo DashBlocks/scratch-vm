@@ -223,6 +223,17 @@ class ScriptTreeGenerator {
             };
         }
 
+        case 'control_if_then_else':
+            return {
+                kind: 'control.ifThenElse',
+                condition: this.descendInputOfBlock(block, 'CONDITION'),
+                then: this.descendInputOfBlock(block, 'THEN'),
+                else: this.descendInputOfBlock(block, 'ELSE')
+            };
+        case 'control_is_paused':
+            return {
+                kind: 'control.isPaused'
+            };
         case 'control_get_counter':
             return {
                 kind: 'counter.get'
@@ -539,6 +550,17 @@ class ScriptTreeGenerator {
         case 'procedures_call':
             return this.descendProcedure(block);
 
+        case 'sensing_prompt':
+            return {
+                kind: 'sensing.prompt',
+                message: this.descendInputOfBlock(block, 'MESSAGE'),
+                value: this.descendInputOfBlock(block, 'VALUE')
+            };
+        case 'sensing_confirm':
+            return {
+                kind: 'sensing.confirm',
+                message: this.descendInputOfBlock(block, 'MESSAGE')
+            };
         case 'sensing_answer':
             return {
                 kind: 'sensing.answer'
@@ -775,6 +797,16 @@ class ScriptTreeGenerator {
                 },
                 do: this.descendSubstack(block, 'SUBSTACK'),
                 warpTimer: needsWarpTimer
+            };
+        }
+        case 'control_resume': {
+            return {
+                kind: 'control.resume'
+            };
+        }
+        case 'control_pause': {
+            return {
+                kind: 'control.pause'
             };
         }
         case 'control_stop': {
@@ -1138,6 +1170,11 @@ class ScriptTreeGenerator {
                 value: this.descendInputOfBlock(block, 'VALUE')
             };
 
+        case 'sensing_alert':
+            return {
+                kind: 'sensing.alert',
+                message: this.descendInputOfBlock(block, 'MESSAGE')
+            };
         case 'sensing_resettimer':
             return {
                 kind: 'timer.reset'

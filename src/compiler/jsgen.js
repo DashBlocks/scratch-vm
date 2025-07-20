@@ -440,6 +440,16 @@ class JSGenerator {
         case 'constant':
             return this.safeConstantInput(node.value);
 
+        case 'control.ifThenElse': {
+            const args = `
+            "CONDITION":${this.descendInput(node.condition).asBoolean()},
+            "THEN":${this.descendInput(node.then).asString()},
+            "ELSE":${this.descendInput(node.else).asString()}
+            `;
+            return new TypedInput(`runtime.ext_scratch3_control.ifThenElse({${args}})`, TYPE_STRING);
+        }
+        case 'control.isPaused':
+            return new TypedInput('runtime.ext_scratch3_control.isPaused()', TYPE_BOOLEAN); // TODO: Remake
         case 'counter.get':
             return new TypedInput('runtime.ext_scratch3_control._counter', TYPE_NUMBER);
 
@@ -663,6 +673,14 @@ class JSGenerator {
         case 'procedures.argument':
             return new TypedInput(`p${node.index}`, TYPE_UNKNOWN);
 
+        case 'sensing.prompt': {
+            const args = `"MESSAGE":${this.descendInput(node.message).asString()},"VALUE":${this.descendInput(node.value).asString()}`;
+            return new TypedInput(`runtime.ext_scratch3_sensing.prompt({${args}})`, TYPE_STRING);
+        }
+        case 'sensing.confirm': {
+            const args = `"MESSAGE":${this.descendInput(node.message).asString()}`;
+            return new TypedInput(`runtime.ext_scratch3_sensing.confirm({${args}})`, TYPE_BOOLEAN);
+        }
         case 'sensing.answer':
             return new TypedInput(`runtime.ext_scratch3_sensing._answer`, TYPE_STRING);
         case 'sensing.colorTouchingColor':
@@ -871,6 +889,12 @@ class JSGenerator {
                 this.yieldLoop();
             }
             this.source += `}\n`;
+            break;
+        case 'control.resume':
+            this.source += 'runtime.ext_scratch3_control.resume();\n';
+            break;
+        case 'control.pause':
+            this.source += 'runtime.ext_scratch3_control.pause();\n';
             break;
 
         case 'counter.clear':
@@ -1131,6 +1155,10 @@ class JSGenerator {
             this.stopScriptAndReturn(this.descendInput(node.value).asSafe());
             break;
 
+        case 'sensing.alert':
+            const args = `"MESSAGE":${this.descendInput(node.message).asString()}`;
+            this.source += `runtime.ext_scratch3_sensing.alert({${args}});\n`;
+            break;
         case 'timer.reset':
             this.source += 'runtime.ioDevices.clock.resetProjectTimer();\n';
             break;
