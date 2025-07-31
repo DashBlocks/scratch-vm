@@ -760,6 +760,43 @@ class JSGenerator {
         case 'var.get':
             return this.descendVariable(node.variable);
 
+        case 'json.arrayEmpty':
+            return new TypedInput('[]', TYPE_UNKNOWN);
+
+        case 'json.arrayItemOf': {
+            const index = this.descendInput(node.index);
+            if (environment.supportsNullishCoalescing) {
+                if (index.isAlwaysNumberOrNaN()) {
+                    return new TypedInput(`(${this.descendInput(node.array).asUnknown()}[(${index.asNumber()} | 0) - 1] ?? "")`, TYPE_UNKNOWN);
+                }
+                if (index instanceof ConstantInput && index.constantValue === 'last') {
+                    return new TypedInput(`(${this.descendInput(node.array).asUnknown()}[${this.descendInput(node.array).asUnknown()}.length - 1] ?? "")`, TYPE_UNKNOWN);
+                }
+            }
+            return new TypedInput(`listGet(${this.descendInput(node.array).asUnknown()}, ${index.asUnknown()})`, TYPE_UNKNOWN);
+        }
+
+        case 'json.arrayItemNoOf':
+            return new TypedInput(`${this.descendInput(node.array).asUnknown()}.indexOf(${this.descendInput(node.item).asUnknown()})`, TYPE_NUMBER);
+
+        case 'json.arrayContains':
+            return new TypedInput(`listContains(${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.item).asUnknown()})`, TYPE_BOOLEAN);
+
+        case 'json.arrayLength':
+            return new TypedInput(`${this.descendInput(node.array).asUnknown()}.length`, TYPE_NUMBER);
+
+        case 'json.arrayAt':
+            return new TypedInput(`listInsert(${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.index).asUnknown()}, ${this.descendInput(node.item).asSafe()})`, TYPE_UNKNOWN);
+
+        case 'json.arrayInFrontOf':
+            return new TypedInput(`[...${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.item).asSafe()}]`, TYPE_UNKNOWN);
+
+        case 'json.arrayBehind':
+            return new TypedInput(`[${this.descendInput(node.item).asSafe()}, ...${this.descendInput(node.array).asUnknown()}]`, TYPE_UNKNOWN);
+
+        case 'array.json.arraySplit':
+            return new TypedInput(`(${this.descendInput(node.text).asString()}.split(${this.descendInput(node.delimiter).asString()}))`, TYPE_UNKNOWN);
+
         default:
             log.warn(`JS: Unknown input: ${node.kind}`, node);
             throw new Error(`JS: Unknown input: ${node.kind}`);
