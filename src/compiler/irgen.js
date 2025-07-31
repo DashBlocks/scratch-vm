@@ -665,6 +665,67 @@ class ScriptTreeGenerator {
                 value: block.fields.SOUND_MENU.value
             };
 
+        case 'json_array_empty':
+            return {
+                kind: 'json.arrayEmpty'
+            };
+
+        case 'json_array_item_of':
+            return {
+                kind: 'json.arrayItemOf',
+                array: this.descendInputOfBlock(block, 'VALUE'),
+                index: this.descendInputOfBlock(block, 'INDEX')
+            };
+
+        case 'json_array_item_no_of':
+            return {
+                kind: 'json.arrayItemNoOf',
+                array: this.descendInputOfBlock(block, 'ARRAY'),
+                item: this.descendInputOfBlock(block, 'VALUE')
+            };
+
+        case 'json_array_contains':
+            return {
+                kind: 'json.arrayContains',
+                array: this.descendInputOfBlock(block, 'VALUE'),
+                item: this.descendInputOfBlock(block, 'ARRAY')
+            };
+
+        case 'json_array_length':
+            return {
+                kind: 'json.arrayLength',
+                array: this.descendInputOfBlock(block, 'VALUE')
+            };
+
+        case 'json_array_in_front_of':
+            return {
+                kind: 'json.arrayInFrontOf',
+                array: this.descendInputOfBlock(block, 'ARRAY'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            };
+
+        case 'json_array_behind':
+            return {
+                kind: 'json.arrayBehind',
+                array: this.descendInputOfBlock(block, 'ARRAY'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            };
+
+        case 'json_array_at':
+            return {
+                kind: 'json.arrayAt',
+                array: this.descendInputOfBlock(block, 'ARRAY'),
+                index: this.descendInputOfBlock(block, 'INDEX'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            };
+
+        case 'json_array_split':
+            return {
+                kind: 'json.arraySplit',
+                text: this.descendInputOfBlock(block, 'TEXT'),
+                delimiter: this.descendInputOfBlock(block, 'DELIM')
+            };
+
         case 'tw_getLastKeyPressed':
             return {
                 kind: 'tw.lastKeyPressed'
