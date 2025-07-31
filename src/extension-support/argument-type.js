@@ -14,6 +14,11 @@ const ArgumentType = {
     BOOLEAN: 'Boolean',
 
     /**
+     * Array value with square placeholder
+     */
+    ARRAY: 'Array',
+
+    /**
      * Numeric value with color picker
      */
     COLOR: 'color',
