@@ -45,6 +45,7 @@ const defaultBlockPackages = {
     scratch3_sound: require('../blocks/scratch3_sound'),
     scratch3_sensing: require('../blocks/scratch3_sensing'),
     scratch3_data: require('../blocks/scratch3_data'),
+    dash_json: require('../blocks/dash_json'),
     scratch3_procedures: require('../blocks/scratch3_procedures')
 };
 
