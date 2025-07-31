@@ -96,6 +96,23 @@ class Cast {
     }
 
     /**
+     * Scratch cast to array.
+     * @param {*} value Value to cast to array.
+     * @return {Array} The Scratch-casted array value.
+     */
+    static toList (value) {
+        if (Array.isArray(value)) {
+            return value;
+        }
+        try {
+            const result = JSON.parse(value);
+            return Array.isArray(result) ? result : [];
+        } catch {
+            return [];
+        }
+    }
+
+    /**
      * Cast any Scratch argument to an RGB color array to be used for the renderer.
      * @param {*} value Value to convert to RGB color array.
      * @return {Array.<number>} [r,g,b], values between 0-255.
