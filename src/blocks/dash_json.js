@@ -33,47 +33,50 @@ class DashJSONBlocks {
 
     arrayItemOf (args) {
         const array = Cast.toList(args.VALUE);
-        const index = Cast.toNumber(args.INDEX) - 1;
-        return array[index] || '';
+        const index = Cast.toListIndex(args.INDEX, array.length, false);
+        if (index === Cast.LIST_INVALID) {
+            return '';
+        }
+        return array[index - 1];
     }
 
     arrayItemNoOf (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.VALUE;
-        return array && item ? array.indexOf(item) + 1 : 0;
+        return array.indexOf(item) + 1;
     }
 
     arrayContains (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.VALUE;
-        return array ? array.includes(item) : false;
+        return array.includes(item);
     }
 
     arrayLength (args) {
         const array = Cast.toList(args.VALUE);
-        return array ? array.length : 0;
+        return array.length;
     }
 
     arrayAddFront (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return array && item ? [...array, item] : item ? item : '';
+        return [...array, item];
     }
 
     arrayAddBack (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return array && item ? [item, ...array] : item ? item : '';
+        return [item, ...array];
     }
 
     arrayInsertAt (args) {
         const array = Cast.toList(args.ARRAY);
-        const index = Cast.toNumber(args.INDEX) - 1;
+        const index = Cast.toListIndex(args.INDEX, array.length, false);
         const item = args.ITEM;
-        const newArray = array ? [...array] : null;
-        if (!newArray) return item;
-        newArray.splice(index, 0, item);
-        return newArray;
+        if (index === Cast.LIST_INVALID) {
+            return array;
+        }
+        return array.toSpliced(index - 1, 0, item);
     }
 
     arraySplit (args) {
