@@ -776,25 +776,45 @@ class JSGenerator {
             return new TypedInput(`listGet(${this.descendInput(node.array).asUnknown()}, ${index.asUnknown()})`, TYPE_UNKNOWN);
         }
 
-        case 'json.arrayItemNoOf':
-            return new TypedInput(`${this.descendInput(node.array).asUnknown()}.indexOf(${this.descendInput(node.item).asUnknown()})`, TYPE_NUMBER);
+        case 'json.arrayItemNoOf': {
+            if (this.descendInput(node.array).asUnknown()) {
+                return new TypedInput(`(${this.descendInput(node.array).asUnknown()}.indexOf(${this.descendInput(node.item).asUnknown()}) + 1)`, TYPE_NUMBER);
+            }
+            return new TypedInput(0, TYPE_NUMBER);
+        }
 
-        case 'json.arrayContains':
-            return new TypedInput(`listContains(${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.item).asUnknown()})`, TYPE_BOOLEAN);
+        case 'json.arrayContains': {
+            if (this.descendInput(node.array).asUnknown()) {
+                console.log(this.descendInput(node.array).asUnknown())
+                return new TypedInput(`${this.descendInput(node.array).asUnknown()}.includes(${this.descendInput(node.item).asUnknown()})`, TYPE_BOOLEAN);
+            }
+            return new TypedInput(false, TYPE_BOOLEAN);
+        }
 
-        case 'json.arrayLength':
-            return new TypedInput(`${this.descendInput(node.array).asUnknown()}.length`, TYPE_NUMBER);
+        case 'json.arrayLength': {
+            if (this.descendInput(node.array).asUnknown()) {
+                return new TypedInput(`${this.descendInput(node.array).asUnknown()}.length`, TYPE_NUMBER);
+            }
+            return new TypedInput(0, TYPE_NUMBER);
+        }
 
-        case 'json.arrayAt':
-            return new TypedInput(`listInsert(${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.index).asUnknown()}, ${this.descendInput(node.item).asSafe()})`, TYPE_UNKNOWN);
+        case 'json.arrayAt': {
+            const array = this.descendInput(node.array).asUnknown();
+            const index = this.descendInput(node.index).asUnknown() - 1;
+            const item = this.descendInput(node.item).asSafe();
+            const newArray = array ? [...array] : null;
+            if (!newArray) return new TypedInput(item, TYPE_UNKNOWN);
+            newArray.splice(index, 0, item);
+            return new TypedInput(newArray, TYPE_UNKNOWN);
+        }
 
         case 'json.arrayInFrontOf':
-            return new TypedInput(`[...${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.item).asSafe()}]`, TYPE_UNKNOWN);
+            return new TypedInput(`((${this.descendInput(node.array).asUnknown()} && ${this.descendInput(node.item).asSafe()}) ? [...${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.item).asSafe()}] : ${this.descendInput(node.item).asSafe()} ?? '')`, TYPE_UNKNOWN);
 
         case 'json.arrayBehind':
-            return new TypedInput(`[${this.descendInput(node.item).asSafe()}, ...${this.descendInput(node.array).asUnknown()}]`, TYPE_UNKNOWN);
+            return new TypedInput(`((${this.descendInput(node.array).asUnknown()} && ${this.descendInput(node.item).asSafe()}) ? [${this.descendInput(node.item).asSafe()}, ...${this.descendInput(node.array).asUnknown()}] : ${this.descendInput(node.item).asSafe()} ?? '')`, TYPE_UNKNOWN);
 
-        case 'array.json.arraySplit':
+        case 'json.arraySplit':
             return new TypedInput(`(${this.descendInput(node.text).asString()}.split(${this.descendInput(node.delimiter).asString()}))`, TYPE_UNKNOWN);
 
         default:

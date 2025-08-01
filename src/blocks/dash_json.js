@@ -40,37 +40,38 @@ class DashJSONBlocks {
     arrayItemNoOf (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.VALUE;
-        return array.indexOf(item) + 1;
+        return array && item ? array.indexOf(item) + 1 : 0;
     }
 
     arrayContains (args) {
-        const array = Cast.toList(args.VALUE);
-        const item = args.ARRAY;
-        return array.includes(item);
+        const array = Cast.toList(args.ARRAY);
+        const item = args.VALUE;
+        return array ? array.includes(item) : false;
     }
 
     arrayLength (args) {
         const array = Cast.toList(args.VALUE);
-        return array.length;
+        return array ? array.length : 0;
     }
 
     arrayAddFront (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return [...array, item];
+        return array && item ? [...array, item] : item ? item : '';
     }
 
     arrayAddBack (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return [item, ...array];
+        return array && item ? [item, ...array] : item ? item : '';
     }
 
     arrayInsertAt (args) {
         const array = Cast.toList(args.ARRAY);
         const index = Cast.toNumber(args.INDEX) - 1;
         const item = args.ITEM;
-        const newArray = [...array];
+        const newArray = array ? [...array] : null;
+        if (!newArray) return item;
         newArray.splice(index, 0, item);
         return newArray;
     }
