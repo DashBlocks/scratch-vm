@@ -803,26 +803,29 @@ class JSGenerator {
             return new TypedInput(`runtime.ext_dash_json.arrayInsertAt({${args}})`, TYPE_UNKNOWN);
         }
 
-        case 'json.arrayInFrontOf':
+        case 'json.arrayInFrontOf': {
             const args = `
             "ARRAY":${this.descendInput(node.array).asUnknown()},
             "ITEM":${this.descendInput(node.item).asUnknown()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arrayAddFront({${args}})`, TYPE_UNKNOWN);
+        }
 
-        case 'json.arrayBehind':
+        case 'json.arrayBehind': {
             const args = `
             "ARRAY":${this.descendInput(node.array).asUnknown()},
             "ITEM":${this.descendInput(node.item).asUnknown()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arrayAddBack({${args}})`, TYPE_UNKNOWN);
+        }
 
-        case 'json.arraySplit':
+        case 'json.arraySplit': {
             const args = `
             "TEXT":${this.descendInput(node.text).asString()},
             "DELIM":${this.descendInput(node.delimeter).asString()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arraySplit({${args}})`, TYPE_UNKNOWN);
+        }
 
         default:
             log.warn(`JS: Unknown input: ${node.kind}`, node);
