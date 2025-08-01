@@ -822,7 +822,7 @@ class JSGenerator {
         case 'json.arraySplit': {
             const args = `
             "TEXT":${this.descendInput(node.text).asString()},
-            "DELIM":${this.descendInput(node.delimeter).asString()}
+            "DELIM":${this.descendInput(node.delimiter).asString()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arraySplit({${args}})`, TYPE_UNKNOWN);
         }
