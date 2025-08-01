@@ -765,57 +765,64 @@ class JSGenerator {
 
         case 'json.arrayItemOf': {
             const index = this.descendInput(node.index);
-            if (environment.supportsNullishCoalescing) {
-                if (index.isAlwaysNumberOrNaN()) {
-                    return new TypedInput(`(${this.descendInput(node.array).asUnknown()}[(${index.asNumber()} | 0) - 1] ?? "")`, TYPE_UNKNOWN);
-                }
-                if (index instanceof ConstantInput && index.constantValue === 'last') {
-                    return new TypedInput(`(${this.descendInput(node.array).asUnknown()}[${this.descendInput(node.array).asUnknown()}.length - 1] ?? "")`, TYPE_UNKNOWN);
-                }
-            }
-            return new TypedInput(`listGet(${this.descendInput(node.array).asUnknown()}, ${index.asUnknown()})`, TYPE_UNKNOWN);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "INDEX":${environment.supportsNullishCoalescing && index.isAlwaysNumberOrNaN() ? index.asNumber() : index.asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayItemOf({${args}})`, TYPE_UNKNOWN);
         }
 
         case 'json.arrayItemNoOf': {
-            if (this.descendInput(node.array).asUnknown()) {
-                return new TypedInput(`(${this.descendInput(node.array).asUnknown()}.indexOf(${this.descendInput(node.item).asUnknown()}) + 1)`, TYPE_NUMBER);
-            }
-            return new TypedInput(0, TYPE_NUMBER);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "VALUE":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayItemNoOf({${args}})`, TYPE_NUMBER);
         }
 
         case 'json.arrayContains': {
-            if (this.descendInput(node.array).asUnknown()) {
-                console.log(this.descendInput(node.array).asUnknown())
-                return new TypedInput(`${this.descendInput(node.array).asUnknown()}.includes(${this.descendInput(node.item).asUnknown()})`, TYPE_BOOLEAN);
-            }
-            return new TypedInput(false, TYPE_BOOLEAN);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "VALUE":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayContains({${args}})`, TYPE_BOOLEAN);
         }
 
         case 'json.arrayLength': {
-            if (this.descendInput(node.array).asUnknown()) {
-                return new TypedInput(`${this.descendInput(node.array).asUnknown()}.length`, TYPE_NUMBER);
-            }
-            return new TypedInput(0, TYPE_NUMBER);
+            const args = `"ARRAY":${this.descendInput(node.array).asUnknown()}`;
+            return new TypedInput(`runtime.ext_dash_json.arrayLength({${args}})`, TYPE_NUMBER);
         }
 
         case 'json.arrayAt': {
-            const array = this.descendInput(node.array).asUnknown();
-            const index = this.descendInput(node.index).asUnknown() - 1;
-            const item = this.descendInput(node.item).asSafe();
-            const newArray = array ? [...array] : null;
-            if (!newArray) return new TypedInput(item, TYPE_UNKNOWN);
-            newArray.splice(index, 0, item);
-            return new TypedInput(newArray, TYPE_UNKNOWN);
+            const index = this.descendInput(node.index);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "INDEX":${environment.supportsNullishCoalescing && index.isAlwaysNumberOrNaN() ? index.asNumber() : index.asUnknown()},
+            "ITEM":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayInsertAt({${args}})`, TYPE_UNKNOWN);
         }
 
         case 'json.arrayInFrontOf':
-            return new TypedInput(`((${this.descendInput(node.array).asUnknown()} && ${this.descendInput(node.item).asSafe()}) ? [...${this.descendInput(node.array).asUnknown()}, ${this.descendInput(node.item).asSafe()}] : ${this.descendInput(node.item).asSafe()} ?? '')`, TYPE_UNKNOWN);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "ITEM":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayAddFront({${args}})`, TYPE_UNKNOWN);
 
         case 'json.arrayBehind':
-            return new TypedInput(`((${this.descendInput(node.array).asUnknown()} && ${this.descendInput(node.item).asSafe()}) ? [${this.descendInput(node.item).asSafe()}, ...${this.descendInput(node.array).asUnknown()}] : ${this.descendInput(node.item).asSafe()} ?? '')`, TYPE_UNKNOWN);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "ITEM":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayAddBack({${args}})`, TYPE_UNKNOWN);
 
         case 'json.arraySplit':
-            return new TypedInput(`(${this.descendInput(node.text).asString()}.split(${this.descendInput(node.delimiter).asString()}))`, TYPE_UNKNOWN);
+            const args = `
+            "TEXT":${this.descendInput(node.text).asString()},
+            "DELIM":${this.descendInput(node.delimeter).asString()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arraySplit({${args}})`, TYPE_UNKNOWN);
 
         default:
             log.warn(`JS: Unknown input: ${node.kind}`, node);
