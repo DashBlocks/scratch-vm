@@ -827,6 +827,25 @@ class JSGenerator {
             return new TypedInput(`runtime.ext_dash_json.arraySplit({${args}})`, TYPE_UNKNOWN);
         }
 
+        case 'json.arrayDelete': {
+            const index = this.descendInput(node.index);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "INDEX":${environment.supportsNullishCoalescing && index.isAlwaysNumberOrNaN() ? index.asNumber() : index.asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayDelete({${args}})`, TYPE_UNKNOWN);
+        }
+
+        case 'json.arrayReplace': {
+            const index = this.descendInput(node.index);
+            const args = `
+            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "INDEX":${environment.supportsNullishCoalescing && index.isAlwaysNumberOrNaN() ? index.asNumber() : index.asUnknown()},
+            "ITEM":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.arrayReplace({${args}})`, TYPE_UNKNOWN);
+        }
+
         default:
             log.warn(`JS: Unknown input: ${node.kind}`, node);
             throw new Error(`JS: Unknown input: ${node.kind}`);
