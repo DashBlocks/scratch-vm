@@ -726,6 +726,21 @@ class ScriptTreeGenerator {
                 delimiter: this.descendInputOfBlock(block, 'DELIM')
             };
 
+        case 'json_array_delete':
+            return {
+                kind: 'json.arrayDelete',
+                array: this.descendInputOfBlock(block, 'ARRAY'),
+                index: this.descendInputOfBlock(block, 'INDEX')
+            };
+
+        case 'json_array_replace':
+            return {
+                kind: 'json.arrayReplace',
+                array: this.descendInputOfBlock(block, 'ARRAY'),
+                index: this.descendInputOfBlock(block, 'INDEX'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            };
+
         case 'tw_getLastKeyPressed':
             return {
                 kind: 'tw.lastKeyPressed'
