@@ -23,7 +23,9 @@ class DashJSONBlocks {
             json_array_in_front_of: this.arrayAddFront,
             json_array_behind: this.arrayAddBack,
             json_array_at: this.arrayInsertAt,
-            json_array_split: this.arraySplit
+            json_array_split: this.arraySplit,
+            json_array_delete: this.arrayDelete,
+            json_array_replace: this.arrayReplace
         };
     }
 
@@ -83,6 +85,29 @@ class DashJSONBlocks {
         const text = Cast.toString(args.TEXT);
         const delimiter = Cast.toString(args.DELIM);
         return text.split(delimiter);
+    }
+
+    arrayDelete (args) {
+        const array = Cast.toList(args.ARRAY);
+        const index = Cast.toListIndex(args.INDEX, array.length, true);
+        const item = args.ITEM;
+        if (index === Cast.LIST_ALL) {
+            return [];
+        } else if (index === Cast.LIST_INVALID) {
+            return array;
+        }
+        return array.toSpliced(index - 1, 1);
+    }
+
+    arrayReplace (args) {
+        const array = Cast.toList(args.ARRAY);
+        const index = Cast.toListIndex(args.INDEX, array.length, false);
+        const item = args.ITEM;
+        if (index === Cast.LIST_INVALID) {
+            return array;
+        }
+        array[index] = item;
+        return array;
     }
 }
 
