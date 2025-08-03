@@ -766,7 +766,7 @@ class JSGenerator {
         case 'json.arrayItemOf': {
             const index = this.descendInput(node.index);
             const args = `
-            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "VALUE":${this.descendInput(node.array).asUnknown()},
             "INDEX":${environment.supportsNullishCoalescing && index.isAlwaysNumberOrNaN() ? index.asNumber() : index.asUnknown()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arrayItemOf({${args}})`, TYPE_UNKNOWN);
