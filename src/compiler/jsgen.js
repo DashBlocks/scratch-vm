@@ -789,7 +789,7 @@ class JSGenerator {
         }
 
         case 'json.arrayLength': {
-            const args = `"ARRAY":${this.descendInput(node.array).asUnknown()}`;
+            const args = `"VALUE":${this.descendInput(node.array).asUnknown()}`;
             return new TypedInput(`runtime.ext_dash_json.arrayLength({${args}})`, TYPE_NUMBER);
         }
 
