@@ -356,6 +356,13 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'OPERAND1'),
                 right: this.descendInputOfBlock(block, 'OPERAND2')
             };
+        case 'operator_in_range':
+            return {
+                kind: 'op.inRange',
+                num: this.descendInputOfBlock(block, 'NUM'),
+                from: this.descendInputOfBlock(block, 'FROM'),
+                to: this.descendInputOfBlock(block, 'TO')
+            };
         case 'operator_join':
             return {
                 kind: 'op.join',
