@@ -691,16 +691,16 @@ class ScriptTreeGenerator {
                 item: this.descendInputOfBlock(block, 'VALUE')
             };
 
-        case 'json_array_contains':
+        case 'json_contains':
             return {
-                kind: 'json.arrayContains',
+                kind: 'json.contains',
                 array: this.descendInputOfBlock(block, 'ARRAY'),
                 item: this.descendInputOfBlock(block, 'VALUE')
             };
 
-        case 'json_array_length':
+        case 'json_length':
             return {
-                kind: 'json.arrayLength',
+                kind: 'json.length',
                 array: this.descendInputOfBlock(block, 'VALUE')
             };
 
@@ -746,6 +746,48 @@ class ScriptTreeGenerator {
                 array: this.descendInputOfBlock(block, 'ARRAY'),
                 index: this.descendInputOfBlock(block, 'INDEX'),
                 item: this.descendInputOfBlock(block, 'ITEM')
+            };
+
+        case 'json_object_empty':
+            return {
+                kind: 'json.objectEmpty'
+            };
+
+        case 'json_object_split':
+            return {
+                kind: 'json.objectSplit',
+                text: this.descendInputOfBlock(block, 'TEXT'),
+                keyDelim: this.descendInputOfBlock(block, 'KEYDELIM'),
+                pairDelim: this.descendInputOfBlock(block, 'PAIRDELIM')
+            };
+                
+        case 'json_object_item_of':
+            return {
+                kind: 'json.objectItemOf',
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                key: this.descendInputOfBlock(block, 'KEY')
+            };
+
+        case 'json_object_contains_key':
+            return {
+                kind: 'json.objectContainsKey',
+                object: this.descendInputOfBlock(block, 'OBJECT'),
+                key: this.descendInputOfBlock(block, 'KEY')
+            };
+
+        case 'json_object_set':
+            return {
+                kind: 'json.objectSet',
+                object: this.descendInputOfBlock(block, 'OBJECT'),
+                key: this.descendInputOfBlock(block, 'KEY'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            };
+
+        case 'json_object_delete':
+            return {
+                kind: 'json.objectDelete',
+                object: this.descendInputOfBlock(block, 'OBJECT'),
+                key: this.descendInputOfBlock(block, 'KEY')
             };
 
         case 'tw_getLastKeyPressed':
