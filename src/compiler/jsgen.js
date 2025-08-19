@@ -575,7 +575,7 @@ class JSGenerator {
             return new TypedInput(`compareGreaterThan(${left.asUnknown()}, ${right.asUnknown()})`, TYPE_BOOLEAN);
         }
         case 'op.inRange':
-            return new TypedInput(`(${this.descendInput(node.num).asNumber()} >= ${this.descendInput(node.from).asNumber()} && ${this.descendInput(node.num).asNumber()} <= ${this.descendInput(node.to).asNumber()})`, TYPE_BOOLEAN)
+            return new TypedInput(`(${this.descendInput(node.num).asNumber()} >= ${this.descendInput(node.from).asNumber()} && ${this.descendInput(node.num).asNumber()} <= ${this.descendInput(node.to).asNumber()})`, TYPE_BOOLEAN);
         case 'op.join':
             return new TypedInput(`(${this.descendInput(node.left).asString()} + ${this.descendInput(node.right).asString()})`, TYPE_STRING);
         case 'op.length':

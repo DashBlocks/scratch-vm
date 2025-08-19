@@ -1,5 +1,7 @@
 const Cast = require('../util/cast');
-const {isPaused, setPaused} = require('../../../../src/addons/addons/debugger/module'); // For web
+// TODO: Fix import path for desktop and web versions
+const {isPaused, setPaused} = require('../../../../src/addons/addons/debugger/module'); // Web
+// const {isPaused, setPaused} = require('../../../scratch-gui/src/addons/addons/debugger/module'); // Desktop
 
 class Scratch3ControlBlocks {
     constructor (runtime) {
