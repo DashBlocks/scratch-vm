@@ -782,15 +782,15 @@ class JSGenerator {
             return new TypedInput(`runtime.ext_dash_json.arrayItemNoOf({${args}})`, TYPE_NUMBER);
         }
 
-        case 'json.arrayContains': {
+        case 'json.contains': {
             const args = `
-            "ARRAY":${this.descendInput(node.array).asUnknown()},
+            "JSON":${this.descendInput(node.array).asUnknown()},
             "VALUE":${this.descendInput(node.item).asUnknown()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arrayContains({${args}})`, TYPE_BOOLEAN);
         }
 
-        case 'json.arrayLength': {
+        case 'json.length': {
             const args = `"VALUE":${this.descendInput(node.array).asUnknown()}`;
             return new TypedInput(`runtime.ext_dash_json.arrayLength({${args}})`, TYPE_NUMBER);
         }
@@ -846,6 +846,51 @@ class JSGenerator {
             "ITEM":${this.descendInput(node.item).asUnknown()}
             `;
             return new TypedInput(`runtime.ext_dash_json.arrayReplace({${args}})`, TYPE_UNKNOWN);
+        }
+
+        case 'json.objectEmpty':
+            return new TypedInput('{}', TYPE_UNKNOWN);
+
+        case 'json.objectSplit': {
+            const args = `
+            "TEXT":${this.descendInput(node.text).asString()},
+            "KEYDELIM":${this.descendInput(node.keyDelim).asString()},
+            "PAIRDELIM":${this.descendInput(node.pairDelim).asString()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.objectSplit({${args}})`, TYPE_UNKNOWN);
+        }
+
+        case 'json.objectItemOf': {
+            const args = `
+            "VALUE":${this.descendInput(node.value).asUnknown()},
+            "KEY":${this.descendInput(node.key).asString()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.objectItemOf({${args}})`, TYPE_UNKNOWN);
+        }
+
+        case 'json.objectContainsKey': {
+            const args = `
+            "OBJECT":${this.descendInput(node.object).asUnknown()},
+            "KEY":${this.descendInput(node.key).asString()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.objectContainsKey({${args}})`, TYPE_BOOLEAN);
+        }
+
+        case 'json.objectSet': {
+            const args = `
+            "OBJECT":${this.descendInput(node.object).asUnknown()},
+            "KEY":${this.descendInput(node.key).asString()},
+            "ITEM":${this.descendInput(node.item).asUnknown()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.objectSet({${args}})`, TYPE_UNKNOWN);
+        }
+
+        case 'json.objectDelete': {
+            const args = `
+            "OBJECT":${this.descendInput(node.object).asUnknown()},
+            "KEY":${this.descendInput(node.key).asString()}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.objectDelete({${args}})`, TYPE_UNKNOWN);
         }
 
         default:

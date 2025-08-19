@@ -489,7 +489,8 @@ const serializeSound = function (sound) {
 const isVariableValueSafeForJSON = value => (
     typeof value === 'number' ||
     typeof value === 'string' ||
-    typeof value === 'boolean'
+    typeof value === 'boolean' ||
+    (typeof value === 'object' && value instanceof Object)
 );
 const makeSafeForJSON = value => {
     if (Array.isArray(value)) {
