@@ -524,6 +524,20 @@ class JSGenerator {
             return new TypedInput(`Math.ceil(${this.descendInput(node.value).asNumber()})`, TYPE_NUMBER);
         case 'op.contains':
             return new TypedInput(`(${this.descendInput(node.string).asString()}.toLowerCase().indexOf(${this.descendInput(node.contains).asString()}.toLowerCase()) !== -1)`, TYPE_BOOLEAN);
+        case 'op.inRange': {
+            return new TypedInput(`(${this.descendInput(node.num).asNumber()} >= ${this.descendInput(node.from).asNumber()} && ${this.descendInput(node.num).asNumber()} <= ${this.descendInput(node.to).asNumber()})`, TYPE_BOOLEAN);
+        }
+        case 'op.numsInRange':
+            const from = this.descendInput(node.from).asNumber()
+            const to = this.descendInput(node.to).asNumber()
+            const nums = [];
+            if (from > to) {
+                return new TypedInput(`(${nums})`, TYPE_UNKNOWN);
+            }
+            for (let i = from; i <= to; i++) {
+                nums.push(i);
+            }
+            return new TypedInput(`(${nums})`, TYPE_UNKNOWN);
         case 'op.cos':
             return new TypedInput(`(Math.round(Math.cos((Math.PI * ${this.descendInput(node.value).asNumber()}) / 180) * 1e10) / 1e10)`, TYPE_NUMBER_NAN);
         case 'op.divide':
@@ -574,8 +588,6 @@ class JSGenerator {
             // No compile-time optimizations possible - use fallback method.
             return new TypedInput(`compareGreaterThan(${left.asUnknown()}, ${right.asUnknown()})`, TYPE_BOOLEAN);
         }
-        case 'op.inRange':
-            return new TypedInput(`(${this.descendInput(node.num).asNumber()} >= ${this.descendInput(node.from).asNumber()} && ${this.descendInput(node.num).asNumber()} <= ${this.descendInput(node.to).asNumber()})`, TYPE_BOOLEAN);
         case 'op.join':
             return new TypedInput(`(${this.descendInput(node.left).asString()} + ${this.descendInput(node.right).asString()})`, TYPE_STRING);
         case 'op.length':

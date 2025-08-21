@@ -338,6 +338,19 @@ class ScriptTreeGenerator {
                 string: this.descendInputOfBlock(block, 'STRING1'),
                 contains: this.descendInputOfBlock(block, 'STRING2')
             };
+        case 'operator_in_range':
+            return {
+                kind: 'op.inRange',
+                num: this.descendInputOfBlock(block, 'NUM'),
+                from: this.descendInputOfBlock(block, 'FROM'),
+                to: this.descendInputOfBlock(block, 'TO')
+            };
+        case 'operator_nums_in_range':
+            return {
+                kind: 'op.numsInRange',
+                from: this.descendInputOfBlock(block, 'FROM'),
+                to: this.descendInputOfBlock(block, 'TO')
+            };
         case 'operator_divide':
             return {
                 kind: 'op.divide',
@@ -355,13 +368,6 @@ class ScriptTreeGenerator {
                 kind: 'op.greater',
                 left: this.descendInputOfBlock(block, 'OPERAND1'),
                 right: this.descendInputOfBlock(block, 'OPERAND2')
-            };
-        case 'operator_in_range':
-            return {
-                kind: 'op.inRange',
-                num: this.descendInputOfBlock(block, 'NUM'),
-                from: this.descendInputOfBlock(block, 'FROM'),
-                to: this.descendInputOfBlock(block, 'TO')
             };
         case 'operator_join':
             return {
