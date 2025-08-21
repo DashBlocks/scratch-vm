@@ -787,12 +787,12 @@ class JSGenerator {
             "JSON":${this.descendInput(node.array).asUnknown()},
             "VALUE":${this.descendInput(node.item).asUnknown()}
             `;
-            return new TypedInput(`runtime.ext_dash_json.arrayContains({${args}})`, TYPE_BOOLEAN);
+            return new TypedInput(`runtime.ext_dash_json.contains({${args}})`, TYPE_BOOLEAN);
         }
 
         case 'json.length': {
             const args = `"VALUE":${this.descendInput(node.array).asUnknown()}`;
-            return new TypedInput(`runtime.ext_dash_json.arrayLength({${args}})`, TYPE_NUMBER);
+            return new TypedInput(`runtime.ext_dash_json.length({${args}})`, TYPE_NUMBER);
         }
 
         case 'json.arrayAt': {
