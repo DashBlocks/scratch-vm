@@ -32,6 +32,7 @@ class Scratch3OperatorsBlocks {
             operator_letter_of: this.letterOf,
             operator_length: this.length,
             operator_contains: this.contains,
+            operator_nums_in_range: this.numsInRange,
             operator_in_range: this.inRange,
             operator_mod: this.mod,
             operator_round: this.round,
@@ -122,6 +123,19 @@ class Scratch3OperatorsBlocks {
             return Cast.toString(string).toLowerCase();
         };
         return format(args.STRING1).includes(format(args.STRING2));
+    }
+
+    numsInRange (args) {
+        const from = Cast.toNumber(args.FROM);
+        const to = Cast.toNumber(args.TO);
+        const nums = [];
+        if (from > to) {
+            return nums;
+        }
+        for (let i = from; i <= to; i++) {
+            nums.push(i);
+        }
+        return nums;
     }
 
     inRange (args) {
