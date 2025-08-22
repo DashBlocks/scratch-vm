@@ -494,6 +494,8 @@ class JSGenerator {
             return new TypedInput('limitPrecision(target.x)', TYPE_NUMBER);
         case 'motion.y':
             return new TypedInput('limitPrecision(target.y)', TYPE_NUMBER);
+        case 'motion.position':
+            return new TypedInput('[limitPrecision(target.x), limitPrecision(target.y)]', TYPE_UNKNOWN);
 
         case 'mouse.down':
             return new TypedInput('runtime.ioDevices.mouse.getIsDown()', TYPE_BOOLEAN);
@@ -501,6 +503,8 @@ class JSGenerator {
             return new TypedInput('runtime.ioDevices.mouse.getScratchX()', TYPE_NUMBER);
         case 'mouse.y':
             return new TypedInput('runtime.ioDevices.mouse.getScratchY()', TYPE_NUMBER);
+        case 'mouse.xy':
+            return new TypedInput('[runtime.ioDevices.mouse.getScratchX(), runtime.ioDevices.mouse.getScratchY()]', TYPE_UNKNOWN);
 
         case 'noop':
             return new TypedInput('""', TYPE_STRING);
