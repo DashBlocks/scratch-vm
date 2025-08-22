@@ -319,6 +319,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'motion.y'
             };
+        case 'motion_position':
+            return {
+                kind: 'motion.position'
+            };
 
         case 'operator_add':
             return {
@@ -644,6 +648,10 @@ class ScriptTreeGenerator {
         case 'sensing_mousey':
             return {
                 kind: 'mouse.y'
+            };
+        case 'sensing_mousexy':
+            return {
+                kind: 'mouse.xy'
             };
         case 'sensing_of':
             return {
