@@ -96,8 +96,11 @@ const ArgumentTypeMap = (() => {
     map[ArgumentType.BOOLEAN] = {
         check: 'Boolean'
     };
-    map[ArgumentType.JSON] = {
-        check: 'JSON'
+    map[ArgumentType.ARRAY] = {
+        check: 'Array'
+    };
+    map[ArgumentType.OBJECT] = {
+        check: 'Object'
     };
     map[ArgumentType.MATRIX] = {
         shadow: {
@@ -1413,8 +1416,12 @@ class Runtime extends EventEmitter {
             blockJSON.output = 'Boolean';
             blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_HEXAGONAL;
             break;
-        case BlockType.JSON:
-            blockJSON.output = 'JSON';
+        case BlockType.ARRAY:
+            blockJSON.output = 'Array';
+            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE;
+            break;
+        case BlockType.OBJECT:
+            blockJSON.output = 'Object';
             blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE;
             break;
         case BlockType.HAT:
@@ -1469,7 +1476,12 @@ class Runtime extends EventEmitter {
             }
         }
 
-        if (blockInfo.blockType === BlockType.REPORTER || blockInfo.blockType === BlockType.BOOLEAN || blockInfo.blockType === BlockType.JSON) {
+        if (
+            blockInfo.blockType === BlockType.REPORTER ||
+            blockInfo.blockType === BlockType.BOOLEAN ||
+            blockInfo.blockType === BlockType.ARRAY ||
+            blockInfo.blockType === BlockType.OBJECT
+        ) {
             if (!blockInfo.disableMonitor && context.inputList.length === 0) {
                 blockJSON.checkboxInFlyout = true;
             }
