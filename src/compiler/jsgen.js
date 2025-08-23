@@ -909,6 +909,14 @@ class JSGenerator {
             return new TypedInput(`runtime.ext_dash_json.objectDelete({${args}})`, TYPE_UNKNOWN);
         }
 
+        case 'json.objectEntries': {
+            const args = `
+            "OBJECT":${this.descendInput(node.object).asUnknown()},
+            "PROPERTY":${sanitize(node.property)}
+            `;
+            return new TypedInput(`runtime.ext_dash_json.objectEntries({${args}})`, TYPE_UNKNOWN);
+        }
+
         default:
             log.warn(`JS: Unknown input: ${node.kind}`, node);
             throw new Error(`JS: Unknown input: ${node.kind}`);
