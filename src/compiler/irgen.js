@@ -804,6 +804,13 @@ class ScriptTreeGenerator {
                 key: this.descendInputOfBlock(block, 'KEY')
             };
 
+        case 'json_object_entries':
+            return {
+                kind: 'json.objectEntries',
+                object: this.descendInputOfBlock(block, 'OBJECT'),
+                property: block.fields.PROPERTY.value
+            };
+
         case 'tw_getLastKeyPressed':
             return {
                 kind: 'tw.lastKeyPressed'
