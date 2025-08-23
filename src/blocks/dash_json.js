@@ -31,7 +31,8 @@ class DashJSONBlocks {
             json_object_item_of: this.objectItemOf,
             json_object_contains_key: this.objectContainsKey,
             json_object_set: this.objectSet,
-            json_object_delete: this.objectDelete
+            json_object_delete: this.objectDelete,
+            json_object_entries: this.objectEntries
         };
     }
 
@@ -166,6 +167,20 @@ class DashJSONBlocks {
         const key = Cast.toString(args.KEY);
         delete object[key];
         return object;
+    }
+
+    objectEntries (args) {
+        const object = Cast.toObject(args.OBJECT);
+        switch (args.PROPERTY) {
+            case 'entries':
+                return Object.entries(object);
+            case 'keys':
+                return Object.keys(object);
+            case 'values':
+                return Object.values(object);
+            default:
+                return [];
+        }
     }
 }
 
