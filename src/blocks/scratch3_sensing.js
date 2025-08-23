@@ -65,6 +65,7 @@ class Scratch3SensingBlocks {
             sensing_of: this.getAttributeOf,
             sensing_mousex: this.getMouseX,
             sensing_mousey: this.getMouseY,
+            sensing_mousexy: this.getMouseXY,
             sensing_setdragmode: this.setDragMode,
             sensing_mousedown: this.getMouseDown,
             sensing_keypressed: this.getKeyPressed,
@@ -253,6 +254,10 @@ class Scratch3SensingBlocks {
 
     getMouseY (args, util) {
         return util.ioQuery('mouse', 'getScratchY');
+    }
+
+    getMouseXY (args, util) {
+        return [util.ioQuery('mouse', 'getScratchX'), util.ioQuery('mouse', 'getScratchY')];
     }
 
     getMouseDown (args, util) {

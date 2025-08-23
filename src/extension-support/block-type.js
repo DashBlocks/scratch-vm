@@ -52,9 +52,14 @@ const BlockType = {
     REPORTER: 'reporter',
 
     /**
-     * Array/object reporter with square shape
+     * Array reporter with square shape
      */
-    JSON: 'json',
+    ARRAY: 'Array',
+
+    /**
+     * Object reporter with square (currently) shape
+     */
+    OBJECT: 'Object',
 
     /**
      * Arbitrary scratch-blocks XML.

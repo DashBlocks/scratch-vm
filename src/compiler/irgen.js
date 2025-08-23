@@ -319,6 +319,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'motion.y'
             };
+        case 'motion_position':
+            return {
+                kind: 'motion.position'
+            };
 
         case 'operator_add':
             return {
@@ -645,6 +649,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'mouse.y'
             };
+        case 'sensing_mousexy':
+            return {
+                kind: 'mouse.xy'
+            };
         case 'sensing_of':
             return {
                 kind: 'sensing.of',
@@ -794,6 +802,13 @@ class ScriptTreeGenerator {
                 kind: 'json.objectDelete',
                 object: this.descendInputOfBlock(block, 'OBJECT'),
                 key: this.descendInputOfBlock(block, 'KEY')
+            };
+
+        case 'json_object_entries':
+            return {
+                kind: 'json.objectEntries',
+                object: this.descendInputOfBlock(block, 'OBJECT'),
+                property: block.fields.PROPERTY.value
             };
 
         case 'tw_getLastKeyPressed':
