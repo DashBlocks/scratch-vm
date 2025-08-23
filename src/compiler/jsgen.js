@@ -537,7 +537,7 @@ class JSGenerator {
             for (let i = from; i <= to; i++) {
                 nums.push(i);
             }
-            return new TypedInput(`(${nums})`, TYPE_UNKNOWN);
+            return new TypedInput(`([${nums}])`, TYPE_UNKNOWN);
         case 'op.cos':
             return new TypedInput(`(Math.round(Math.cos((Math.PI * ${this.descendInput(node.value).asNumber()}) / 180) * 1e10) / 1e10)`, TYPE_NUMBER_NAN);
         case 'op.divide':
