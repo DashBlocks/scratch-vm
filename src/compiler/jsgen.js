@@ -817,14 +817,14 @@ class JSGenerator {
 
         case 'json.contains': {
             const args = `
-            "JSON":${this.descendInput(node.array).asUnknown()},
+            "JSON":${this.descendInput(node.json).asUnknown()},
             "VALUE":${this.descendInput(node.item).asUnknown()}
             `;
             return new TypedInput(`runtime.ext_dash_json.contains({${args}})`, TYPE_BOOLEAN);
         }
 
         case 'json.length': {
-            const args = `"VALUE":${this.descendInput(node.array).asUnknown()}`;
+            const args = `"VALUE":${this.descendInput(node.json).asUnknown()}`;
             return new TypedInput(`runtime.ext_dash_json.length({${args}})`, TYPE_NUMBER);
         }
 
