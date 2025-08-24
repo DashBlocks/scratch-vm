@@ -718,14 +718,14 @@ class ScriptTreeGenerator {
         case 'json_contains':
             return {
                 kind: 'json.contains',
-                array: this.descendInputOfBlock(block, 'ARRAY'),
+                json: this.descendInputOfBlock(block, 'JSON'),
                 item: this.descendInputOfBlock(block, 'VALUE')
             };
 
         case 'json_length':
             return {
                 kind: 'json.length',
-                array: this.descendInputOfBlock(block, 'VALUE')
+                json: this.descendInputOfBlock(block, 'VALUE')
             };
 
         case 'json_array_in_front_of':
