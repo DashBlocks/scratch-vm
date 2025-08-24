@@ -924,7 +924,7 @@ class JSGenerator {
         case 'json.objectEntries': {
             const args = `
             "OBJECT":${this.descendInput(node.object).asUnknown()},
-            "PROPERTY":${sanitize(node.property)}
+            "PROPERTY":"${sanitize(node.property)}"
             `;
             return new TypedInput(`runtime.ext_dash_json.objectEntries({${args}})`, TYPE_UNKNOWN);
         }
