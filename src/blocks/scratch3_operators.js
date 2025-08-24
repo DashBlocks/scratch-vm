@@ -32,6 +32,8 @@ class Scratch3OperatorsBlocks {
             operator_letter_of: this.letterOf,
             operator_length: this.length,
             operator_contains: this.contains,
+            operator_is_string: this.isString,
+            operator_is_number: this.isNumber,
             operator_nums_in_range: this.numsInRange,
             operator_in_range: this.inRange,
             operator_mod: this.mod,
@@ -123,6 +125,27 @@ class Scratch3OperatorsBlocks {
             return Cast.toString(string).toLowerCase();
         };
         return format(args.STRING1).includes(format(args.STRING2));
+    }
+
+    isString (args) {
+        const number = Cast.toNumber(args.STRING);
+        const string = Cast.toString(args.STRING);
+        if (number == 0 && (args.STRING != '0' && args.STRING != '-0')) {
+            if (Cast.isWhiteSpace(string)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isNumber (args) {
+        const number = Cast.toNumber(args.NUM);
+        if (number == 0 && (args.NUM != '0' && args.NUM != '-0')) {
+            return false;
+        }
+        return true;
     }
 
     numsInRange (args) {

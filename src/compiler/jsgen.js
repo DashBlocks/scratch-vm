@@ -528,6 +528,18 @@ class JSGenerator {
             return new TypedInput(`Math.ceil(${this.descendInput(node.value).asNumber()})`, TYPE_NUMBER);
         case 'op.contains':
             return new TypedInput(`(${this.descendInput(node.string).asString()}.toLowerCase().indexOf(${this.descendInput(node.contains).asString()}.toLowerCase()) !== -1)`, TYPE_BOOLEAN);
+        case 'op.isString': {
+            const args = `
+            "STRING":${this.descendInput(node.string).asString()}
+            `;
+            return new TypedInput(`runtime.ext_scratch3_operators.isString({${args}})`, TYPE_BOOLEAN);
+        }
+        case 'op.isNumber': {
+            const args = `
+            "NUM":${this.descendInput(node.num).asString()}
+            `;
+            return new TypedInput(`runtime.ext_scratch3_operators.isNumber({${args}})`, TYPE_BOOLEAN);
+        }
         case 'op.inRange': {
             return new TypedInput(`(${this.descendInput(node.num).asNumber()} >= ${this.descendInput(node.from).asNumber()} && ${this.descendInput(node.num).asNumber()} <= ${this.descendInput(node.to).asNumber()})`, TYPE_BOOLEAN);
         }
