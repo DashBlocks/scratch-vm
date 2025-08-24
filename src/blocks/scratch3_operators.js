@@ -165,7 +165,9 @@ class Scratch3OperatorsBlocks {
         const num = Cast.toNumber(args.NUM);
         const from = Cast.toNumber(args.FROM);
         const to = Cast.toNumber(args.TO);
-        return num >= from && num <= to;
+        const low = from <= to ? from : to;
+        const high = from <= to ? to : from;
+        return num >= low && num <= high;
     }
 
     mod (args) {
