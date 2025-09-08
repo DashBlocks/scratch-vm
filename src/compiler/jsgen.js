@@ -540,6 +540,13 @@ class JSGenerator {
             `;
             return new TypedInput(`runtime.ext_scratch3_operators.isNumber({${args}})`, TYPE_BOOLEAN);
         }
+        case 'op.cast': {
+            const args = `
+            "VALUE":${this.descendInput(node.value).asUnknown()},
+            "TYPE":"${sanitize(node.type)}"
+            `;
+            return new TypedInput(`runtime.ext_scratch3_operators.cast({${args}})`, TYPE_UNKNOWN);
+        }
         case 'op.inRange': {
             const args = `
             "NUM":${this.descendInput(node.num).asNumber()},
