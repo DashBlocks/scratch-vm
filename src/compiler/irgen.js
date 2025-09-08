@@ -342,6 +342,17 @@ class ScriptTreeGenerator {
                 string: this.descendInputOfBlock(block, 'STRING1'),
                 contains: this.descendInputOfBlock(block, 'STRING2')
             };
+        case 'operator_typeof':
+            return {
+                kind: 'op.typeof',
+                value: this.descendInputOfBlock(block, 'VALUE')
+            };
+        case 'operator_is_type':
+            return {
+                kind: 'op.isType',
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
+            };
         case 'operator_is_string':
             return {
                 kind: 'op.isString',
@@ -351,6 +362,12 @@ class ScriptTreeGenerator {
             return {
                 kind: 'op.isNumber',
                 num: this.descendInputOfBlock(block, 'NUM')
+            };
+        case 'operator_cast':
+            return {
+                kind: 'op.cast',
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
             };
         case 'operator_in_range':
             return {

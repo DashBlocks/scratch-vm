@@ -528,6 +528,13 @@ class JSGenerator {
             return new TypedInput(`Math.ceil(${this.descendInput(node.value).asNumber()})`, TYPE_NUMBER);
         case 'op.contains':
             return new TypedInput(`(${this.descendInput(node.string).asString()}.toLowerCase().indexOf(${this.descendInput(node.contains).asString()}.toLowerCase()) !== -1)`, TYPE_BOOLEAN);
+        case 'op.isType': {
+            const args = `
+            "VALUE":${this.descendInput(node.value).asUnknown()},
+            "TYPE":"${sanitize(node.type)}"
+            `;
+            return new TypedInput(`runtime.ext_scratch3_operators.isType({${args}})`, TYPE_UNKNOWN);
+        }
         case 'op.isString': {
             const args = `
             "STRING":${this.descendInput(node.string).asString()}
@@ -539,6 +546,13 @@ class JSGenerator {
             "NUM":${this.descendInput(node.num).asString()}
             `;
             return new TypedInput(`runtime.ext_scratch3_operators.isNumber({${args}})`, TYPE_BOOLEAN);
+        }
+        case 'op.cast': {
+            const args = `
+            "VALUE":${this.descendInput(node.value).asUnknown()},
+            "TYPE":"${sanitize(node.type)}"
+            `;
+            return new TypedInput(`runtime.ext_scratch3_operators.cast({${args}})`, TYPE_UNKNOWN);
         }
         case 'op.inRange': {
             const args = `
