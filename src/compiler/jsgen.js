@@ -530,7 +530,7 @@ class JSGenerator {
             return new TypedInput(`(${this.descendInput(node.string).asString()}.toLowerCase().indexOf(${this.descendInput(node.contains).asString()}.toLowerCase()) !== -1)`, TYPE_BOOLEAN);
         case 'op.typeof': {
             const args = `
-            "VALUE":${this.descendInput(node.value).asString()}
+            "VALUE":${this.descendInput(node.value).asUnknown()}
             `;
             return new TypedInput(`runtime.ext_scratch3_operators.typeof({${args}})`, TYPE_BOOLEAN);
         }
