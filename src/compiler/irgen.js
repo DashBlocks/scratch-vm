@@ -352,6 +352,12 @@ class ScriptTreeGenerator {
                 kind: 'op.isNumber',
                 num: this.descendInputOfBlock(block, 'NUM')
             };
+        case 'operator_cast':
+            return {
+                kind: 'op.cast',
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
+            };
         case 'operator_in_range':
             return {
                 kind: 'op.inRange',
