@@ -32,8 +32,12 @@ class Scratch3OperatorsBlocks {
             operator_letter_of: this.letterOf,
             operator_length: this.length,
             operator_contains: this.contains,
+            operator_typeof: this.typeof,
             operator_is_string: this.isString,
             operator_is_number: this.isNumber,
+            operator_is_boolean: this.isBoolean,
+            operator_is_array: this.isArray,
+            operator_is_object: this.isObject,
             operator_cast: this.cast,
             operator_nums_in_range: this.numsInRange,
             operator_in_range: this.inRange,
@@ -128,6 +132,10 @@ class Scratch3OperatorsBlocks {
         return format(args.STRING1).includes(format(args.STRING2));
     }
 
+    typeof (args) {
+        return typeof args.VALUE;
+    }
+
     isString (args) {
         const number = Cast.toNumber(args.STRING);
         const string = Cast.toString(args.STRING);
@@ -142,11 +150,33 @@ class Scratch3OperatorsBlocks {
     }
 
     isNumber (args) {
+        if (typeof args.NUM == 'number') return true;
         const number = Cast.toNumber(args.NUM);
         if (number == 0 && (args.NUM != '0' && args.NUM != '-0')) {
             return false;
         }
         return true;
+    }
+
+    isBoolean (args) {
+        const bool = args.BOOL
+        if (typeof bool == 'boolean') return true;
+        if (bool.toLowerCase() == 'true' || bool.toLowerCase() == 'false') return true;
+        return false;
+    }
+
+    isArray (args) {
+        const array = args.ARRAY;
+        // typeof returns 'object' for null
+        if (array == null) return false;
+        return (typeof array == 'object' && Array.isArray(array));
+    }
+
+    isObject (args) {
+        const object = args.OBJECT;
+        // typeof returns 'object' for null
+        if (object == null) return false;
+        return typeof object === "object" && object instanceof Object && !Array.isArray(object);
     }
 
     cast (args) {
