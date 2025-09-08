@@ -33,11 +33,9 @@ class Scratch3OperatorsBlocks {
             operator_length: this.length,
             operator_contains: this.contains,
             operator_typeof: this.typeof,
+            operator_is_type: this.isType,
             operator_is_string: this.isString,
             operator_is_number: this.isNumber,
-            operator_is_boolean: this.isBoolean,
-            operator_is_array: this.isArray,
-            operator_is_object: this.isObject,
             operator_cast: this.cast,
             operator_nums_in_range: this.numsInRange,
             operator_in_range: this.inRange,
@@ -134,6 +132,49 @@ class Scratch3OperatorsBlocks {
 
     typeof (args) {
         return typeof args.VALUE;
+    }
+
+    isType (args) {
+        const value = args.VALUE;
+        switch (args.TYPE) {
+            case 'string': {
+                const number = Cast.toNumber(value);
+                const string = Cast.toString(value);
+                if (typeof value == 'string' && number == 0 && (value != '0' && value != '-0')) {
+                    if (Cast.isWhiteSpace(string)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            case 'number': {
+                if (typeof value == 'number') return true;
+                const number = Cast.toNumber(value);
+                if (number == 0 && (value != '0' && value != '-0')) {
+                    return false;
+                }
+                return true;
+            }
+            case 'boolean': {
+                if (typeof value == 'boolean') return true;
+                if (value.toLowerCase() == 'true' || value.toLowerCase() == 'false') return true;
+                return false;
+            }
+            case 'array': {
+                // typeof returns 'object' for null
+                if (value == null) return false;
+                return (typeof value == 'object' && Array.isArray(value));
+            }
+            case 'object': {
+                // typeof returns 'object' for null
+                if (value == null) return false;
+                return typeof value === "object" && value instanceof Object && !Array.isArray(value);
+            }
+            default:
+                return false;
+        }
     }
 
     isString (args) {
