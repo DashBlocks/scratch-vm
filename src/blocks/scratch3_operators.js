@@ -133,8 +133,8 @@ class Scratch3OperatorsBlocks {
     typeof (args) {
         const value = args.VALUE;
         // typeof returns 'object' for null
-        if (value == null) return null;
-        if (typeof value == 'object' && Array.isArray(value)) return 'array';
+        if (value === null) return 'null';
+        if (Array.isArray(value)) return 'array';
         if (typeof value === "object" && value instanceof Object && !Array.isArray(value)) return 'object';
         return typeof value;
     }
