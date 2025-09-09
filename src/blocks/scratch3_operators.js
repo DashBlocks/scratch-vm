@@ -132,10 +132,12 @@ class Scratch3OperatorsBlocks {
 
     typeof (args) {
         const value = args.VALUE;
+        const lowerCase = Cast.toString(value).toLowerCase()
         // typeof returns 'object' for null
         if (value === null) return 'null';
         if (Array.isArray(value)) return 'array';
         if (typeof value === "object" && value instanceof Object && !Array.isArray(value)) return 'object';
+        if (lowerCase == 'true' || lowerCase == 'false') return 'boolean';
         return typeof value;
     }
 
@@ -164,7 +166,8 @@ class Scratch3OperatorsBlocks {
             }
             case 'boolean': {
                 if (typeof value == 'boolean') return true;
-                if (value.toLowerCase() == 'true' || value.toLowerCase() == 'false') return true;
+                const lowerCase = Cast.toString(value).toLowerCase()
+                if (lowerCase == 'true' || lowerCase == 'false') return true;
                 return false;
             }
             case 'array': {
