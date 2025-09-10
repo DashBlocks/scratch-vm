@@ -167,7 +167,7 @@ class Scratch3OperatorsBlocks {
             case 'boolean': {
                 if (typeof value == 'boolean') return true;
                 const lowerCase = Cast.toString(value).toLowerCase()
-                if (lowerCase == 'true' || lowerCase == 'false') return true;
+                if ((lowerCase == 'true' || lowerCase == 'false') || (lowerCase == '0' || lowerCase == '1')) return true;
                 return false;
             }
             case 'array': {
