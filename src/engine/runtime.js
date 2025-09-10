@@ -536,7 +536,59 @@ class Runtime extends EventEmitter {
          * List of all custom serializers.
          * @type {Object.<string, object>}
          */
-        this.serializers = {};
+        this.serializers = {
+            // Not actual custom serializer, but it needs for serializing/deserializing Object/Array
+            json_json: {
+                serialize: () => {
+                    /**/
+                },
+                deserialize: (value) => {
+                    const indexes = [];
+                    let run = true;
+                    let startI = 0;
+                    while (run) {
+                        let obj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                        obj = Array.isArray(obj) ? obj : Object.values(obj);
+                        let i = startI
+                        while (i < obj.length) {
+                            if (!(typeof obj[i] === "object" && obj[i] instanceof Object)) {
+                                i++;
+                                continue;
+                            }
+                            if (Array.isArray(obj[i])) {
+                                startI = 0;
+                                indexes.push(i);
+                                break;
+                            } else if ('customType' in obj[i]) {
+                                if (!obj[i].customType) {
+                                    startI = 0;
+                                    indexes.push(i);
+                                    break;
+                                } else if (obj[i].typeId in this.serializers) {
+                                    const {deserialize} = this.serializers[obj[i].typeId];
+                                    let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                    rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = deserialize(obj[i].serialized, target);
+                                } else {
+                                    throw new Error(`Unknown custom serializer with id: ${data.typeId}`);
+                                }
+                            } else {
+                                startI = 0;
+                                indexes.push(i);
+                                break;
+                            }
+                            i++;
+                        }
+                        if (indexes.length > 0 && i >= obj.length) {
+                            startI = indexes[indexes.length - 1];
+                            indexes.splice(indexes.length - 1, 1);
+                        } else if (i >= obj.length) {
+                            run = false;
+                        }
+                    }
+                    return value;
+                }
+            }
+        };
 
         /**
          * Total number of scratch-storage load() requests since the runtime was created or cleared.
@@ -3267,9 +3319,37 @@ class Runtime extends EventEmitter {
     }
 
     /**
-     * Handle that the project has loaded in the Virtual Machine.
+     * Report that the project has loaded in the Virtual Machine.
+     * and also handle the parsing of custom values to allow for
+     * minimal code when making cross-target refences
      */
     handleProjectLoaded () {
+        for (const target of this.targets) {
+            for (const varId in target.variables) {
+                const variable = target.variables[varId];
+                if (!(typeof variable.value === "object" && variable.value instanceof Object)) {
+                    continue;
+                }
+                const data = variable.value;
+                if (Array.isArray(data)) {
+                    const {deserialize} = this.serializers.json_json;
+                    variable.value = deserialize(data);
+                } else if ('customType' in data) {
+                    if (!data.customType) {
+                        const {deserialize} = this.serializers.json_json;
+                        variable.value = deserialize(data.serialized);
+                    } else if (data.typeId in this.serializers) {
+                        const {deserialize} = this.serializers[data.typeId];
+                        variable.value = deserialize(data.serialized, target);
+                    } else {
+                        throw new Error(`Unknown custom serializer with id: ${data.typeId}`);
+                    }
+                } else {
+                    const {deserialize} = this.serializers.json_json;
+                    variable.value = deserialize(data);
+                }
+            }
+        }
         this.emit(Runtime.PROJECT_LOADED);
         this.resetRunId();
     }
