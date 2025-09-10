@@ -544,7 +544,7 @@ class Runtime extends EventEmitter {
                     typeof value === 'string' ||
                     typeof value === 'boolean'
                 ),
-                serialize: (value, target) => {
+                serialize: value => {
                     const indexes = [];
                     let run = true;
                     let startI = 0;
@@ -569,7 +569,7 @@ class Runtime extends EventEmitter {
                                     rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = {
                                         customType: true,
                                         typeId: obj[i].customId,
-                                        serialized: serialize(obj[i], target)
+                                        serialized: serialize(obj[i])
                                     };
                                 } else {
                                     throw new Error(`Unknown custom serializer with id: ${obj[i].customId}`);
