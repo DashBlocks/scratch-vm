@@ -539,6 +539,11 @@ class Runtime extends EventEmitter {
         this.serializers = {
             // Not actual a custom serializer, but it needed for serializing/deserializing Object/Array
             json_json: {
+                isValueSafeForSerializedJSON: value => (
+                    typeof value === 'number' ||
+                    typeof value === 'string' ||
+                    typeof value === 'boolean'
+                ),
                 serialize: (value, target) => {
                     const indexes = [];
                     let run = true;
@@ -549,19 +554,15 @@ class Runtime extends EventEmitter {
                         obj = Array.isArray(obj) ? obj : Object.values(obj);
                         let i = startI
                         while (i < obj.length) {
-                            if (!(typeof obj[i] === 'object' && obj[i] instanceof Object)) {
-                                i++;
-                                continue;
-                            }
                             if (Array.isArray(obj[i])) {
                                 startI = 0;
                                 indexes.push(i);
                                 break;
-                            } else if (obj[i].constructor?.prototype === Object.prototype) {
+                            } else if (obj[i]?.constructor?.prototype === Object.prototype) {
                                 startI = 0;
                                 indexes.push(i);
                                 break;
-                            } else if (typeof obj[i].customId === 'string') {
+                            } else if (typeof obj[i]?.customId === 'string') {
                                 if (obj[i].customId in this.serializers) {
                                     const {serialize} = this.serializers[obj[i].customId];
                                     let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
@@ -573,6 +574,9 @@ class Runtime extends EventEmitter {
                                 } else {
                                     throw new Error(`Unknown custom serializer with id: ${obj[i].customId}`);
                                 }
+                            } else if (!this.serializers.json_json.isValueSafeForSerializedJSON(obj[i])) {
+                                let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = String(obj[i]);
                             }
                             i++;
                         }
