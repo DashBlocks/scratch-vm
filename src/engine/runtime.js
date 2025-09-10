@@ -533,6 +533,12 @@ class Runtime extends EventEmitter {
         this.extensionStorage = {};
 
         /**
+         * List of all custom serializers.
+         * @type {Object.<string, object>}
+         */
+        this.serializers = {};
+
+        /**
          * Total number of scratch-storage load() requests since the runtime was created or cleared.
          */
         this.totalAssetRequests = 0;
@@ -1999,6 +2005,25 @@ class Runtime extends EventEmitter {
 
         fetchWithTimeout.setFetch(storage.scratchFetch.scratchFetch);
         this.resetRunId();
+    }
+
+    /**
+     * Registers a custom serializer to allow saving custom data into standard variables
+     * @param {string} id The id of a custom serializer
+     * @param {Function} serialize The function to be ran on serialized data in variables.
+     * @param {Function} deserialize The function to be ran on serialized data in variables
+     */
+    registerSerializer (id, serialize, deserialize) {
+        if (typeof serialize !== 'function') {
+            throw new TypeError('Serialize must be of type function');
+        }
+        if (typeof deserialize !== 'function') {
+            throw new TypeError('Deserialize must be of type function');
+        }
+        this.serializers[id] = {
+            serialize,
+            deserialize
+        };
     }
 
     // -----------------------------------------------------------------------------
