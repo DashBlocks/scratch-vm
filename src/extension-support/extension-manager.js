@@ -12,7 +12,7 @@ const SecurityManager = require('./tw-security-manager');
 const defaultBuiltinExtensions = {
     // This is an example that isn't loaded with the other core blocks,
     // but serves as a reference for loading core blocks as extensions.
-    coreExample: () => require('../blocks/scratch3_core_example'),
+    coreExample: () => require('../extensions/dash_core_example'),
     // These are the non-core built-in extensions.
     pen: () => require('../extensions/scratch3_pen'),
     wedo2: () => require('../extensions/scratch3_wedo2'),
