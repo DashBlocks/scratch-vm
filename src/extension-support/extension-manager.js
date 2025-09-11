@@ -5,6 +5,8 @@ const maybeFormatMessage = require('../util/maybe-format-message');
 const BlockType = require('./block-type');
 const SecurityManager = require('./tw-security-manager');
 
+const enableCoreEx = (new URLSearchParams(location.search)).has('enabletests');
+
 // These extensions are currently built into the VM repository but should not be loaded at startup.
 // TODO: move these out into a separate repository?
 // TODO: change extension spec so that library info, including extension ID, can be collected through static methods
@@ -130,6 +132,10 @@ class ExtensionManager {
         dispatch.setService('extensions', createExtensionService(this)).catch(e => {
             log.error(`ExtensionManager was unable to register extension service: ${JSON.stringify(e)}`);
         });
+
+        if (enableCoreEx) {
+            this.loadExtensionIdSync('coreExample');
+        }
     }
 
     /**
