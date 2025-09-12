@@ -489,30 +489,33 @@ const serializeSound = function (sound) {
 const isVariableValueSafeForJSON = value => (
     typeof value === 'number' ||
     typeof value === 'string' ||
-    typeof value === 'boolean' ||
-    (typeof value === 'object' && value instanceof Object)
+    typeof value === 'boolean'
 );
-const makeSafeForJSON = value => {
+const makeSafeForJSON = (runtime, value) => {
     if (Array.isArray(value)) {
-        let copy = null;
-        for (let i = 0; i < value.length; i++) {
-            if (!isVariableValueSafeForJSON(value[i])) {
-                if (!copy) {
-                    // Only copy the list when needed
-                    copy = value.slice();
-                }
-                copy[i] = `${copy[i]}`;
-            }
+        const {serialize} = runtime.serializers.json_json;
+        return serialize(value);
+    } else if (value?.constructor?.prototype === Object.prototype) {
+        const {serialize} = runtime.serializers.json_json;
+        return {
+            customType: false,
+            serialized: serialize(value)
+        };
+    } else if (typeof value?.customId === 'string') {
+        if (value.customId in runtime.serializers) {
+            const {serialize} = runtime.serializers[value.customId];
+            return {
+                customType: true,
+                typeId: value.customId,
+                serialized: serialize(value)
+            };
+        } else {
+            throw new Error(`Unknown custom serializer with id: ${value.customId}`);
         }
-        if (copy) {
-            return copy;
-        }
-        return value;
+    } else if (!isVariableValueSafeForJSON(value)) {
+        return String(value);
     }
-    if (isVariableValueSafeForJSON(value)) {
-        return value;
-    }
-    return `${value}`;
+    return value;
 };
 
 /**
@@ -522,7 +525,7 @@ const makeSafeForJSON = value => {
  * separated by type to compress the representation of each given variable and
  * reduce duplicate information.
  */
-const serializeVariables = function (variables) {
+const serializeVariables = function (runtime, variables) {
     const obj = Object.create(null);
     // separate out variables into types at the top level so we don't have
     // keep track of a type for each
@@ -536,12 +539,12 @@ const serializeVariables = function (variables) {
             continue;
         }
         if (v.type === Variable.LIST_TYPE) {
-            obj.lists[varId] = [v.name, makeSafeForJSON(v.value)];
+            obj.lists[varId] = [v.name, makeSafeForJSON(runtime, v.value)];
             continue;
         }
 
         // otherwise should be a scalar type
-        obj.variables[varId] = [v.name, makeSafeForJSON(v.value)];
+        obj.variables[varId] = [v.name, makeSafeForJSON(runtime, v.value)];
         // only scalar vars have the potential to be cloud vars
         if (v.isCloud) obj.variables[varId].push(true);
     }
@@ -584,12 +587,12 @@ const serializeComments = function (comments) {
  * @param {Set} extensions A set of extensions to add extension IDs to
  * @return {object} A serialized representation of the given target.
  */
-const serializeTarget = function (target, extensions) {
+const serializeTarget = function (runtime, target, extensions) {
     const obj = Object.create(null);
     let targetExtensions = [];
     obj.isStage = target.isStage;
     obj.name = obj.isStage ? 'Stage' : target.name;
-    const vars = serializeVariables(target.variables);
+    const vars = serializeVariables(runtime, target.variables);
     obj.variables = vars.variables;
     obj.lists = vars.lists;
     obj.broadcasts = vars.broadcasts;
@@ -735,7 +738,7 @@ const serialize = function (runtime, targetId, {allowOptimization = true} = {}) 
         });
     }
 
-    const serializedTargets = flattenedOriginalTargets.map(t => serializeTarget(t, extensions))
+    const serializedTargets = flattenedOriginalTargets.map(t => serializeTarget(runtime, t, extensions))
         .map((serialized, index) => {
             // can't serialize extensionStorage until the list of used extensions is fully known
             const target = originalTargetsToSerialize[index];

@@ -533,6 +533,119 @@ class Runtime extends EventEmitter {
         this.extensionStorage = {};
 
         /**
+         * List of all custom serializers.
+         * @type {Object.<string, object>}
+         */
+        this.serializers = {
+            // Not actual a custom serializer, but it needed for serializing/deserializing Object/Array
+            json_json: {
+                isValueSafeForSerializedJSON: value => (
+                    typeof value === 'number' ||
+                    typeof value === 'string' ||
+                    typeof value === 'boolean'
+                ),
+                serialize: value => {
+                    const indexes = [];
+                    let run = true;
+                    let startI = 0;
+                    while (run) {
+                        let obj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                        let objIsArray = Array.isArray(obj);
+                        obj = Array.isArray(obj) ? obj : Object.values(obj);
+                        let i = startI
+                        while (i < obj.length) {
+                            if (Array.isArray(obj[i])) {
+                                startI = 0;
+                                indexes.push(i);
+                                break;
+                            } else if (obj[i]?.constructor?.prototype === Object.prototype) {
+                                startI = 0;
+                                indexes.push(i);
+                                break;
+                            } else if (typeof obj[i]?.customId === 'string') {
+                                if (obj[i].customId in this.serializers) {
+                                    const {serialize} = this.serializers[obj[i].customId];
+                                    let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                    rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = {
+                                        customType: true,
+                                        typeId: obj[i].customId,
+                                        serialized: serialize(obj[i])
+                                    };
+                                } else {
+                                    throw new Error(`Unknown custom serializer with id: ${obj[i].customId}`);
+                                }
+                            } else if (!this.serializers.json_json.isValueSafeForSerializedJSON(obj[i])) {
+                                let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = String(obj[i]);
+                            }
+                            i++;
+                        }
+                        if (indexes.length > 0 && i >= obj.length) {
+                            if (!objIsArray) {
+                                let rawObj = indexes.toSpliced(indexes.length - 1, 1).reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                rawObj[Array.isArray(rawObj) ? indexes[indexes.length - 1] : Object.keys(rawObj)[indexes[indexes.length - 1]]] = {
+                                    customType: false,
+                                    serialized: rawObj[Array.isArray(rawObj) ? indexes[indexes.length - 1] : Object.keys(rawObj)[indexes[indexes.length - 1]]]
+                                };
+                            }
+                            startI = indexes[indexes.length - 1] + 1;
+                            indexes.splice(indexes.length - 1, 1);
+                        } else if (i >= obj.length) {
+                            run = false;
+                        }
+                    }
+                    return value;
+                },
+                deserialize: (value, target) => {
+                    const indexes = [];
+                    let run = true;
+                    let startI = 0;
+                    while (run) {
+                        let obj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                        obj = Array.isArray(obj) ? obj : Object.values(obj);
+                        let i = startI
+                        while (i < obj.length) {
+                            if (!(typeof obj[i] === 'object' && obj[i] instanceof Object)) {
+                                i++;
+                                continue;
+                            }
+                            if (Array.isArray(obj[i])) {
+                                startI = 0;
+                                indexes.push(i);
+                                break;
+                            } else if ('customType' in obj[i]) {
+                                if (!obj[i].customType) {
+                                    rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = obj[i].serialized;
+                                    startI = 0;
+                                    indexes.push(i);
+                                    break;
+                                } else if (obj[i].typeId in this.serializers) {
+                                    const {deserialize} = this.serializers[obj[i].typeId];
+                                    let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                    rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = deserialize(obj[i].serialized, target);
+                                } else {
+                                    throw new Error(`Unknown custom serializer with id: ${obj[i].typeId}`);
+                                }
+                            } else {
+                                startI = 0;
+                                indexes.push(i);
+                                break;
+                            }
+                            i++;
+                        }
+                        if (indexes.length > 0 && i >= obj.length) {
+                            startI = indexes[indexes.length - 1] + 1;
+                            indexes.splice(indexes.length - 1, 1);
+                        } else if (i >= obj.length) {
+                            run = false;
+                        }
+                    }
+                    return value;
+                }
+            }
+        };
+
+        /**
          * Total number of scratch-storage load() requests since the runtime was created or cleared.
          */
         this.totalAssetRequests = 0;
@@ -2001,6 +2114,25 @@ class Runtime extends EventEmitter {
         this.resetRunId();
     }
 
+    /**
+     * Registers a custom serializer to allow saving custom data into standard variables
+     * @param {string} id The id of a custom serializer
+     * @param {Function} serialize The function to be ran on serialized data in variables.
+     * @param {Function} deserialize The function to be ran on serialized data in variables
+     */
+    registerSerializer (id, serialize, deserialize) {
+        if (typeof serialize !== 'function') {
+            throw new TypeError('Serialize must be of type function');
+        }
+        if (typeof deserialize !== 'function') {
+            throw new TypeError('Deserialize must be of type function');
+        }
+        this.serializers[id] = {
+            serialize,
+            deserialize
+        };
+    }
+
     // -----------------------------------------------------------------------------
     // -----------------------------------------------------------------------------
 
@@ -3099,7 +3231,7 @@ class Runtime extends EventEmitter {
      */
     visualReport (target, blockId, value) {
         if (target === this.getEditingTarget()) {
-            this.emit(Runtime.VISUAL_REPORT, {id: blockId, value: String(value)});
+            this.emit(Runtime.VISUAL_REPORT, {id: blockId, value: value});
         }
     }
 
@@ -3242,9 +3374,37 @@ class Runtime extends EventEmitter {
     }
 
     /**
-     * Handle that the project has loaded in the Virtual Machine.
+     * Report that the project has loaded in the Virtual Machine.
+     * and also handle the parsing of custom values to allow for
+     * minimal code when making cross-target refences
      */
     handleProjectLoaded () {
+        for (const target of this.targets) {
+            for (const varId in target.variables) {
+                const variable = target.variables[varId];
+                if (!(typeof variable.value === "object" && variable.value instanceof Object)) {
+                    continue;
+                }
+                const data = variable.value;
+                if (Array.isArray(data)) {
+                    const {deserialize} = this.serializers.json_json;
+                    variable.value = deserialize(data);
+                } else if ('customType' in data) {
+                    if (!data.customType) {
+                        const {deserialize} = this.serializers.json_json;
+                        variable.value = deserialize(data.serialized, target);
+                    } else if (data.typeId in this.serializers) {
+                        const {deserialize} = this.serializers[data.typeId];
+                        variable.value = deserialize(data.serialized, target);
+                    } else {
+                        throw new Error(`Unknown custom serializer with id: ${data.typeId}`);
+                    }
+                } else {
+                    const {deserialize} = this.serializers.json_json;
+                    variable.value = deserialize(data);
+                }
+            }
+        }
         this.emit(Runtime.PROJECT_LOADED);
         this.resetRunId();
     }
