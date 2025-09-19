@@ -75,10 +75,12 @@ class DashCoreExample {
             id: 'coreExample',
             name: 'Dash Core Example', // This string does not need to be translated as this extension is only used as an example.
             blocks: [
+                /*
                 {
                     blockType: BlockType.XML,
                     xml: "<sep gap='6'/><label text='Warning: Don't use these blocks'/><sep gap='-12'/><label text='for real projects!'/><sep gap='24'/>",
                 },
+                */
                 {
                     func: 'MAKE_A_VARIABLE',
                     blockType: BlockType.BUTTON,
