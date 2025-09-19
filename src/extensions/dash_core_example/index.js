@@ -16,7 +16,7 @@ class ExampleDataType {
     toMonitorContent () {
         let el = document.createElement('span');
         el.textContent = this.value;
-        el.style.color = "#00ff00";
+        el.style.color = "#abffab";
         return el;
     }
 
@@ -30,7 +30,7 @@ class ExampleDataType {
     toListItem () {
         let el = document.createElement('span');
         el.textContent = this.value;
-        el.style.color = "#00ff00";
+        el.style.color = "#abffab";
         return el;
     }
 
