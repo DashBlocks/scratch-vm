@@ -77,7 +77,7 @@ class DashCoreExample {
             blocks: [
                 {
                     blockType: BlockType.LABEL,
-                    text: "Warning: Don't use these blocks for real projects!",
+                    text: "Warning: Don't use these blocks\nfor real projects!",
                 },
                 {
                     func: 'MAKE_A_VARIABLE',
