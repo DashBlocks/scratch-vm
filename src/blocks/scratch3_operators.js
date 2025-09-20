@@ -132,12 +132,11 @@ class Scratch3OperatorsBlocks {
 
     typeof (args) {
         const value = args.VALUE;
-        const lowerCase = Cast.toString(value).toLowerCase()
-        // typeof returns 'object' for null
         if (value === null) return 'null';
         if (Array.isArray(value)) return 'array';
-        if (typeof value === "object" && value instanceof Object && !Array.isArray(value)) return 'object';
-        if (lowerCase == 'true' || lowerCase == 'false') return 'boolean';
+        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+            return {customType: true, typeId: value.customId};
+        }
         return typeof value;
     }
 
@@ -171,14 +170,14 @@ class Scratch3OperatorsBlocks {
                 return false;
             }
             case 'array': {
-                // typeof returns 'object' for null
-                if (value == null) return false;
-                return (typeof value == 'object' && Array.isArray(value));
+                return Array.isArray(value);
             }
             case 'object': {
-                // typeof returns 'object' for null
-                if (value == null) return false;
-                return typeof value === "object" && value instanceof Object && !Array.isArray(value);
+                return !(value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') &&
+                    typeof value === 'object' && value instanceof Object && !Array.isArray(value);
+            }
+            case 'custom type': {
+                return value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string';
             }
             default:
                 return false;
