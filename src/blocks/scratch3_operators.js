@@ -183,27 +183,11 @@ class Scratch3OperatorsBlocks {
                 return false;
         }
     }
-
     isString (args) {
-        const number = Cast.toNumber(args.STRING);
-        const string = Cast.toString(args.STRING);
-        if (number == 0 && (args.STRING != '0' && args.STRING != '-0')) {
-            if (Cast.isWhiteSpace(string)) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
+        return this.isType({VALUE: args.STRING, TYPE: 'string'});
     }
-
     isNumber (args) {
-        if (typeof args.NUM == 'number') return true;
-        const number = Cast.toNumber(args.NUM);
-        if (number == 0 && (args.NUM != '0' && args.NUM != '-0')) {
-            return false;
-        }
-        return true;
+        return this.isType({VALUE: args.NUM, TYPE: 'number'});
     }
 
     cast (args) {
