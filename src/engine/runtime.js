@@ -614,6 +614,7 @@ class Runtime extends EventEmitter {
                                 indexes.push(i);
                                 break;
                             } else if ('customType' in obj[i]) {
+                                let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
                                 if (!obj[i].customType) {
                                     rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = obj[i].serialized;
                                     startI = 0;
@@ -621,7 +622,6 @@ class Runtime extends EventEmitter {
                                     break;
                                 } else if (obj[i].typeId in this.serializers) {
                                     const {deserialize} = this.serializers[obj[i].typeId];
-                                    let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
                                     rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = deserialize(obj[i].serialized, target);
                                 } else {
                                     throw new Error(`Unknown custom serializer with id: ${obj[i].typeId}`);
