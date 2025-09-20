@@ -47,7 +47,7 @@
     "format-message": "6.2.1",
     "htmlparser2": "3.10.0",
     "immutable": "3.8.2",
-    "scratch-parser": "github:TurboWarp/scratch-parser#master",
+    "scratch-parser": "github:DashBlocks/scratch-parser#master",
     "scratch-sb1-converter": "0.2.7",
     "scratch-translate-extension-languages": "0.0.20191118205314",
     "text-encoding": "0.7.0",
