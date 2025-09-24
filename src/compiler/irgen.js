@@ -284,6 +284,15 @@ class ScriptTreeGenerator {
             };
         }
 
+        case 'looks_isvisible':
+            return {
+                kind: 'looks.isvisible'
+            };
+        case 'looks_geteffect':
+            return {
+                kind: 'looks.geteffect',
+                effect: block.fields.EFFECT.value
+            };
         case 'looks_backdropnumbername':
             if (block.fields.NUMBER_NAME.value === 'number') {
                 return {
