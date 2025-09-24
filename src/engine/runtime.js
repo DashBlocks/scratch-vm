@@ -544,28 +544,33 @@ class Runtime extends EventEmitter {
                     typeof value === 'string' ||
                     typeof value === 'boolean'
                 ),
+                valueByPath: (json, path) => path.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], json),
                 serialize: value => {
+                    const jsonSerializer = this.serializers.json_json;
+                    const result = Array.isArray(value) ? [] : {};
                     const indexes = [];
                     let run = true;
                     let startI = 0;
                     while (run) {
-                        let obj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                        let obj = jsonSerializer.valueByPath(value, indexes);
                         let objIsArray = Array.isArray(obj);
-                        obj = Array.isArray(obj) ? obj : Object.values(obj);
+                        obj = objIsArray ? obj : Object.values(obj);
                         let i = startI
                         while (i < obj.length) {
+                            let rawObj = jsonSerializer.valueByPath(result, indexes);
                             if (Array.isArray(obj[i])) {
+                                rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = [];
                                 startI = 0;
                                 indexes.push(i);
                                 break;
                             } else if (obj[i]?.constructor?.prototype === Object.prototype) {
+                                rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = {};
                                 startI = 0;
                                 indexes.push(i);
                                 break;
                             } else if (typeof obj[i]?.customId === 'string') {
                                 if (obj[i].customId in this.serializers) {
                                     const {serialize} = this.serializers[obj[i].customId];
-                                    let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
                                     rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = {
                                         customType: true,
                                         typeId: obj[i].customId,
@@ -574,15 +579,16 @@ class Runtime extends EventEmitter {
                                 } else {
                                     throw new Error(`Unknown custom serializer with id: ${obj[i].customId}`);
                                 }
-                            } else if (!this.serializers.json_json.isValueSafeForSerializedJSON(obj[i])) {
-                                let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                            } else if (!jsonSerializer.isValueSafeForSerializedJSON(obj[i])) {
                                 rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = String(obj[i]);
+                            } else {
+                                rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = obj[i];
                             }
                             i++;
                         }
                         if (indexes.length > 0 && i >= obj.length) {
                             if (!objIsArray) {
-                                let rawObj = indexes.toSpliced(indexes.length - 1, 1).reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                let rawObj = jsonSerializer.valueByPath(result, indexes.toSpliced(indexes.length - 1, 1));
                                 rawObj[Array.isArray(rawObj) ? indexes[indexes.length - 1] : Object.keys(rawObj)[indexes[indexes.length - 1]]] = {
                                     customType: false,
                                     serialized: rawObj[Array.isArray(rawObj) ? indexes[indexes.length - 1] : Object.keys(rawObj)[indexes[indexes.length - 1]]]
@@ -594,14 +600,15 @@ class Runtime extends EventEmitter {
                             run = false;
                         }
                     }
-                    return value;
+                    return result;
                 },
                 deserialize: (value, target) => {
+                    const jsonSerializer = this.serializers.json_json;
                     const indexes = [];
                     let run = true;
                     let startI = 0;
                     while (run) {
-                        let obj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                        let obj = jsonSerializer.valueByPath(value, indexes);
                         obj = Array.isArray(obj) ? obj : Object.values(obj);
                         let i = startI
                         while (i < obj.length) {
@@ -614,7 +621,7 @@ class Runtime extends EventEmitter {
                                 indexes.push(i);
                                 break;
                             } else if ('customType' in obj[i]) {
-                                let rawObj = indexes.reduce((acc, i) => Array.isArray(acc) ? acc[i] : acc[Object.keys(acc)[i]], value);
+                                let rawObj = jsonSerializer.valueByPath(value, indexes);
                                 if (!obj[i].customType) {
                                     rawObj[Array.isArray(rawObj) ? i : Object.keys(rawObj)[i]] = obj[i].serialized;
                                     startI = 0;
