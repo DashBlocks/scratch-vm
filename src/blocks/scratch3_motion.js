@@ -55,6 +55,10 @@ class Scratch3MotionBlocks {
                 isSpriteSpecific: true,
                 getId: targetId => `${targetId}_yposition`
             },
+            motion_position: {
+                isSpriteSpecific: true,
+                getId: targetId => `${targetId}_position`
+            },
             motion_direction: {
                 isSpriteSpecific: true,
                 getId: targetId => `${targetId}_direction`
