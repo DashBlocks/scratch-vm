@@ -477,6 +477,13 @@ class JSGenerator {
         case 'list.length':
             return new TypedInput(`${this.referenceVariable(node.list)}.value.length`, TYPE_NUMBER);
 
+        case 'looks.isvisible':
+            return new TypedInput('target.visible', TYPE_BOOLEAN);
+        case 'looks.geteffect':
+            if (Object.prototype.hasOwnProperty.call(this.target.effects, node.effect)) {
+                return new TypedInput(`target.effects["${sanitize(node.effect)}"]`, TYPE_NUMBER);
+            }
+            return new TypedInput('""', TYPE_STRING);
         case 'looks.size':
             return new TypedInput('Math.round(target.size)', TYPE_NUMBER);
         case 'looks.backdropName':
@@ -532,14 +539,14 @@ class JSGenerator {
             const args = `
             "VALUE":${this.descendInput(node.value).asUnknown()}
             `;
-            return new TypedInput(`runtime.ext_scratch3_operators.typeof({${args}})`, TYPE_BOOLEAN);
+            return new TypedInput(`runtime.ext_scratch3_operators.typeof({${args}})`, TYPE_UNKNOWN);
         }
         case 'op.isType': {
             const args = `
             "VALUE":${this.descendInput(node.value).asUnknown()},
             "TYPE":"${sanitize(node.type)}"
             `;
-            return new TypedInput(`runtime.ext_scratch3_operators.isType({${args}})`, TYPE_UNKNOWN);
+            return new TypedInput(`runtime.ext_scratch3_operators.isType({${args}})`, TYPE_BOOLEAN);
         }
         case 'op.isString': {
             const args = `
