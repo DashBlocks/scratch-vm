@@ -787,8 +787,12 @@ class JSGenerator {
                         return new TypedInput(`(${objectReference} ? ${objectReference}.x : 0)`, TYPE_NUMBER);
                     case 'y position':
                         return new TypedInput(`(${objectReference} ? ${objectReference}.y : 0)`, TYPE_NUMBER);
+                    case 'position':
+                        return new TypedInput(`(${objectReference} ? [${objectReference}.x, ${objectReference}.y] : 0)`, TYPE_UNKNOWN);
                     case 'direction':
                         return new TypedInput(`(${objectReference} ? ${objectReference}.direction : 0)`, TYPE_NUMBER);
+                    case 'visibility':
+                        return new TypedInput(`(${objectReference} ? ${objectReference}.visible : 0)`, TYPE_UNKNOWN);
                     case 'costume #':
                         return new TypedInput(`(${objectReference} ? ${objectReference}.currentCostume + 1 : 0)`, TYPE_NUMBER);
                     case 'costume name':
