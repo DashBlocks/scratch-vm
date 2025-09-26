@@ -27,6 +27,13 @@ class ExampleDataType {
         return el;
     }
 
+    toReporterJSONItem () {
+        let el = document.createElement('span');
+        el.textContent = this.value;
+        el.style.color = "#0088ff";
+        return el;
+    }
+
     toListItem () {
         let el = document.createElement('span');
         el.textContent = this.value;
