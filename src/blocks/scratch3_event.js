@@ -90,7 +90,30 @@ class Scratch3EventBlocks {
     }
 
     open (args) {
-        window.open(args.OPEN_INPUT, args.OPEN_OPTION == 'this tab' ? '_self' : '_blank');
+        const parsed = parseURL(args.OPEN_INPUT);
+        if (!parsed) return;
+        // Always reject protocols that would allow code execution.
+        // eslint-disable-next-line no-script-url
+        if (parsed.protocol === 'javascript:') return;
+        switch (args.OPEN_OPTION) {
+            case 'new tab': {
+                return new Promise(resolve => {
+                    if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
+                        // Use noreferrer to prevent new tab from accessing `window.opener`
+                        window.open(parsed.href, '_blank', 'noreferrer');
+                    }
+                    resolve();
+                });
+            }
+            case 'this tab': {
+                return new Promise(resolve => {
+                    if (await this.runtime.extensionManager.vm.securityManager.canRedirect(parsed.href)) {
+                        location.href = parsed.href;
+                    }
+                    resolve();
+                });
+            }
+        }
     }
 
     broadcast (args, util) {
