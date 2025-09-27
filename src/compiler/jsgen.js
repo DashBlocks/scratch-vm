@@ -480,7 +480,7 @@ class JSGenerator {
         case 'looks.isvisible':
             return new TypedInput('target.visible', TYPE_BOOLEAN);
         case 'looks.geteffect':
-            if (Object.prototype.hasOwnProperty.call(this.target.effects, node.effect)) {
+            if (this.evaluateOnce(`Object.prototype.hasOwnProperty.call(target.effects, "${sanitize(node.effect)}")`)) {
                 return new TypedInput(`target.effects["${sanitize(node.effect)}"]`, TYPE_NUMBER);
             }
             return new TypedInput('""', TYPE_STRING);
