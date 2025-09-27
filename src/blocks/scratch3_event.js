@@ -89,7 +89,7 @@ class Scratch3EventBlocks {
         return false;
     }
 
-    open (args) {
+    async open (args) {
         const parsed = parseURL(args.OPEN_LINK);
         if (!parsed) return;
         // Always reject protocols that would allow code execution.
@@ -97,7 +97,7 @@ class Scratch3EventBlocks {
         if (parsed.protocol === 'javascript:') return;
         switch (args.OPEN_OPTION) {
             case 'new tab': {
-                return new Promise(resolve => {
+                return new Promise(async resolve => {
                     if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
                         // Use noreferrer to prevent new tab from accessing `window.opener`
                         window.open(parsed.href, '_blank', 'noreferrer');
@@ -106,7 +106,7 @@ class Scratch3EventBlocks {
                 });
             }
             case 'this tab': {
-                return new Promise(resolve => {
+                return new Promise(async resolve => {
                     if (await this.runtime.extensionManager.vm.securityManager.canRedirect(parsed.href)) {
                         location.href = parsed.href;
                     }
