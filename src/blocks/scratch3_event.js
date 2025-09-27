@@ -90,7 +90,7 @@ class Scratch3EventBlocks {
     }
 
     open (args) {
-        const parsed = parseURL(args.OPEN_INPUT);
+        const parsed = parseURL(args.OPEN_LINK);
         if (!parsed) return;
         // Always reject protocols that would allow code execution.
         // eslint-disable-next-line no-script-url
