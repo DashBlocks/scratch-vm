@@ -6,6 +6,7 @@
 // Please keep these lists alphabetical.
 
 const stacked = [
+    'event_open',
     'looks_changestretchby',
     'looks_hideallsprites',
     'looks_say',
