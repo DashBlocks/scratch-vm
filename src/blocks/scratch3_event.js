@@ -90,7 +90,12 @@ class Scratch3EventBlocks {
     }
 
     async open (args) {
-        const parsed = parseURL(args.OPEN_LINK);
+        let parsed;
+        try {
+            parsed = new URL(args.OPEN_LINK, location.href);
+        } catch {
+            return;
+        }
         if (!parsed) return;
         // Always reject protocols that would allow code execution.
         // eslint-disable-next-line no-script-url
