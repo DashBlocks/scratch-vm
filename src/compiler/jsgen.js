@@ -480,10 +480,7 @@ class JSGenerator {
         case 'looks.isvisible':
             return new TypedInput('target.visible', TYPE_BOOLEAN);
         case 'looks.geteffect':
-            if (this.evaluateOnce(`Object.prototype.hasOwnProperty.call(target.effects, "${sanitize(node.effect)}")`)) {
-                return new TypedInput(`target.effects["${sanitize(node.effect)}"]`, TYPE_NUMBER);
-            }
-            return new TypedInput('""', TYPE_STRING);
+            return new TypedInput(`target.effects["${sanitize(node.effect)}"] || 0`, TYPE_NUMBER);
         case 'looks.size':
             return new TypedInput('Math.round(target.size)', TYPE_NUMBER);
         case 'looks.backdropName':
