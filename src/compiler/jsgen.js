@@ -1135,7 +1135,7 @@ class JSGenerator {
         case 'event.open': {
             const args = `
             "OPEN_LINK":${this.descendInput(node.link).asString()},
-            "OPEN_OPTION":${this.descendInput(node.option).asString()}
+            "OPEN_OPTION":"${sanitize(node.option)}"
             `;
             this.source += `runtime.ext_scratch3_event.open({${args}});\n`;
             break;
