@@ -573,7 +573,7 @@ class Scratch3LooksBlocks {
     getEffect (args, util) {
         const effect = Cast.toString(args.EFFECT).toLowerCase();
         if (!Object.prototype.hasOwnProperty.call(util.target.effects, effect)) return '';
-        return Cast.toNumber(util.target.effects[effect]);
+        return util.target.effects[effect];
     }
 
     changeSize (args, util) {
