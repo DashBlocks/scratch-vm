@@ -25,6 +25,7 @@ class Scratch3EventBlocks {
     getPrimitives () {
         return {
             event_whentouchingobject: this.touchingObject,
+            event_open: this.open,
             event_broadcast: this.broadcast,
             event_broadcastandwait: this.broadcastAndWait,
             event_when: this.when,
@@ -86,6 +87,10 @@ class Scratch3EventBlocks {
             return this.runtime.audioEngine && this.runtime.audioEngine.getLoudness() > value;
         }
         return false;
+    }
+
+    open (args) {
+        window.open(args.OPEN_INPUT, args.OPEN_OPTION == 'this tab' ? '_self' : '_blank');
     }
 
     broadcast (args, util) {

@@ -1132,6 +1132,14 @@ class JSGenerator {
             this.isInHat = false;
             break;
 
+        case 'event.open': {
+            const args = `
+            "OPEN_LINK":${this.descendInput(node.link).asString()},
+            "OPEN_OPTION":${this.descendInput(node.option).asString()}
+            `;
+            this.source += `runtime.ext_scratch3_event.open({${args}});\n`;
+            break;
+        }
         case 'event.broadcast':
             this.source += `startHats("event_whenbroadcastreceived", { BROADCAST_OPTION: ${this.descendInput(node.broadcast).asString()} });\n`;
             this.resetVariableInputs();

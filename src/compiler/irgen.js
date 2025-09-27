@@ -1119,6 +1119,12 @@ class ScriptTreeGenerator {
                 variable: this.descendVariable(block, 'VARIABLE', SCALAR_TYPE)
             };
 
+        case 'event_open':
+            return {
+                kind: 'event.open',
+                link: this.descendInputOfBlock(block, 'OPEN_LINK'),
+                option: block.fields.OPEN_OPTION.value
+            };
         case 'event_broadcast':
             return {
                 kind: 'event.broadcast',
