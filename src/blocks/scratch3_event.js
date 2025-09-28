@@ -113,7 +113,17 @@ class Scratch3EventBlocks {
             case 'this tab': {
                 return new Promise(async resolve => {
                     if (await this.runtime.extensionManager.vm.securityManager.canRedirect(parsed.href)) {
-                        location.href = parsed.href;
+                        // Use noreferrer to prevent new tab from accessing `window.opener`
+                        window.open(parsed.href, '_self', 'noreferrer');
+                    }
+                    resolve();
+                });
+            }
+            case 'new window': {
+                return new Promise(async resolve => {
+                    if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
+                        // Use noreferrer to prevent new tab from accessing `window.opener`
+                        window.open(parsed.href, '_blank', 'noreferrer,menubar=no');
                     }
                     resolve();
                 });
