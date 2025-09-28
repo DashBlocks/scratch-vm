@@ -113,8 +113,7 @@ class DashJSONBlocks {
         if (index === Cast.LIST_INVALID) {
             return array;
         }
-        array[index] = item;
-        return array;
+        return [...array.slice(0, index - 1), item, ...array.slice(index - 1)];
     }
 
     objectEmpty () {
@@ -158,15 +157,15 @@ class DashJSONBlocks {
         const object = Cast.toObject(args.OBJECT);
         const key = Cast.toString(args.KEY);
         const item = args.ITEM;
-        object[key] = item;
-        return object;
+        return {...object, [key]: item};
     }
 
     objectDelete (args) {
         const object = Cast.toObject(args.OBJECT);
         const key = Cast.toString(args.KEY);
-        delete object[key];
-        return object;
+        const clonedObject = {...object};
+        delete clonedObject[key];
+        return clonedObject;
     }
 
     objectEntries (args) {
