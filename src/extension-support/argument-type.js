@@ -14,6 +14,16 @@ const ArgumentType = {
     BOOLEAN: 'Boolean',
 
     /**
+     * Array value with square placeholder
+     */
+    ARRAY: 'Array',
+
+    /**
+     * Object value with square (currently) placeholder
+     */
+    OBJECT: 'Object',
+
+    /**
      * Numeric value with color picker
      */
     COLOR: 'color',

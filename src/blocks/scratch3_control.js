@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const {isPaused, setPaused} = require('../../../../src/addons/addons/debugger/module');
 
 class Scratch3ControlBlocks {
     constructor (runtime) {
@@ -15,6 +16,9 @@ class Scratch3ControlBlocks {
         this._counter = 0; // used by compiler
 
         this.runtime.on('RUNTIME_DISPOSED', this.clearCounter.bind(this));
+
+        // Check if the pause button exists, we will use that if availiable
+        this.pauseButton = document.querySelector(typeof scaffolding !== "undefined" ? `[class*="pause-button"]` : "img.pause-btn.addons-display-none-pause");
     }
 
     /**
@@ -32,6 +36,10 @@ class Scratch3ControlBlocks {
             control_wait_until: this.waitUntil,
             control_if: this.if,
             control_if_else: this.ifElse,
+            control_if_then_else: this.ifThenElse,
+            control_resume: this.resume,
+            control_pause: this.pause,
+            control_is_paused: this.isPaused,
             control_stop: this.stop,
             control_create_clone_of: this.createClone,
             control_delete_this_clone: this.deleteClone,
@@ -135,6 +143,27 @@ class Scratch3ControlBlocks {
         } else {
             util.startBranch(2, false);
         }
+    }
+
+    ifThenElse (args, util) {
+        const condition = Cast.toBoolean(args.CONDITION);
+        return condition ? args.THEN : args.ELSE;
+    }
+
+    resume (args, util) {
+        try {
+            if (this.pauseButton) this.pauseButton.click();
+            else setPaused(false);
+        } catch {/* generator is running error - lies */}
+    }
+
+    pause (args, util) {
+        if (this.pauseButton) this.pauseButton.click();
+        else setPaused(true);
+    }
+
+    isPaused (args, util) {
+        return isPaused();
     }
 
     stop (args, util) {

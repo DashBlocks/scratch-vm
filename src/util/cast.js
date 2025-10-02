@@ -1,4 +1,5 @@
 const Color = require('../util/color');
+const ExtendedJSON = require('@turbowarp/json');
 
 /**
  * @fileoverview
@@ -92,7 +93,69 @@ class Cast {
      * @return {string} The Scratch-casted string value.
      */
     static toString (value) {
+        // Stringify JSON values
+        if (typeof value === 'object') {
+            return ExtendedJSON.stringify(value);
+        }
+        // Coerce other values
         return String(value);
+    }
+
+    /**
+     * Scratch cast to array.
+     * @param {*} value Value to cast to array.
+     * @return {Array} The Scratch-casted array value.
+     */
+    static toList (value) {
+        // Already an array?
+        if (Array.isArray(value)) {
+            return value;
+        }
+        try {
+            // Try to parse
+            const result = ExtendedJSON.parse(value);
+            return Array.isArray(result) ? result : [];
+        } catch {
+            return [];
+        }
+    }
+
+    /**
+     * Scratch cast to object.
+     * @param {*} value Value to cast to object.
+     * @return {Object} The Scratch-casted object value.
+     */
+    static toObject (value) {
+        // Already an object?
+        if (typeof value === 'object' && value instanceof Object && !Array.isArray(value)) {
+            return value;
+        }
+        try {
+            // Try to parse
+            const result = ExtendedJSON.parse(value);
+            return typeof result === 'object' && result instanceof Object && !Array.isArray(result) ? result : {};
+        } catch {
+            return {};
+        }
+    }
+
+    /**
+     * Scratch cast to array or object.
+     * @param {*} value Value to cast to array or object.
+     * @param {boolean} arrayIfFail Whether it should return an array instead of an object when parsing fails or not.
+     * @return {(Array|Object)} The Scratch-casted array or object value.
+     */
+    static toJSON (value, arrayIfFail) {
+        // Already an array or an object?
+        if (typeof value === 'object' && value instanceof Object) {
+            return value;
+        }
+        try {
+            // Try to parse
+            return ExtendedJSON.parse(value);
+        } catch {
+            return arrayIfFail ? [] : {};
+        }
     }
 
     /**

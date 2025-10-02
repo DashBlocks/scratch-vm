@@ -587,7 +587,7 @@ class VirtualMachine extends EventEmitter {
         return this._saveProjectZip().generateAsync({
             // Don't configure compression here. _saveProjectZip() will set it for each file.
             type: type || 'blob',
-            mimeType: 'application/x.scratch.sb3'
+            mimeType: 'application/x.dash.dbp'
         });
     }
 
@@ -599,7 +599,7 @@ class VirtualMachine extends EventEmitter {
     saveProjectSb3Stream (type) {
         return this._saveProjectZip().generateInternalStream({
             type: type || 'arraybuffer',
-            mimeType: 'application/x.scratch.sb3',
+            mimeType: 'application/x.dash.dbp',
             compression: 'DEFLATE'
         });
     }

@@ -28,9 +28,17 @@ class Scratch3OperatorsBlocks {
             operator_not: this.not,
             operator_random: this.random,
             operator_join: this.join,
+            operator_newline: this.newline,
             operator_letter_of: this.letterOf,
             operator_length: this.length,
             operator_contains: this.contains,
+            operator_typeof: this.typeof,
+            operator_is_type: this.isType,
+            operator_is_string: this.isString,
+            operator_is_number: this.isNumber,
+            operator_cast: this.cast,
+            operator_nums_in_range: this.numsInRange,
+            operator_in_range: this.inRange,
             operator_mod: this.mod,
             operator_round: this.round,
             operator_mathop: this.mathop
@@ -97,6 +105,10 @@ class Scratch3OperatorsBlocks {
         return Cast.toString(args.STRING1) + Cast.toString(args.STRING2);
     }
 
+    newline (args) {
+        return "\n";
+    }
+
     letterOf (args) {
         const index = Cast.toNumber(args.LETTER) - 1;
         const str = Cast.toString(args.STRING);
@@ -116,6 +128,106 @@ class Scratch3OperatorsBlocks {
             return Cast.toString(string).toLowerCase();
         };
         return format(args.STRING1).includes(format(args.STRING2));
+    }
+
+    typeof (args) {
+        const value = args.VALUE;
+        if (value === null) return 'null';
+        if (Array.isArray(value)) return 'array';
+        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+            return {customType: true, typeId: value.customId};
+        }
+        return typeof value;
+    }
+
+    isType (args) {
+        const value = args.VALUE;
+        switch (args.TYPE) {
+            case 'string': {
+                const number = Cast.toNumber(value);
+                const string = Cast.toString(value);
+                if (typeof value == 'string' && number == 0 && (value != '0' && value != '-0')) {
+                    if (Cast.isWhiteSpace(string)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            case 'number': {
+                if (typeof value == 'number') return true;
+                const number = Cast.toNumber(value);
+                if (number == 0 && (value != '0' && value != '-0')) {
+                    return false;
+                }
+                return true;
+            }
+            case 'boolean': {
+                if (typeof value == 'boolean') return true;
+                const lowerCase = Cast.toString(value).toLowerCase()
+                if ((lowerCase == 'true' || lowerCase == 'false') || (lowerCase == '0' || lowerCase == '1')) return true;
+                return false;
+            }
+            case 'array': {
+                return Array.isArray(value);
+            }
+            case 'object': {
+                return !(value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') &&
+                    typeof value === 'object' && value instanceof Object && !Array.isArray(value);
+            }
+            case 'custom type': {
+                return value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string';
+            }
+            default:
+                return false;
+        }
+    }
+    isString (args) {
+        return this.isType({VALUE: args.STRING, TYPE: 'string'});
+    }
+    isNumber (args) {
+        return this.isType({VALUE: args.NUM, TYPE: 'number'});
+    }
+
+    cast (args) {
+        const value = args.VALUE;
+        switch (args.TYPE) {
+            case 'string':
+                return Cast.toString(value);
+            case 'number':
+                return Cast.toNumber(value);
+            case 'boolean':
+                return Cast.toBoolean(value);
+            case 'array':
+                return Cast.toList(value);
+            case 'object':
+                return Cast.toObject(value);
+            default:
+                return value;
+        }
+    }
+
+    numsInRange (args) {
+        const from = Cast.toNumber(args.FROM);
+        const to = Cast.toNumber(args.TO);
+        const nums = [];
+        if (from > to) {
+            return nums;
+        }
+        for (let i = from; i <= to; i++) {
+            nums.push(i);
+        }
+        return nums;
+    }
+
+    inRange (args) {
+        const num = Cast.toNumber(args.NUM);
+        const from = Cast.toNumber(args.FROM);
+        const to = Cast.toNumber(args.TO);
+        const low = from <= to ? from : to;
+        const high = from <= to ? to : from;
+        return num >= low && num <= high;
     }
 
     mod (args) {

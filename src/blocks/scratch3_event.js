@@ -25,8 +25,10 @@ class Scratch3EventBlocks {
     getPrimitives () {
         return {
             event_whentouchingobject: this.touchingObject,
+            event_open: this.open,
             event_broadcast: this.broadcast,
             event_broadcastandwait: this.broadcastAndWait,
+            event_when: this.when,
             event_whengreaterthan: this.hatGreaterThanPredicate
         };
     }
@@ -52,6 +54,10 @@ class Scratch3EventBlocks {
             event_whenbackdropswitchesto: {
                 restartExistingThreads: true
             },
+            event_when: {
+                restartExistingThreads: false,
+                edgeActivated: true
+            },
             event_whengreaterthan: {
                 restartExistingThreads: false,
                 edgeActivated: true
@@ -66,6 +72,11 @@ class Scratch3EventBlocks {
         return util.target.isTouchingObject(args.TOUCHINGOBJECTMENU);
     }
 
+    when (args, util) {
+        const condition = Cast.toBoolean(args.CONDITION);
+        return condition;
+    }
+
     hatGreaterThanPredicate (args, util) {
         const option = Cast.toString(args.WHENGREATERTHANMENU).toLowerCase();
         const value = Cast.toNumber(args.VALUE);
@@ -76,6 +87,48 @@ class Scratch3EventBlocks {
             return this.runtime.audioEngine && this.runtime.audioEngine.getLoudness() > value;
         }
         return false;
+    }
+
+    async open (args) {
+        let parsed;
+        try {
+            parsed = new URL(args.OPEN_LINK, location.href);
+        } catch {
+            return;
+        }
+        if (!parsed) return;
+        // Always reject protocols that would allow code execution.
+        // eslint-disable-next-line no-script-url
+        if (parsed.protocol === 'javascript:') return;
+        switch (args.OPEN_OPTION) {
+            case 'new tab': {
+                return new Promise(async resolve => {
+                    if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
+                        // Use noreferrer to prevent new tab from accessing `window.opener`
+                        window.open(parsed.href, '_blank', 'noreferrer');
+                    }
+                    resolve();
+                });
+            }
+            case 'this tab': {
+                return new Promise(async resolve => {
+                    if (await this.runtime.extensionManager.vm.securityManager.canRedirect(parsed.href)) {
+                        // Use noreferrer to prevent new tab from accessing `window.opener`
+                        window.open(parsed.href, '_self', 'noreferrer');
+                    }
+                    resolve();
+                });
+            }
+            case 'new window': {
+                return new Promise(async resolve => {
+                    if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
+                        // Use noreferrer to prevent new tab from accessing `window.opener`
+                        window.open(parsed.href, '_blank', 'noreferrer,menubar=no');
+                    }
+                    resolve();
+                });
+            }
+        }
     }
 
     broadcast (args, util) {

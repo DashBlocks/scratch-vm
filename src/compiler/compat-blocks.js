@@ -8,6 +8,7 @@
 // Please keep these lists alphabetical.
 
 const stacked = [
+    'event_open',
     'looks_changestretchby',
     'looks_hideallsprites',
     'looks_say',
@@ -38,6 +39,7 @@ const stacked = [
 const inputs = [
     'motion_xscroll',
     'motion_yscroll',
+    'operator_newline',
     'sensing_loud',
     'sensing_loudness',
     'sensing_userid',

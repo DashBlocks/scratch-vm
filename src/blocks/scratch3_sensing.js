@@ -53,6 +53,9 @@ class Scratch3SensingBlocks {
      */
     getPrimitives () {
         return {
+            sensing_alert: this.alert,
+            sensing_prompt: this.prompt,
+            sensing_confirm: this.confirm,
             sensing_touchingobject: this.touchingObject,
             sensing_touchingcolor: this.touchingColor,
             sensing_coloristouchingcolor: this.colorTouchingColor,
@@ -62,6 +65,7 @@ class Scratch3SensingBlocks {
             sensing_of: this.getAttributeOf,
             sensing_mousex: this.getMouseX,
             sensing_mousey: this.getMouseY,
+            sensing_mousexy: this.getMouseXY,
             sensing_setdragmode: this.setDragMode,
             sensing_mousedown: this.getMouseDown,
             sensing_keypressed: this.getKeyPressed,
@@ -180,6 +184,20 @@ class Scratch3SensingBlocks {
         return this._answer;
     }
 
+    alert (args) {
+        return alert(args.MESSAGE);
+    }
+
+    prompt (args) {
+        const answer = prompt(args.MESSAGE, args.VALUE);
+        if (!answer) return '';
+        return answer;
+    }
+
+    confirm (args) {
+        return confirm(args.MESSAGE);
+    }
+
     touchingObject (args, util) {
         return util.target.isTouchingObject(args.TOUCHINGOBJECTMENU);
     }
@@ -236,6 +254,10 @@ class Scratch3SensingBlocks {
 
     getMouseY (args, util) {
         return util.ioQuery('mouse', 'getScratchY');
+    }
+
+    getMouseXY (args, util) {
+        return [util.ioQuery('mouse', 'getScratchX'), util.ioQuery('mouse', 'getScratchY')];
     }
 
     getMouseDown (args, util) {
@@ -320,7 +342,9 @@ class Scratch3SensingBlocks {
             switch (args.PROPERTY) {
             case 'x position': return attrTarget.x;
             case 'y position': return attrTarget.y;
+            case 'position': return [attrTarget.x, attrTarget.y];
             case 'direction': return attrTarget.direction;
+            case 'visibility': return attrTarget.visible;
             case 'costume #': return attrTarget.currentCostume + 1;
             case 'costume name':
                 return attrTarget.getCostumes()[attrTarget.currentCostume].name;

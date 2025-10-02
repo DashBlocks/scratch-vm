@@ -289,6 +289,7 @@ class Scratch3LooksBlocks {
             looks_thinkforsecs: this.thinkforsecs,
             looks_show: this.show,
             looks_hide: this.hide,
+            looks_isvisible: this.isVisible,
             looks_hideallsprites: () => {}, // legacy no-op block
             looks_switchcostumeto: this.switchCostume,
             looks_switchbackdropto: this.switchBackdrop,
@@ -298,6 +299,7 @@ class Scratch3LooksBlocks {
             looks_changeeffectby: this.changeEffect,
             looks_seteffectto: this.setEffect,
             looks_cleargraphiceffects: this.clearEffects,
+            looks_geteffect: this.getEffect,
             looks_changesizeby: this.changeSize,
             looks_setsizeto: this.setSize,
             looks_changestretchby: () => {}, // legacy no-op blocks
@@ -315,6 +317,10 @@ class Scratch3LooksBlocks {
             looks_size: {
                 isSpriteSpecific: true,
                 getId: targetId => `${targetId}_size`
+            },
+            looks_isvisible: {
+                isSpriteSpecific: true,
+                getId: targetId => `${targetId}_isvisible`
             },
             looks_costumenumbername: {
                 isSpriteSpecific: true,
@@ -379,6 +385,10 @@ class Scratch3LooksBlocks {
     hide (args, util) {
         util.target.setVisible(false);
         this._renderBubble(util.target);
+    }
+
+    isVisible (_, util) {
+        return util.target.visible;
     }
 
     /**
@@ -558,6 +568,12 @@ class Scratch3LooksBlocks {
 
     clearEffects (args, util) {
         util.target.clearEffects();
+    }
+
+    getEffect (args, util) {
+        const effect = Cast.toString(args.EFFECT).toLowerCase();
+        if (!Object.prototype.hasOwnProperty.call(util.target.effects, effect)) return 0;
+        return util.target.effects[effect];
     }
 
     changeSize (args, util) {
