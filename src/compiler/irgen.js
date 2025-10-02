@@ -581,7 +581,10 @@ class ScriptTreeGenerator {
                 const blockInfo = this.getBlockInfo(block.opcode);
                 if (blockInfo) {
                     const type = blockInfo.info.blockType;
-                    if (type === BlockType.REPORTER || type === BlockType.BOOLEAN) {
+                    if (
+                        type === BlockType.REPORTER ||type === BlockType.BOOLEAN ||
+                        type === BlockType.ARRAY || type === BlockType.OBJECT
+                    ) {
                         return this.descendCompatLayerInput(block);
                     }
                 }
