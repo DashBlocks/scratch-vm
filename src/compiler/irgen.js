@@ -499,6 +499,15 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.SENSING_KEY_DOWN, InputType.BOOLEAN, {
                 key: this.descendInputOfBlock(block, 'KEY_OPTION', true)
             });
+        case 'sensing_prompt':
+            return new IntermediateInput(InputOpcode.SENSING_MODALS_PROMPT, InputType.STRING, {
+                message: this.descendInputOfBlock(block, 'MESSAGE').toType(InputType.STRING),
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.STRING)
+            });
+        case 'sensing_confirm':
+            return new IntermediateInput(InputOpcode.SENSING_MODALS_CONFIRM, InputType.BOOLEAN, {
+                message: this.descendInputOfBlock(block, 'MESSAGE').toType(InputType.STRING)
+            });
         case 'sensing_mousedown':
             return new IntermediateInput(InputOpcode.SENSING_MOUSE_DOWN, InputType.BOOLEAN);
         case 'sensing_mousex':
@@ -947,8 +956,8 @@ class ScriptTreeGenerator {
             });
 
         case 'sensing_alert':
-            return new IntermediateStackBlock(StackOpcode.SENSING_ALERT, {
-                message: this.descendInputOfBlock(block, 'MESSAGE')
+            return new IntermediateStackBlock(StackOpcode.SENSING_MODALS_ALERT, {
+                message: this.descendInputOfBlock(block, 'MESSAGE').toType(InputType.STRING)
             });
         case 'sensing_resettimer':
             return new IntermediateStackBlock(StackOpcode.SENSING_TIMER_RESET);

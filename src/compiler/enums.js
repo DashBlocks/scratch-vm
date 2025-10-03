@@ -177,7 +177,7 @@ const StackOpcode = {
     PEN_SIZE_CHANGE: 'pen.changeSize',
     PEN_STAMP: 'pen.stamp',
 
-    SENSING_ALERT: 'sensing.alert',
+    SENSING_MODALS_ALERT: 'sensing.alert',
     SENSING_TIMER_RESET: 'timer.reset',
 
     PROCEDURE_RETURN: 'procedures.return',
@@ -267,6 +267,8 @@ const InputOpcode = {
     SENSING_TIME_DAYS_SINCE_2000: 'sensing.daysSince2000',
     SENSING_DISTANCE: 'sensing.distance',
     SENSING_KEY_DOWN: 'keyboard.pressed',
+    SENSING_MODALS_PROMPT: 'sensing.prompt',
+    SENSING_MODALS_CONFIRM: 'sensing.confirm',
     SENSING_MOUSE_DOWN: 'mouse.down',
     SENSING_MOUSE_X: 'mouse.x',
     SENSING_MOUSE_Y: 'mouse.y',
