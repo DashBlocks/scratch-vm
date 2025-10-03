@@ -243,6 +243,19 @@ runtimeFunctions.toBoolean = `const toBoolean = value => {
 }`;
 
 /**
+ * Scratch cast to string.
+ * Similar to Cast.toString()
+ * @param {*} value The value to cast
+ * @returns {boolean} The value cast to a string
+ */
+runtimeFunctions.toString = `const toString = value => {
+    if (typeof value === 'object') {
+        return JSON.stringify(value);
+    }
+    return '' + value;
+}`;
+
+/**
  * If a number is very close to a whole number, round to that whole number.
  * @param {number} value Value to round
  * @returns {number} Rounded number or original number
