@@ -2,8 +2,6 @@
 
 @TurboWarp/scratch-vm modified for use in [Dash](https://dashblocks.github.io/)
 
-This is a drop-in replacement for @TurboWarp/scratch-vm.
-
 ## Setup
 
 See https://github.com/TurboWarp/scratch-gui/wiki/Getting-Started to setup the complete TurboWarp environment.
