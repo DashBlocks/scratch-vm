@@ -1,5 +1,3 @@
-// @ts-check
-
 const log = require('../util/log');
 const BlockType = require('../extension-support/block-type');
 const VariablePool = require('./variable-pool');
@@ -266,6 +264,13 @@ class JSGenerator {
         case InputOpcode.MOTION_Y_GET:
             return 'limitPrecision(target.y)';
 
+        case InputOpcode.SENSING_MODALS_PROMPT: {
+            const args = `"MESSAGE":${this.descendInput(node.message)},"VALUE":${this.descendInput(node.value)}`;
+            return `runtime.ext_scratch3_sensing.prompt({${args}})`;
+        }
+        case InputOpcode.SENSING_MODALS_CONFIRM: {
+            return `confirm(${this.descendInput(node.message)})`;
+        }
         case InputOpcode.SENSING_MOUSE_DOWN:
             return 'runtime.ioDevices.mouse.getIsDown()';
         case InputOpcode.SENSING_MOUSE_X:
@@ -882,6 +887,11 @@ class JSGenerator {
             this.stopScriptAndReturn(this.descendInput(node.value));
             break;
 
+        case StackOpcode.SENSING_MODALS_ALERT: {
+            const args = `"MESSAGE":${this.descendInput(node.message)}`;
+            this.source += `runtime.ext_scratch3_sensing.alert({${args}});\n`;
+            break;
+        }
         case StackOpcode.SENSING_TIMER_RESET:
             this.source += 'runtime.ioDevices.clock.resetProjectTimer();\n';
             break;

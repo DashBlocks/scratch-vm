@@ -1,5 +1,3 @@
-// @ts-check
-
 const Cast = require('../util/cast');
 const StringUtil = require('../util/string-util');
 const BlockType = require('../extension-support/block-type');
@@ -244,7 +242,7 @@ class ScriptTreeGenerator {
             const name = block.fields.VALUE.value;
             const index = this.script.arguments.lastIndexOf(name);
             if (index === -1) {
-                if (name.toLowerCase() === 'is compiled?' || name.toLowerCase() === 'is turbowarp?') {
+                if (name.toLowerCase() === 'is compiled?' || name.toLowerCase() === 'is turbowarp?' || name.toLowerCase() === 'is dash?') {
                     return this.createConstantInput(true).toType(InputType.BOOLEAN);
                 }
                 return this.createConstantInput(0);
@@ -501,6 +499,15 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.SENSING_KEY_DOWN, InputType.BOOLEAN, {
                 key: this.descendInputOfBlock(block, 'KEY_OPTION', true)
             });
+        case 'sensing_prompt':
+            return new IntermediateInput(InputOpcode.SENSING_MODALS_PROMPT, InputType.STRING, {
+                message: this.descendInputOfBlock(block, 'MESSAGE').toType(InputType.STRING),
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.STRING)
+            });
+        case 'sensing_confirm':
+            return new IntermediateInput(InputOpcode.SENSING_MODALS_CONFIRM, InputType.BOOLEAN, {
+                message: this.descendInputOfBlock(block, 'MESSAGE').toType(InputType.STRING)
+            });
         case 'sensing_mousedown':
             return new IntermediateInput(InputOpcode.SENSING_MOUSE_DOWN, InputType.BOOLEAN);
         case 'sensing_mousex':
@@ -581,7 +588,10 @@ class ScriptTreeGenerator {
                 const blockInfo = this.getBlockInfo(block.opcode);
                 if (blockInfo) {
                     const type = blockInfo.info.blockType;
-                    if (type === BlockType.REPORTER || type === BlockType.BOOLEAN) {
+                    if (
+                        type === BlockType.REPORTER ||type === BlockType.BOOLEAN ||
+                        type === BlockType.ARRAY || type === BlockType.OBJECT
+                    ) {
                         return this.descendCompatLayerInput(block);
                     }
                 }
@@ -945,6 +955,10 @@ class ScriptTreeGenerator {
                 value: this.descendInputOfBlock(block, 'VALUE')
             });
 
+        case 'sensing_alert':
+            return new IntermediateStackBlock(StackOpcode.SENSING_MODALS_ALERT, {
+                message: this.descendInputOfBlock(block, 'MESSAGE').toType(InputType.STRING)
+            });
         case 'sensing_resettimer':
             return new IntermediateStackBlock(StackOpcode.SENSING_TIMER_RESET);
 

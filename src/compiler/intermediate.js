@@ -194,7 +194,7 @@ class IntermediateInput {
                 break;
             }
             case InputOpcode.CAST_STRING:
-                this.inputs.value += '';
+                this.inputs.value = Cast.toString(this.inputs.value);
                 this.type = InputType.STRING;
                 break;
             case InputOpcode.CAST_COLOR:
