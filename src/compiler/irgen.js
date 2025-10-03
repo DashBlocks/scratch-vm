@@ -1,5 +1,3 @@
-// @ts-check
-
 const Cast = require('../util/cast');
 const StringUtil = require('../util/string-util');
 const BlockType = require('../extension-support/block-type');
@@ -948,6 +946,10 @@ class ScriptTreeGenerator {
                 value: this.descendInputOfBlock(block, 'VALUE')
             });
 
+        case 'sensing_alert':
+            return new IntermediateStackBlock(StackOpcode.SENSING_ALERT, {
+                message: this.descendInputOfBlock(block, 'MESSAGE')
+            });
         case 'sensing_resettimer':
             return new IntermediateStackBlock(StackOpcode.SENSING_TIMER_RESET);
 

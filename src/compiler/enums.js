@@ -177,6 +177,7 @@ const StackOpcode = {
     PEN_SIZE_CHANGE: 'pen.changeSize',
     PEN_STAMP: 'pen.stamp',
 
+    SENSING_ALERT: 'sensing.alert',
     SENSING_TIMER_RESET: 'timer.reset',
 
     PROCEDURE_RETURN: 'procedures.return',

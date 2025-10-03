@@ -1,5 +1,3 @@
-// @ts-check
-
 const log = require('../util/log');
 const BlockType = require('../extension-support/block-type');
 const VariablePool = require('./variable-pool');
@@ -882,6 +880,10 @@ class JSGenerator {
             this.stopScriptAndReturn(this.descendInput(node.value));
             break;
 
+        case StackOpcode.SENSING_ALERT:
+            const args = `"MESSAGE":"${this.descendInput(node.message)}"`;
+            this.source += `runtime.ext_scratch3_sensing.alert({${args}});\n`;
+            break;
         case StackOpcode.SENSING_TIMER_RESET:
             this.source += 'runtime.ioDevices.clock.resetProjectTimer();\n';
             break;
