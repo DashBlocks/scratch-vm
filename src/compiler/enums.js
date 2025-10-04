@@ -92,8 +92,10 @@ const InputType = {
     ARRAY: 0x6000,
     /** Any object. */
     OBJECT: 0x8000,
+    /** Any JSON. Equal to ARRAY | OBJECT */
+    JSON: 0xE000,
     
-    /** Any value type (a type a scratch variable can hold). Equal to NUMBER_OR_NAN | STRING | BOOLEAN | ARRAY | OBJECT */
+    /** Any value type (a type a scratch variable can hold). Equal to NUMBER_OR_NAN | STRING | BOOLEAN | JSON */
     ANY: 0xFFFF
 };
 
