@@ -219,7 +219,7 @@ class IntermediateInput {
             case InputOpcode.CAST_ARRAY:
             case InputOpcode.CAST_OBJECT:
             case InputOpcode.CAST_JSON: {
-                this.inputs.value = Cast.toJSON(this.inputs.value, false);
+                this.inputs.value = Cast.toJSON(this.inputs.value, true);
                 if (castOpcode === InputOpcode.CAST_ARRAY && !Array.isArray(this.inputs.value)) {
                     this.inputs.value = [];
                 }
