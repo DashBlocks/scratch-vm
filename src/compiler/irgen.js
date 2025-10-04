@@ -473,7 +473,7 @@ class ScriptTreeGenerator {
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
         case 'operator_typeof':
-            return new IntermediateInput(InputOpcode.OP_TYPE_OF, InputType.STRING, {
+            return new IntermediateInput(InputOpcode.OP_TYPE_OF, InputType.STRING | InputType.OBJECT, {
                 value: this.descendInputOfBlock(block, 'VALUE')
             });
         case 'operator_is_type':
