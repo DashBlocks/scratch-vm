@@ -246,13 +246,66 @@ runtimeFunctions.toBoolean = `const toBoolean = value => {
  * Scratch cast to string.
  * Similar to Cast.toString()
  * @param {*} value The value to cast
- * @returns {boolean} The value cast to a string
+ * @returns {string} The value cast to a string
  */
 runtimeFunctions.toString = `const toString = value => {
     if (typeof value === 'object') {
         return JSON.stringify(value);
     }
     return '' + value;
+}`;
+
+/**
+ * Scratch cast to array.
+ * Similar to Cast.toList()
+ * @param {*} value The value to cast
+ * @returns {Array} The value cast to an array
+ */
+runtimeFunctions.toArray = `const toArray = value => {
+    if (Array.isArray(value)) {
+        return value;
+    }
+    try {
+        const result = JSON.parse(value);
+        return Array.isArray(result) ? result : [];
+    } catch {
+        return [];
+    }
+}`;
+
+/**
+ * Scratch cast to object.
+ * Similar to Cast.toObject()
+ * @param {*} value The value to cast
+ * @returns {Object} The value cast to an object
+ */
+runtimeFunctions.toObject = `const toObject = value => {
+    if (typeof value === 'object' && value instanceof Object && !Array.isArray(value)) {
+        return value;
+    }
+    try {
+        const result = JSON.parse(value);
+        return typeof result === 'object' && result instanceof Object && !Array.isArray(result) ? result : {};
+    } catch {
+        return {};
+    }
+}`;
+
+/**
+ * Scratch cast to array or object.
+ * Similar to Cast.toJSON() with arrayIfFail is true
+ * @param {*} value The value to cast
+ * @returns {(Array|Object)} The value cast to an array or an object
+ */
+runtimeFunctions.toJSON = `const toJSON = value => {
+    if (typeof value === 'object' && value instanceof Object) {
+        return value;
+    }
+    try {
+        return JSON.parse(value);
+    } catch {
+        return [];
+    }
 }`;
 
 /**
