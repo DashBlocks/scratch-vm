@@ -461,9 +461,15 @@ class JSGenerator {
         } case InputOpcode.SENSING_OF_POS_Y: {
             const targetRef = this.descendTargetReference(node.object);
             return `(${targetRef} ? ${targetRef}.y : 0)`;
+        } case InputOpcode.SENSING_OF_POS_XY: {
+            const targetRef = this.descendTargetReference(node.object);
+            return `[(${targetRef} ? ${targetRef}.x : 0), (${targetRef} ? ${targetRef}.y : 0)]`;
         } case InputOpcode.SENSING_OF_DIRECTION: {
             const targetRef = this.descendTargetReference(node.object);
             return `(${targetRef} ? ${targetRef}.direction : 0)`;
+        } case InputOpcode.SENSING_OF_VISIBILITY: {
+            const targetRef = this.descendTargetReference(node.object);
+            return `(${targetRef} ? ${targetRef}.visible : 0)`;
         } case InputOpcode.SENSING_OF_COSTUME_NUMBER: {
             const targetRef = this.descendTargetReference(node.object);
             return `(${targetRef} ? ${targetRef}.currentCostume + 1 : 0)`;

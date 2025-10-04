@@ -573,7 +573,7 @@ class ScriptTreeGenerator {
                 case 'y position':
                     return new IntermediateInput(InputOpcode.SENSING_OF_POS_Y, InputType.NUMBER, {object});
                 case 'position':
-                    return new IntermediateInput(InputOpcode.SENSING_OF_POS_XY, InputType.ANY, {object}); // TODO: InputType.ARRAY
+                    return new IntermediateInput(InputOpcode.SENSING_OF_POS_XY, InputType.ANY, {object}); // TODO: InputType.ARRAY/JSON
                 case 'direction':
                     return new IntermediateInput(InputOpcode.SENSING_OF_DIRECTION, InputType.NUMBER_REAL, {object});
                 case 'visibility':
