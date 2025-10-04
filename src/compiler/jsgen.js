@@ -538,20 +538,20 @@ class JSGenerator {
 
         case InputOpcode.JSON_CONTAINS: {
             const json = node.json;
-            if (json.isAlwaysType(InputType.ARRAY) {
+            if (json.isAlwaysType(InputType.ARRAY)) {
                 return `${this.descendInput(json)}.includes(${this.descendInput(node.value)})`;
             }
-            if (json.isAlwaysType(InputType.OBJECT) {
+            if (json.isAlwaysType(InputType.OBJECT)) {
                 return `Object.values(${this.descendInput(json)}).includes(${this.descendInput(node.value)})`;
             }
             return `(Array.isArray(${this.descendInput(json)}) ? ${this.descendInput(json)}.includes(${this.descendInput(node.value)}) : Object.values(${this.descendInput(json)}).includes(${this.descendInput(node.value)}))`;
         }
         case InputOpcode.JSON_LENGTH: {
             const value = node.value;
-            if (value.isAlwaysType(InputType.ARRAY) {
+            if (value.isAlwaysType(InputType.ARRAY)) {
                 return `${this.descendInput(value)}.length`;
             }
-            if (value.isAlwaysType(InputType.OBJECT) {
+            if (value.isAlwaysType(InputType.OBJECT)) {
                 return `Object.keys(${this.descendInput(value)}).length`;
             }
             return `(Array.isArray(${this.descendInput(value)}) ? ${this.descendInput(value)}.length : Object.keys(${this.descendInput(value)}).length)`;
