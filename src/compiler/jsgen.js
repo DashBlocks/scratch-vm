@@ -194,6 +194,12 @@ class JSGenerator {
             return `toString(${this.descendInput(node.target)})`;
         case InputOpcode.CAST_COLOR:
             return `colorToList(${this.descendInput(node.target)})`;
+        case InputOpcode.CAST_ARRAY:
+            return `toArray(${this.descendInput(node.target)})`;
+        case InputOpcode.CAST_OBJECT:
+            return `toObject(${this.descendInput(node.target)})`;
+        case InputOpcode.CAST_JSON:
+            return `toJSON(${this.descendInput(node.target)})`;
 
         case InputOpcode.COMPATIBILITY_LAYER:
             // Compatibility layer inputs never use flags.
