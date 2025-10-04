@@ -114,6 +114,8 @@ const StackOpcode = {
     CONTROL_WHILE: 'control.while',
     CONTROL_FOR: 'control.for',
     CONTROL_REPEAT: 'control.repeat',
+    CONTROL_RESUME: 'control.resume',
+    CONTROL_PAUSE: 'control.pause',
     CONTROL_STOP_ALL: 'control.stopAll',
     CONTROL_STOP_OTHERS: 'control.stopOthers',
     CONTROL_STOP_SCRIPT: 'control.stopScript',
@@ -205,6 +207,8 @@ const InputOpcode = {
     COMPATIBILITY_LAYER: 'compat',
     OLD_COMPILER_COMPATIBILITY_LAYER: 'oldCompiler',
 
+    LOOKS_IS_VISIBLE: 'looks.isVisible',
+    LOOKS_EFFECT_GET: 'looks.getEffect',
     LOOKS_BACKDROP_NUMBER: 'looks.backdropNumber',
     LOOKS_BACKDROP_NAME: 'looks.backdropName',
     LOOKS_COSTUME_NUMBER: 'looks.costumeNumber',
@@ -221,6 +225,7 @@ const InputOpcode = {
 
     MOTION_X_GET: 'motion.x',
     MOTION_Y_GET: 'motion.y',
+    MOTION_XY_GET: 'motion.xy',
     MOTION_DIRECTION_GET: 'motion.direction',
 
     OP_ADD: 'op.add',
@@ -254,6 +259,11 @@ const InputOpcode = {
     OP_RANDOM: 'op.random',
     OP_ROUND: 'op.round',
     OP_SUBTRACT: 'op.subtract',
+    OP_TYPE_OF: 'op.typeOf',
+    OP_IS_TYPE: 'op.isType',
+    OP_CAST: 'op.cast',
+    OP_NUMS_IN_RANGE: 'op.numsInRange',
+    OP_IN_RANGE: 'op.inRange',
 
     SENSING_ANSWER: 'sensing.answer',
     SENSING_COLOR_TOUCHING_COLOR: 'sensing.colorTouchingColor',
@@ -272,6 +282,7 @@ const InputOpcode = {
     SENSING_MOUSE_DOWN: 'mouse.down',
     SENSING_MOUSE_X: 'mouse.x',
     SENSING_MOUSE_Y: 'mouse.y',
+    SENSING_MOUSE_XY: 'mouse.xy',
     SENSING_OF: 'sensing.of',
     SENSING_OF_BACKDROP_NAME: 'sensing.of.backdropName',
     SENSING_OF_BACKDROP_NUMBER: 'sensing.of.backdropNumber',
@@ -280,7 +291,9 @@ const InputOpcode = {
     SENSING_OF_VOLUME: 'sensing.of.volume',
     SENSING_OF_POS_X: 'sensing.of.x',
     SENSING_OF_POS_Y: 'sensing.of.y',
+    SENSING_OF_POS_XY: 'sensing.of.xy',
     SENSING_OF_DIRECTION: 'sensing.of.direction',
+    SENSING_OF_VISIBILITY: 'sensing.of.visibility',
     SENSING_OF_SIZE: 'sensing.of.size',
     SENSING_OF_VAR: 'sensing.of.var',
     SENSING_TIMER_GET: 'timer.get',
@@ -291,6 +304,8 @@ const InputOpcode = {
     PROCEDURE_CALL: 'procedures.call',
     PROCEDURE_ARGUMENT: 'procedures.argument',
 
+    CONTROL_IF_THEN_ELSE: 'control.ifThenElse',
+    CONTROL_IS_PAUSED: 'control.isPaused',
     CONTROL_COUNTER: 'control.counter',
 
     TW_KEY_LAST_PRESSED: 'tw.lastKeyPressed'

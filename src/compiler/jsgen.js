@@ -191,7 +191,7 @@ class JSGenerator {
         case InputOpcode.CAST_NUMBER_INDEX:
             return `(${this.descendInput(node.target.toType(InputType.NUMBER_OR_NAN))} | 0)`;
         case InputOpcode.CAST_STRING:
-            return `("" + ${this.descendInput(node.target)})`;
+            return `toString(${this.descendInput(node.target)})`;
         case InputOpcode.CAST_COLOR:
             return `colorToList(${this.descendInput(node.target)})`;
 
@@ -265,8 +265,7 @@ class JSGenerator {
             return 'limitPrecision(target.y)';
 
         case InputOpcode.SENSING_MODALS_PROMPT: {
-            const args = `"MESSAGE":${this.descendInput(node.message)},"VALUE":${this.descendInput(node.value)}`;
-            return `runtime.ext_scratch3_sensing.prompt({${args}})`;
+            return `(prompt(${this.descendInput(node.message)}, ${this.descendInput(node.value)}) || "")`;
         }
         case InputOpcode.SENSING_MODALS_CONFIRM: {
             return `confirm(${this.descendInput(node.message)})`;
@@ -888,8 +887,7 @@ class JSGenerator {
             break;
 
         case StackOpcode.SENSING_MODALS_ALERT: {
-            const args = `"MESSAGE":${this.descendInput(node.message)}`;
-            this.source += `runtime.ext_scratch3_sensing.alert({${args}});\n`;
+            this.source += `alert(${this.descendInput(node.message)});\n`;
             break;
         }
         case StackOpcode.SENSING_TIMER_RESET:
