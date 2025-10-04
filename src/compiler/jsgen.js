@@ -585,6 +585,18 @@ class JSGenerator {
             return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
         case InputOpcode.JSON_OBJECT_EMPTY:
             return '{}';
+        case InputOpcode.JSON_OBJECT_SPLIT:
+            return `runtime.ext_dash_json.objectSplit({TEXT: ${this.descendInput(node.text)}, KEYDELIM: ${this.descendInput(node.keydelim)}, PAIRDELIM: ${this.descendInput(node.pairdelim)}})`;
+        case InputOpcode.JSON_OBJECT_ITEM_OF:
+            return `(!Object.keys(${this.descendInput(node.value)}).includes(${this.descendInput(node.key)}) ? "" : ${this.descendInput(node.value)}[${this.descendInput(node.key)}])`;
+        case InputOpcode.JSON_OBJECT_CONTAINS_KEY:
+            return `Object.keys(${this.descendInput(node.object)}).includes(${this.descendInput(node.key)})`;
+        case InputOpcode.JSON_OBJECT_SET:
+            return `{...${this.descendInput(node.object)}, ${this.descendInput(node.key)}: ${this.descendInput(node.item)}}`;
+        case InputOpcode.JSON_OBJECT_DELETE:
+            return `runtime.ext_dash_json.objectDelete({OBJECT: ${this.descendInput(node.object)}, KEY: ${this.descendInput(node.key)}})`;
+        case InputOpcode.JSON_OBJECT_ENTRIES:
+            return `runtime.ext_dash_json.objectEntries({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.key)}"})`;
 
         default:
             log.warn(`JS: Unknown input: ${block.opcode}`, node);
