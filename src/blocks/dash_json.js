@@ -97,7 +97,6 @@ class DashJSONBlocks {
     arrayDelete (args) {
         const array = Cast.toList(args.ARRAY);
         const index = Cast.toListIndex(args.INDEX, array.length, true);
-        const item = args.ITEM;
         if (index === Cast.LIST_ALL) {
             return [];
         } else if (index === Cast.LIST_INVALID) {
