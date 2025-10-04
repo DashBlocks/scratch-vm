@@ -278,6 +278,38 @@ class ScriptTreeGenerator {
                 list: this.descendVariable(block, 'LIST', LIST_TYPE)
             });
 
+        case 'json_contains':
+            return new IntermediateInput(InputOpcode.JSON_CONTAINS, InputType.BOOLEAN, {
+                json: this.descendInputOfBlock(block, 'JSON').toType(InputType.JSON),
+                value: this.descendInputOfBlock(block, 'VALUE')
+            });
+        case 'json_length':
+            return new IntermediateInput(InputOpcode.JSON_LENGTH, InputType.NUMBER_POS_INT | InputType.NUMBER_ZERO, {
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.JSON)
+            });
+        case 'json_array_empty':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_EMPTY, InputType.ARRAY);
+        case 'json_array_item_of':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_ITEM_OF, InputType.ANY, {
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.ARRAY),
+                index: this.descendInputOfBlock(block, 'INDEX')
+            });
+        case 'json_array_item_no_of':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_ITEM_NO_OF, InputType.NUMBER_POS_INT | InputType.NUMBER_ZERO, {
+                array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
+                value: this.descendInputOfBlock(block, 'VALUE')
+            });
+        case 'json_array_in_front_of':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_IN_FRONT_OF, InputType.ARRAY, {
+                array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            });
+        case 'json_array_behind':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_BEHIND, InputType.ARRAY, {
+                array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            });
+
         case 'event_broadcast_menu': {
             const broadcastOption = block.fields.BROADCAST_OPTION;
             const broadcastVariable = this.target.lookupBroadcastMsg(broadcastOption.id, broadcastOption.value);
