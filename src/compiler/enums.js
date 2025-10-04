@@ -211,6 +211,9 @@ const InputOpcode = {
     CAST_STRING: 'cast.toString',
     CAST_BOOLEAN: 'cast.toBoolean',
     CAST_COLOR: 'cast.toColor',
+    CAST_ARRAY: 'cast.toArray',
+    CAST_OBJECT: 'cast.toObject',
+    CAST_JSON: 'cast.toJSON',
 
     COMPATIBILITY_LAYER: 'compat',
     OLD_COMPILER_COMPATIBILITY_LAYER: 'oldCompiler',
