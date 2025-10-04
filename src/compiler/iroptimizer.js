@@ -1,5 +1,3 @@
-// @ts-check
-
 const {StackOpcode, InputOpcode, InputType} = require('./enums.js');
 const log = require('../util/log');
 
