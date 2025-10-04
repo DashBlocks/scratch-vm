@@ -311,6 +311,8 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.MOTION_X_GET, InputType.NUMBER);
         case 'motion_yposition':
             return new IntermediateInput(InputOpcode.MOTION_Y_GET, InputType.NUMBER);
+        case 'motion_position':
+            return new IntermediateInput(InputOpcode.MOTION_XY_GET, InputType.ARRAY);
 
         case 'operator_add':
             return new IntermediateInput(InputOpcode.OP_ADD, InputType.NUMBER_OR_NAN, {
@@ -490,6 +492,11 @@ class ScriptTreeGenerator {
                 value: this.descendInputOfBlock(block, 'VALUE'),
                 type: block.fields.TYPE.value
             });
+        case 'operator_nums_in_range':
+            return new IntermediateInput(InputOpcode.NUMS_IN_RANGE, InputType.ARRAY, {
+                from: this.descendInputOfBlock(block, 'FROM').toType(InputType.NUMBER),
+                to: this.descendInputOfBlock(block, 'TO').toType(InputType.NUMBER)
+            });
         case 'operator_in_range':
             return new IntermediateInput(InputOpcode.IN_RANGE, InputType.BOOLEAN, {
                 num: this.descendInputOfBlock(block, 'NUM').toType(InputType.NUMBER),
@@ -546,6 +553,8 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.SENSING_MOUSE_X, InputType.NUMBER);
         case 'sensing_mousey':
             return new IntermediateInput(InputOpcode.SENSING_MOUSE_Y, InputType.NUMBER);
+        case 'sensing_mousexy':
+            return new IntermediateInput(InputOpcode.SENSING_MOUSE_XY, InputType.ARRAY);
         case 'sensing_of': {
             const property = block.fields.PROPERTY.value;
             const object = this.descendInputOfBlock(block, 'OBJECT').toType(InputType.STRING);
@@ -577,7 +586,7 @@ class ScriptTreeGenerator {
                 case 'direction':
                     return new IntermediateInput(InputOpcode.SENSING_OF_DIRECTION, InputType.NUMBER_REAL, {object});
                 case 'visibility':
-                    return new IntermediateInput(InputOpcode.SENSING_OF_VISIBILITY, InputType.BOOLEAN, {object});
+                    return new IntermediateInput(InputOpcode.SENSING_OF_VISIBILITY, InputType.BOOLEAN | InputType.NUMBER_ZERO, {object});
                 case 'costume #':
                     return new IntermediateInput(InputOpcode.SENSING_OF_COSTUME_NUMBER, InputType.NUMBER_POS_INT, {object});
                 case 'costume name':
