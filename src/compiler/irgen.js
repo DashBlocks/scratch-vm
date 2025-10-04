@@ -286,6 +286,12 @@ class ScriptTreeGenerator {
             return this.createConstantInput(broadcastName);
         }
 
+        case 'looks_isvisible':
+            return new IntermediateInput(InputOpcode.LOOKS_IS_VISIBLE, InputType.BOOLEAN);
+        case 'looks_geteffect':
+            return new IntermediateInput(InputOpcode.LOOKS_EFFECT_GET, InputType.NUMBER, {
+                effect: block.fields.EFFECT.value.toLowerCase()
+            });
         case 'looks_backdropnumbername':
             if (block.fields.NUMBER_NAME.value === 'number') {
                 return new IntermediateInput(InputOpcode.LOOKS_BACKDROP_NUMBER, InputType.NUMBER_POS_INT);
@@ -464,6 +470,32 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
+        case 'operator_is_type':
+            return new IntermediateInput(InputOpcode.OP_IS_TYPE, InputType.BOOLEAN, {
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
+            });
+        case 'operator_is_string':
+            return new IntermediateInput(InputOpcode.OP_IS_TYPE, InputType.BOOLEAN, {
+                value: this.descendInputOfBlock(block, 'STRING'),
+                type: 'string'
+            });
+        case 'operator_is_number':
+            return new IntermediateInput(InputOpcode.OP_IS_TYPE, InputType.BOOLEAN, {
+                value: this.descendInputOfBlock(block, 'NUM'),
+                type: 'number'
+            });
+        case 'operator_cast':
+            return new IntermediateInput(InputOpcode.OP_CAST, InputType.ANY, {
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
+            });
+        case 'operator_in_range':
+            return new IntermediateInput(InputOpcode.IN_RANGE, InputType.BOOLEAN, {
+                num: this.descendInputOfBlock(block, 'NUM').toType(InputType.NUMBER),
+                from: this.descendInputOfBlock(block, 'FROM').toType(InputType.NUMBER),
+                to: this.descendInputOfBlock(block, 'TO').toType(InputType.NUMBER)
+            });
 
         case 'procedures_call': {
             const procedureInfo = this.getProcedureInfo(block);
@@ -540,8 +572,12 @@ class ScriptTreeGenerator {
                     return new IntermediateInput(InputOpcode.SENSING_OF_POS_X, InputType.NUMBER, {object});
                 case 'y position':
                     return new IntermediateInput(InputOpcode.SENSING_OF_POS_Y, InputType.NUMBER, {object});
+                case 'position':
+                    return new IntermediateInput(InputOpcode.SENSING_OF_POS_XY, InputType.ANY, {object}); // TODO: InputType.ARRAY/JSON
                 case 'direction':
                     return new IntermediateInput(InputOpcode.SENSING_OF_DIRECTION, InputType.NUMBER_REAL, {object});
+                case 'visibility':
+                    return new IntermediateInput(InputOpcode.SENSING_OF_VISIBILITY, InputType.BOOLEAN, {object});
                 case 'costume #':
                     return new IntermediateInput(InputOpcode.SENSING_OF_COSTUME_NUMBER, InputType.NUMBER_POS_INT, {object});
                 case 'costume name':
@@ -571,6 +607,14 @@ class ScriptTreeGenerator {
             // This menu is special compared to other menus -- it actually has an opcode function.
             return this.createConstantInput(block.fields.SOUND_MENU.value, true);
 
+        case 'control_if_then_else':
+            return new IntermediateInput(InputOpcode.CONTROL_IF_THEN_ELSE, InputType.ANY, {
+                condition: this.descendInputOfBlock(block, 'CONDITION').toType(InputType.BOOLEAN),
+                then: this.descendInputOfBlock(block, 'THEN'),
+                else: this.descendInputOfBlock(block, 'ELSE')
+            });
+        case 'control_is_paused':
+            return new IntermediateInput(InputOpcode.CONTROL_IS_PAUSED, InputType.BOOLEAN);
         case 'control_get_counter':
             return new IntermediateInput(InputOpcode.CONTROL_COUNTER, InputType.NUMBER_POS_INT | InputType.NUMBER_ZERO);
 
@@ -679,6 +723,12 @@ class ScriptTreeGenerator {
                 do: this.descendSubstack(block, 'SUBSTACK'),
                 warpTimer: needsWarpTimer
             }, this.analyzeLoop() || needsWarpTimer);
+        }
+        case 'control_resume': {
+            return new IntermediateStackBlock(StackOpcode.CONTROL_RESUME);
+        }
+        case 'control_pause': {
+            return new IntermediateStackBlock(StackOpcode.CONTROL_PAUSE);
         }
         case 'control_stop': {
             const level = block.fields.STOP_OPTION.value;
