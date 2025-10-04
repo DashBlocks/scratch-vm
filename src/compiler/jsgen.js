@@ -536,6 +536,68 @@ class JSGenerator {
         case InputOpcode.VAR_GET:
             return `${this.referenceVariable(node.variable)}.value`;
 
+        case InputOpcode.JSON_CONTAINS: {
+            const json = node.json;
+            if (json.isAlwaysType(InputType.ARRAY)) {
+                return `${this.descendInput(json)}.includes(${this.descendInput(node.value)})`;
+            }
+            if (json.isAlwaysType(InputType.OBJECT)) {
+                return `Object.values(${this.descendInput(json)}).includes(${this.descendInput(node.value)})`;
+            }
+            return `(Array.isArray(${this.descendInput(json)}) ? ${this.descendInput(json)}.includes(${this.descendInput(node.value)}) : Object.values(${this.descendInput(json)}).includes(${this.descendInput(node.value)}))`;
+        }
+        case InputOpcode.JSON_LENGTH: {
+            const value = node.value;
+            if (value.isAlwaysType(InputType.ARRAY)) {
+                return `${this.descendInput(value)}.length`;
+            }
+            if (value.isAlwaysType(InputType.OBJECT)) {
+                return `Object.keys(${this.descendInput(value)}).length`;
+            }
+            return `(Array.isArray(${this.descendInput(value)}) ? ${this.descendInput(value)}.length : Object.keys(${this.descendInput(value)}).length)`;
+        }
+        case InputOpcode.JSON_ARRAY_EMPTY:
+            return '[]';
+        case InputOpcode.JSON_ARRAY_ITEM_OF: {
+            if (environment.supportsNullishCoalescing) {
+                if (node.index.isAlwaysType(InputType.NUMBER_INTERPRETABLE | InputType.NUMBER_NAN)) {
+                    return `(${this.descendInput(node.value)}[${this.descendInput(node.index.toType(InputType.NUMBER_INDEX))} - 1] ?? "")`;
+                }
+                if (node.index.isConstant('last')) {
+                    return `(${this.descendInput(node.value)}[${this.descendInput(node.value)}.length - 1] ?? "")`;
+                }
+            }
+            return `listGet(${this.descendInput(node.value)}, ${this.descendInput(node.index)})`;
+        }
+        case InputOpcode.JSON_ARRAY_ITEM_NO_OF:
+            return `runtime.ext_dash_json.arrayItemNoOf({ARRAY: ${this.descendInput(node.array)}, VALUE: ${this.descendInput(node.value)}})`;
+        case InputOpcode.JSON_ARRAY_IN_FRONT_OF:
+            return `[...${this.descendInput(node.array)}, ${this.descendInput(node.item)}]`;
+        case InputOpcode.JSON_ARRAY_BEHIND:
+            return `[${this.descendInput(node.item)}, ...${this.descendInput(node.array)}]`;
+        case InputOpcode.JSON_ARRAY_AT:
+            return `arrayInsert(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
+        case InputOpcode.JSON_ARRAY_SPLIT:
+            return `${this.descendInput(node.text)}.split(${this.descendInput(node.delim)})`;
+        case InputOpcode.JSON_ARRAY_DELETE:
+            return `arrayDelete(${this.descendInput(node.array)}, ${this.descendInput(node.index)})`;
+        case InputOpcode.JSON_ARRAY_REPLACE:
+            return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
+        case InputOpcode.JSON_OBJECT_EMPTY:
+            return '{}';
+        case InputOpcode.JSON_OBJECT_SPLIT:
+            return `runtime.ext_dash_json.objectSplit({TEXT: ${this.descendInput(node.text)}, KEYDELIM: ${this.descendInput(node.keydelim)}, PAIRDELIM: ${this.descendInput(node.pairdelim)}})`;
+        case InputOpcode.JSON_OBJECT_ITEM_OF:
+            return `(!Object.keys(${this.descendInput(node.value)}).includes(${this.descendInput(node.key)}) ? "" : ${this.descendInput(node.value)}[${this.descendInput(node.key)}])`;
+        case InputOpcode.JSON_OBJECT_CONTAINS_KEY:
+            return `Object.keys(${this.descendInput(node.object)}).includes(${this.descendInput(node.key)})`;
+        case InputOpcode.JSON_OBJECT_SET:
+            return `{...${this.descendInput(node.object)}, ${this.descendInput(node.key)}: ${this.descendInput(node.item)}}`;
+        case InputOpcode.JSON_OBJECT_DELETE:
+            return `runtime.ext_dash_json.objectDelete({OBJECT: ${this.descendInput(node.object)}, KEY: ${this.descendInput(node.key)}})`;
+        case InputOpcode.JSON_OBJECT_ENTRIES:
+            return `runtime.ext_dash_json.objectEntries({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.key)}"})`;
+
         default:
             log.warn(`JS: Unknown input: ${block.opcode}`, node);
             throw new Error(`JS: Unknown input: ${block.opcode}`);
