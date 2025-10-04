@@ -572,8 +572,12 @@ class ScriptTreeGenerator {
                     return new IntermediateInput(InputOpcode.SENSING_OF_POS_X, InputType.NUMBER, {object});
                 case 'y position':
                     return new IntermediateInput(InputOpcode.SENSING_OF_POS_Y, InputType.NUMBER, {object});
+                case 'position':
+                    return new IntermediateInput(InputOpcode.SENSING_OF_POS_XY, InputType.ANY, {object}); // TODO: InputType.ARRAY
                 case 'direction':
                     return new IntermediateInput(InputOpcode.SENSING_OF_DIRECTION, InputType.NUMBER_REAL, {object});
+                case 'visibility':
+                    return new IntermediateInput(InputOpcode.SENSING_OF_VISIBILITY, InputType.BOOLEAN, {object});
                 case 'costume #':
                     return new IntermediateInput(InputOpcode.SENSING_OF_COSTUME_NUMBER, InputType.NUMBER_POS_INT, {object});
                 case 'costume name':
