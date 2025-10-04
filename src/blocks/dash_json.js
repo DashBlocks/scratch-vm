@@ -80,7 +80,7 @@ class DashJSONBlocks {
 
     arrayInsertAt (args) {
         const array = Cast.toList(args.ARRAY);
-        const index = Cast.toListIndex(args.INDEX, array.length, false);
+        const index = Cast.toListIndex(args.INDEX, array.length + 1, false);
         const item = args.ITEM;
         if (index === Cast.LIST_INVALID) {
             return array;
