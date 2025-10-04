@@ -194,6 +194,12 @@ class JSGenerator {
             return `toString(${this.descendInput(node.target)})`;
         case InputOpcode.CAST_COLOR:
             return `colorToList(${this.descendInput(node.target)})`;
+        case InputOpcode.CAST_ARRAY:
+            return `toArray(${this.descendInput(node.target)})`;
+        case InputOpcode.CAST_OBJECT:
+            return `toObject(${this.descendInput(node.target)})`;
+        case InputOpcode.CAST_JSON:
+            return `toJSON(${this.descendInput(node.target)})`;
 
         case InputOpcode.COMPATIBILITY_LAYER:
             // Compatibility layer inputs never use flags.
@@ -246,6 +252,10 @@ class JSGenerator {
         case InputOpcode.LIST_LENGTH:
             return `${this.referenceVariable(node.list)}.value.length`;
 
+        case InputOpcode.LOOKS_IS_VISIBLE:
+            return 'target.visible';
+        case InputOpcode.LOOKS_EFFECT_GET:
+            return `(target.effects["${sanitize(node.effect)}"] || 0)`;
         case InputOpcode.LOOKS_SIZE_GET:
             return 'Math.round(target.size)';
         case InputOpcode.LOOKS_BACKDROP_NAME:
@@ -263,6 +273,8 @@ class JSGenerator {
             return 'limitPrecision(target.x)';
         case InputOpcode.MOTION_Y_GET:
             return 'limitPrecision(target.y)';
+        case InputOpcode.MOTION_XY_GET:
+            return '[limitPrecision(target.x), limitPrecision(target.y)]';
 
         case InputOpcode.SENSING_MODALS_PROMPT: {
             return `(prompt(${this.descendInput(node.message)}, ${this.descendInput(node.value)}) || "")`;
@@ -276,6 +288,8 @@ class JSGenerator {
             return 'runtime.ioDevices.mouse.getScratchX()';
         case InputOpcode.SENSING_MOUSE_Y:
             return 'runtime.ioDevices.mouse.getScratchY()';
+        case InputOpcode.SENSING_MOUSE_XY:
+            return '[runtime.ioDevices.mouse.getScratchX(), runtime.ioDevices.mouse.getScratchY()]';
 
         case InputOpcode.OP_ABS:
             return `Math.abs(${this.descendInput(node.value)})`;
@@ -395,6 +409,18 @@ class JSGenerator {
             return `tan(${this.descendInput(node.value)})`;
         case InputOpcode.OP_POW_10:
             return `(10 ** ${this.descendInput(node.value)})`;
+        case InputOpcode.OP_TYPE_OF:
+            return `runtime.ext_scratch3_operators.typeOf({VALUE: ${this.descendInput(node.value)}})`;
+        case InputOpcode.OP_IS_TYPE:
+            return `runtime.ext_scratch3_operators.isType({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
+        case InputOpcode.OP_CAST:
+            return `runtime.ext_scratch3_operators.cast({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
+        case InputOpcode.OP_NUMS_IN_RANGE: {
+            return `runtime.ext_scratch3_operators.numsInRange({FROM: ${this.descendInput(node.from)}, TO: ${this.descendInput(node.to)}})`;
+        }
+        case InputOpcode.OP_IN_RANGE: {
+            return `runtime.ext_scratch3_operators.inRange({NUM: ${this.descendInput(node.num)}, FROM: ${this.descendInput(node.from)}, TO: ${this.descendInput(node.to)}})`;
+        }
 
         case InputOpcode.PROCEDURE_CALL: {
             const procedureCode = node.code;
@@ -447,7 +473,7 @@ class JSGenerator {
         case InputOpcode.SENSING_TIME_MONTH:
             return `(new Date().getMonth() + 1)`;
         case InputOpcode.SENSING_OF:
-            return `runtime.ext_scratch3_sensing.getAttributeOf({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.property)}" })`;
+            return `runtime.ext_scratch3_sensing.getAttributeOf({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.property)}"})`;
         case InputOpcode.SENSING_OF_VOLUME: {
             const targetRef = this.descendTargetReference(node.object);
             return `(${targetRef} ? ${targetRef}.volume : 0)`;
@@ -463,7 +489,7 @@ class JSGenerator {
             return `(${targetRef} ? ${targetRef}.y : 0)`;
         } case InputOpcode.SENSING_OF_POS_XY: {
             const targetRef = this.descendTargetReference(node.object);
-            return `[(${targetRef} ? ${targetRef}.x : 0), (${targetRef} ? ${targetRef}.y : 0)]`;
+            return `(${targetRef} ? [${targetRef}.x, ${targetRef}.y] : [0, 0])`;
         } case InputOpcode.SENSING_OF_DIRECTION: {
             const targetRef = this.descendTargetReference(node.object);
             return `(${targetRef} ? ${targetRef}.direction : 0)`;
@@ -497,6 +523,10 @@ class JSGenerator {
         case InputOpcode.SENSING_TIMER_GET:
             return 'runtime.ioDevices.clock.projectTimer()';
 
+        case InputOpcode.CONTROL_IF_THEN_ELSE:
+            return `(${this.descendInput(node.condition)} ? ${this.descendInput(node.then)} : ${this.descendInput(node.else)})`;
+        case InputOpcode.CONTROL_IS_PAUSED:
+            return 'runtime.ext_scratch3_control.isPaused()';
         case InputOpcode.CONTROL_COUNTER:
             return 'runtime.ext_scratch3_control._counter';
 
@@ -626,6 +656,12 @@ class JSGenerator {
             this.source += `}\n`;
             break;
         }
+        case StackOpcode.CONTORL_RESUME:
+            this.source += 'runtime.ext_scratch3_control.resume();\n';
+            break;
+        case StackOpcode.CONTORL_PAUSE:
+            this.source += 'runtime.ext_scratch3_control.pause();\n';
+            break;
         case StackOpcode.CONTROL_STOP_ALL:
             this.source += 'runtime.stopAll();\n';
             this.retire();

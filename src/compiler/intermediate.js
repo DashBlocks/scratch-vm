@@ -71,6 +71,12 @@ class IntermediateInput {
         return InputType.NUMBER_ZERO;
     }
 
+    static getJSONInputType (json) {
+        if (!(typeof json === 'object' && json instanceof Object)) throw new Error('Expected a JSON.');
+        if (Array.isArray(json)) return InputType.ARRAY;
+        return InputType.OBJECT;
+    }
+
     /**
      * @param {InputOpcode} opcode
      * @param {InputType} type
@@ -157,6 +163,15 @@ class IntermediateInput {
         case InputType.COLOR:
             castOpcode = InputOpcode.CAST_COLOR;
             break;
+        case InputType.ARRAY:
+            castOpcode = InputOpcode.CAST_ARRAY;
+            break;
+        case InputType.OBJECT:
+            castOpcode = InputOpcode.CAST_OBJECT;
+            break;
+        case InputType.JSON:
+            castOpcode = InputOpcode.CAST_JSON;
+            break;
         default:
             log.warn(`Cannot cast to type: ${targetType}`, this);
             throw new Error(`Cannot cast to type: ${targetType}`);
@@ -201,6 +216,19 @@ class IntermediateInput {
                 this.inputs.value = Cast.toRgbColorList(this.inputs.value);
                 this.type = InputType.COLOR;
                 break;
+            case InputOpcode.CAST_ARRAY:
+            case InputOpcode.CAST_OBJECT:
+            case InputOpcode.CAST_JSON: {
+                this.inputs.value = Cast.toJSON(this.inputs.value, true);
+                if (castOpcode === InputOpcode.CAST_ARRAY && !Array.isArray(this.inputs.value)) {
+                    this.inputs.value = [];
+                }
+                if (castOpcode === InputOpcode.CAST_OBJECT && Array.isArray(this.inputs.value)) {
+                    this.inputs.value = {};
+                }
+                this.type = IntermediateInput.getJSONInputType(this.inputs.value);
+                break;
+            }
             }
             return this;
         }

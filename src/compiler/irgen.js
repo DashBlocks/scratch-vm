@@ -311,6 +311,8 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.MOTION_X_GET, InputType.NUMBER);
         case 'motion_yposition':
             return new IntermediateInput(InputOpcode.MOTION_Y_GET, InputType.NUMBER);
+        case 'motion_position':
+            return new IntermediateInput(InputOpcode.MOTION_XY_GET, InputType.ARRAY);
 
         case 'operator_add':
             return new IntermediateInput(InputOpcode.OP_ADD, InputType.NUMBER_OR_NAN, {
@@ -470,6 +472,10 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
+        case 'operator_typeof':
+            return new IntermediateInput(InputOpcode.OP_TYPE_OF, InputType.STRING, {
+                value: this.descendInputOfBlock(block, 'VALUE')
+            });
         case 'operator_is_type':
             return new IntermediateInput(InputOpcode.OP_IS_TYPE, InputType.BOOLEAN, {
                 value: this.descendInputOfBlock(block, 'VALUE'),
@@ -489,6 +495,11 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.OP_CAST, InputType.ANY, {
                 value: this.descendInputOfBlock(block, 'VALUE'),
                 type: block.fields.TYPE.value
+            });
+        case 'operator_nums_in_range':
+            return new IntermediateInput(InputOpcode.NUMS_IN_RANGE, InputType.ARRAY, {
+                from: this.descendInputOfBlock(block, 'FROM').toType(InputType.NUMBER),
+                to: this.descendInputOfBlock(block, 'TO').toType(InputType.NUMBER)
             });
         case 'operator_in_range':
             return new IntermediateInput(InputOpcode.IN_RANGE, InputType.BOOLEAN, {
@@ -546,6 +557,8 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.SENSING_MOUSE_X, InputType.NUMBER);
         case 'sensing_mousey':
             return new IntermediateInput(InputOpcode.SENSING_MOUSE_Y, InputType.NUMBER);
+        case 'sensing_mousexy':
+            return new IntermediateInput(InputOpcode.SENSING_MOUSE_XY, InputType.ARRAY);
         case 'sensing_of': {
             const property = block.fields.PROPERTY.value;
             const object = this.descendInputOfBlock(block, 'OBJECT').toType(InputType.STRING);
@@ -573,11 +586,11 @@ class ScriptTreeGenerator {
                 case 'y position':
                     return new IntermediateInput(InputOpcode.SENSING_OF_POS_Y, InputType.NUMBER, {object});
                 case 'position':
-                    return new IntermediateInput(InputOpcode.SENSING_OF_POS_XY, InputType.ANY, {object}); // TODO: InputType.ARRAY/JSON
+                    return new IntermediateInput(InputOpcode.SENSING_OF_POS_XY, InputType.ARRAY, {object});
                 case 'direction':
                     return new IntermediateInput(InputOpcode.SENSING_OF_DIRECTION, InputType.NUMBER_REAL, {object});
                 case 'visibility':
-                    return new IntermediateInput(InputOpcode.SENSING_OF_VISIBILITY, InputType.BOOLEAN, {object});
+                    return new IntermediateInput(InputOpcode.SENSING_OF_VISIBILITY, InputType.BOOLEAN | InputType.NUMBER_ZERO, {object});
                 case 'costume #':
                     return new IntermediateInput(InputOpcode.SENSING_OF_COSTUME_NUMBER, InputType.NUMBER_POS_INT, {object});
                 case 'costume name':
