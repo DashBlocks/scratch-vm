@@ -575,8 +575,14 @@ class JSGenerator {
             return `[...${this.descendInput(node.array)}, ${this.descendInput(node.item)}]`;
         case InputOpcode.JSON_ARRAY_BEHIND:
             return `[${this.descendInput(node.item)}, ...${this.descendInput(node.array)}]`;
-        /*case InputOpcode.JSON_ARRAY_AT:
-            return `[${this.descendInput(node.item)}, ...${this.descendInput(node.array)}]`;*/
+        case InputOpcode.JSON_ARRAY_AT:
+            return `arrayInsert(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
+        case InputOpcode.JSON_ARRAY_SPLIT:
+            return `${this.descendInput(node.text)}.split(${this.descendInput(node.delim)})`;
+        case InputOpcode.JSON_ARRAY_DELETE:
+            return `arrayDelete(${this.descendInput(node.array)}, ${this.descendInput(node.index)})`;
+        case InputOpcode.JSON_ARRAY_REPLACE:
+            return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
         case InputOpcode.JSON_OBJECT_EMPTY:
             return '{}';
 
