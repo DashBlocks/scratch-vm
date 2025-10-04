@@ -497,12 +497,12 @@ class ScriptTreeGenerator {
                 type: block.fields.TYPE.value
             });
         case 'operator_nums_in_range':
-            return new IntermediateInput(InputOpcode.NUMS_IN_RANGE, InputType.ARRAY, {
+            return new IntermediateInput(InputOpcode.OP_NUMS_IN_RANGE, InputType.ARRAY, {
                 from: this.descendInputOfBlock(block, 'FROM').toType(InputType.NUMBER),
                 to: this.descendInputOfBlock(block, 'TO').toType(InputType.NUMBER)
             });
         case 'operator_in_range':
-            return new IntermediateInput(InputOpcode.IN_RANGE, InputType.BOOLEAN, {
+            return new IntermediateInput(InputOpcode.OP_IN_RANGE, InputType.BOOLEAN, {
                 num: this.descendInputOfBlock(block, 'NUM').toType(InputType.NUMBER),
                 from: this.descendInputOfBlock(block, 'FROM').toType(InputType.NUMBER),
                 to: this.descendInputOfBlock(block, 'TO').toType(InputType.NUMBER)
