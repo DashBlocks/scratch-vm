@@ -410,7 +410,7 @@ class JSGenerator {
         case InputOpcode.OP_POW_10:
             return `(10 ** ${this.descendInput(node.value)})`;
         case InputOpcode.OP_TYPE_OF:
-            return `runtime.ext_scratch3_operators.typeOf({VALUE: ${this.descendInput(node.value)}})`;
+            return `runtime.ext_scratch3_operators.typeof({VALUE: ${this.descendInput(node.value)}})`;
         case InputOpcode.OP_IS_TYPE:
             return `runtime.ext_scratch3_operators.isType({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
         case InputOpcode.OP_CAST:
@@ -656,10 +656,10 @@ class JSGenerator {
             this.source += `}\n`;
             break;
         }
-        case StackOpcode.CONTORL_RESUME:
+        case StackOpcode.CONTROL_RESUME:
             this.source += 'runtime.ext_scratch3_control.resume();\n';
             break;
-        case StackOpcode.CONTORL_PAUSE:
+        case StackOpcode.CONTROL_PAUSE:
             this.source += 'runtime.ext_scratch3_control.pause();\n';
             break;
         case StackOpcode.CONTROL_STOP_ALL:
