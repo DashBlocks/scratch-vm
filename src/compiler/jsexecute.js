@@ -604,6 +604,38 @@ runtimeFunctions.listContents = `const listContents = list => {
 }`;
 
 /**
+ * Insert a value in an array.
+ * @param {Array} array The array.
+ * @param {*} idx The Scratch index in the array.
+ * @param {*} value The value to insert.
+ * @returns {Array} New array
+ */
+runtimeFunctions.arrayInsert = `const arrayInsert = (array, idx, value) => {
+    const index = listIndex(idx, array.length + 1);
+    if (index === -1) {
+        return array;
+    }
+    return list.toSpliced(index, 0, value);
+}`;
+
+/**
+ * Delete a value from an array.
+ * @param {Array} array The array.
+ * @param {*} idx The Scratch index in the array.
+ * @returns {Array} New array
+ */
+runtimeFunctions.arrayDelete = `const arrayDelete = (array, idx, value) => {
+    if (idx === 'all') {
+        return [];
+    }
+    const index = listIndex(idx, array.length);
+    if (index === -1) {
+        return array;
+    }
+    return list.toSpliced(index, 1);
+}`;
+
+/**
  * Convert a color to an RGB list
  * @param {*} color The color value to convert
  * @return {Array.<number>} [r,g,b], values between 0-255.
