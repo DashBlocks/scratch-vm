@@ -309,6 +309,28 @@ class ScriptTreeGenerator {
                 array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
                 item: this.descendInputOfBlock(block, 'ITEM')
             });
+        case 'json_array_at':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_AT, InputType.ARRAY, {
+                array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
+                index: this.descendInputOfBlock(block, 'INDEX'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            });
+        case 'json_array_split':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_SPLIT, InputType.ARRAY, {
+                text: this.descendInputOfBlock(block, 'TEXT').toType(InputType.STRING),
+                delim: this.descendInputOfBlock(block, 'DELIM').toType(InputType.STRING),
+            });
+        case 'json_array_delete':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_DELETE, InputType.ARRAY, {
+                array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
+                index: this.descendInputOfBlock(block, 'INDEX')
+            });
+        case 'json_array_replace':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_REPLACE, InputType.ARRAY, {
+                array: this.descendInputOfBlock(block, 'ARRAY').toType(InputType.ARRAY),
+                index: this.descendInputOfBlock(block, 'INDEX'),
+                item: this.descendInputOfBlock(block, 'ITEM')
+            });
 
         case 'event_broadcast_menu': {
             const broadcastOption = block.fields.BROADCAST_OPTION;
