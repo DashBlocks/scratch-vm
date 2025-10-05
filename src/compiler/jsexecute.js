@@ -302,7 +302,8 @@ runtimeFunctions.toJSON = `const toJSON = value => {
         return value;
     }
     try {
-        return JSON.parse(value);
+        const result = JSON.parse(value);
+        return typeof result === 'object' && result instanceof Object ? result : [];
     } catch {
         return [];
     }
@@ -615,7 +616,7 @@ runtimeFunctions.arrayReplace = `const arrayReplace = (array, idx, value) => {
     if (index === -1) {
         return array;
     }
-    return [...array.slice(0, index), value, ...array.slice(index)];
+    return [...array.slice(0, index), value, ...array.slice(index + 1)];
 }`;
 
 /**
