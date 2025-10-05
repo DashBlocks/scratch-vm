@@ -1,5 +1,3 @@
-// @ts-check
-
 const Cast = require('../util/cast');
 const {InputOpcode, InputType} = require('./enums.js');
 const log = require('../util/log');
@@ -72,7 +70,7 @@ class IntermediateInput {
     }
 
     static getJSONInputType (json) {
-        if (!(typeof json === 'object' && json instanceof Object)) throw new Error('Expected a JSON.');
+        if (!(typeof json === 'object' && json instanceof Object)) throw new Error('Expected a JSON.', json);
         if (Array.isArray(json)) return InputType.ARRAY;
         return InputType.OBJECT;
     }
