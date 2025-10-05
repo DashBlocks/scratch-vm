@@ -113,7 +113,7 @@ class Cast {
         }
         try {
             // Try to parse
-            const result = ExtendedJSON.parse(value);
+            const result = ExtendedJSON.parse(Cast.toString(value));
             return Array.isArray(result) ? result : [];
         } catch {
             return [];
@@ -132,7 +132,7 @@ class Cast {
         }
         try {
             // Try to parse
-            const result = ExtendedJSON.parse(value);
+            const result = ExtendedJSON.parse(Cast.toString(value));
             return typeof result === 'object' && result instanceof Object && !Array.isArray(result) ? result : {};
         } catch {
             return {};
@@ -152,7 +152,7 @@ class Cast {
         }
         try {
             // Try to parse
-            return ExtendedJSON.parse(value);
+            return ExtendedJSON.parse(Cast.toString(value));
         } catch {
             return arrayIfFail ? [] : {};
         }
