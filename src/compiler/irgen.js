@@ -1285,6 +1285,7 @@ class ScriptTreeGenerator {
                 input: this.descendInput(block)
             });
         } catch (e) {
+            log.warn(`IR: descendVisualReport: Error occured in descendInput: ${block.opcode}`, block);
             return null;
         }
     }
