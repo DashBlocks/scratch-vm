@@ -238,7 +238,7 @@ const InputOpcode = {
     JSON_LENGTH: 'json.length',
     JSON_ARRAY_EMPTY: 'json.arrayEmpty',
     JSON_ARRAY_ITEM_OF: 'json.arrayItemOf',
-    JSON_ARRAY_ITEN_NO_OF: 'json.arrayItemNoOf',
+    JSON_ARRAY_ITEM_NO_OF: 'json.arrayItemNoOf',
     JSON_ARRAY_IN_FRONT_OF: 'json.arrayInFrontOf',
     JSON_ARRAY_BEHIND: 'json.arrayBehind',
     JSON_ARRAY_AT: 'json.arrayAt',
