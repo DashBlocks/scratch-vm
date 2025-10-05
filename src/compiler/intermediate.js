@@ -70,7 +70,7 @@ class IntermediateInput {
     }
 
     static getJSONInputType (json) {
-        if (!(typeof json === 'object' && json instanceof Object)) throw new Error('Expected a JSON.', json);
+        if (!(typeof json === 'object' && json instanceof Object)) throw new Error('Expected a JSON.');
         if (Array.isArray(json)) return InputType.ARRAY;
         return InputType.OBJECT;
     }
@@ -217,7 +217,9 @@ class IntermediateInput {
             case InputOpcode.CAST_ARRAY:
             case InputOpcode.CAST_OBJECT:
             case InputOpcode.CAST_JSON: {
+                log.warn(`Before: `, this.inputs.value);
                 this.inputs.value = Cast.toJSON(this.inputs.value, true);
+                log.warn(`After: `, this.inputs.value);
                 if (castOpcode === InputOpcode.CAST_ARRAY && !Array.isArray(this.inputs.value)) {
                     this.inputs.value = [];
                 }
