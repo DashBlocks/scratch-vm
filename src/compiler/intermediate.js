@@ -1,5 +1,3 @@
-// @ts-check
-
 const Cast = require('../util/cast');
 const {InputOpcode, InputType} = require('./enums.js');
 const log = require('../util/log');
