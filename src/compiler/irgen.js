@@ -560,6 +560,8 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
+        case 'operator_newline':
+            return this.createConstantInput('\n');
         case 'operator_typeof':
             return new IntermediateInput(InputOpcode.OP_TYPE_OF, InputType.STRING | InputType.OBJECT, {
                 value: this.descendInputOfBlock(block, 'VALUE')
