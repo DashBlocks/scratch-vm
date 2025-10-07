@@ -456,8 +456,8 @@ class ScriptTreeGenerator {
             const operator = block.fields.OPERATOR.value.toLowerCase();
             switch (operator) {
             case 'abs': return new IntermediateInput(InputOpcode.OP_ABS, InputType.NUMBER_POS | InputType.NUMBER_ZERO, {value});
-            case 'floor': return new IntermediateInput(InputOpcode.OP_FLOOR, InputType.NUMBER, {value});
-            case 'ceiling': return new IntermediateInput(InputOpcode.OP_CEILING, InputType.NUMBER, {value});
+            case 'floor': return new IntermediateInput(InputOpcode.OP_FLOOR, InputType.NUMBER_INT | InputType.NUMBER_INF, {value});
+            case 'ceiling': return new IntermediateInput(InputOpcode.OP_CEILING, InputType.NUMBER_INT | InputType.NUMBER_INF, {value});
             case 'sqrt': return new IntermediateInput(InputOpcode.OP_SQRT, InputType.NUMBER_OR_NAN, {value});
             case 'sin': return new IntermediateInput(InputOpcode.OP_SIN, InputType.NUMBER_OR_NAN, {value});
             case 'cos': return new IntermediateInput(InputOpcode.OP_COS, InputType.NUMBER_OR_NAN, {value});
@@ -552,7 +552,7 @@ class ScriptTreeGenerator {
             });
         }
         case 'operator_round':
-            return new IntermediateInput(InputOpcode.OP_ROUND, InputType.NUMBER, {
+            return new IntermediateInput(InputOpcode.OP_ROUND, InputType.NUMBER_INT | InputType.NUMBER_INF, {
                 value: this.descendInputOfBlock(block, 'NUM').toType(InputType.NUMBER)
             });
         case 'operator_subtract':
@@ -560,6 +560,14 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
+        case 'operator_se_with':
+            return new IntermediateInput(InputOpcode.OP_SE_WITH, InputType.BOOLEAN, {
+                value1: this.descendInputOfBlock(block, 'VALUE1'),
+                value2: this.descendInputOfBlock(block, 'VALUE2'),
+                type: block.fields.TYPE.value
+            });
+        case 'operator_newline':
+            return this.createConstantInput('\n');
         case 'operator_typeof':
             return new IntermediateInput(InputOpcode.OP_TYPE_OF, InputType.STRING | InputType.OBJECT, {
                 value: this.descendInputOfBlock(block, 'VALUE')
@@ -581,6 +589,11 @@ class ScriptTreeGenerator {
             });
         case 'operator_cast':
             return new IntermediateInput(InputOpcode.OP_CAST, InputType.ANY, {
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
+            });
+        case 'operator_to_case':
+            return new IntermediateInput(InputOpcode.OP_TO_CASE, InputType.STRING, {
                 value: this.descendInputOfBlock(block, 'VALUE'),
                 type: block.fields.TYPE.value
             });

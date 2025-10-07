@@ -112,7 +112,7 @@ class DashJSONBlocks {
         if (index === Cast.LIST_INVALID) {
             return array;
         }
-        return [...array.slice(0, index - 1), item, ...array.slice(index - 1)];
+        return [...array.slice(0, index - 1), item, ...array.slice(index)];
     }
 
     objectEmpty () {
