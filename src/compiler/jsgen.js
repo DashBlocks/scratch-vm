@@ -426,7 +426,7 @@ class JSGenerator {
         case InputOpcode.OP_CAST:
             return `runtime.ext_scratch3_operators.cast({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
         case InputOpcode.OP_TO_CASE:
-            return `runtime.ext_scratch3_operators.cast({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
+            return `runtime.ext_scratch3_operators.cast({VALUE: ${this.descendInput(node.value)}, CASE: "${sanitize(node.case)}"})`;
         case InputOpcode.OP_NUMS_IN_RANGE: {
             return `runtime.ext_scratch3_operators.numsInRange({FROM: ${this.descendInput(node.from)}, TO: ${this.descendInput(node.to)}})`;
         }
