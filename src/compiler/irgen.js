@@ -595,7 +595,7 @@ class ScriptTreeGenerator {
         case 'operator_to_case':
             return new IntermediateInput(InputOpcode.OP_TO_CASE, InputType.STRING, {
                 value: this.descendInputOfBlock(block, 'VALUE'),
-                type: block.fields.TYPE.value
+                CASE: block.fields.CASE.value
             });
         case 'operator_nums_in_range':
             return new IntermediateInput(InputOpcode.OP_NUMS_IN_RANGE, InputType.ARRAY, {

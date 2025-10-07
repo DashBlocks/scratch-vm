@@ -32,11 +32,13 @@ class Scratch3OperatorsBlocks {
             operator_letter_of: this.letterOf,
             operator_length: this.length,
             operator_contains: this.contains,
+            operator_se_with: this.startsEndsWith,
             operator_typeof: this.typeof,
             operator_is_type: this.isType,
             operator_is_string: this.isString,
             operator_is_number: this.isNumber,
             operator_cast: this.cast,
+            operator_to_case: this.toCase,
             operator_nums_in_range: this.numsInRange,
             operator_in_range: this.inRange,
             operator_mod: this.mod,
@@ -130,6 +132,17 @@ class Scratch3OperatorsBlocks {
         return format(args.STRING1).includes(format(args.STRING2));
     }
 
+    startsEndsWith (args) {
+        const value1 = Cast.toString(args.VALUE1);
+        const value2 = Cast.toString(args.VALUE2);
+        switch (args.TYPE) {
+            case 'starts':
+                return value1.startsWith(value2);
+            case 'ends':
+                return value1.endsWith(value2);
+        }
+    }
+
     typeof (args) {
         const value = args.VALUE;
         if (value === null) return 'null';
@@ -205,6 +218,16 @@ class Scratch3OperatorsBlocks {
                 return Cast.toObject(value);
             default:
                 return value;
+        }
+    }
+
+    toCase (args) {
+        const value = Cast.toString(args.VALUE);
+        switch (args.CASE) {
+            case 'upper':
+                return value.toUpperCase();
+            case 'lower':
+                return value.toLowerCase();
         }
     }
 
