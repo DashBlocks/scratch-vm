@@ -1,5 +1,5 @@
 const Cast = require('../util/cast');
-const {isPaused, setPaused} = require('../../../../src/addons/addons/debugger/module');
+const {isPaused, setPaused} = require('../../../scratch-gui/src/addons/addons/debugger/module');
 
 class Scratch3ControlBlocks {
     constructor (runtime) {
