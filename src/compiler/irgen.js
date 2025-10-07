@@ -560,6 +560,12 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
+        case 'operator_se_with':
+            return new IntermediateInput(InputOpcode.OP_SE_WITH, InputType.BOOLEAN, {
+                value1: this.descendInputOfBlock(block, 'VALUE1'),
+                value2: this.descendInputOfBlock(block, 'VALUE2'),
+                type: block.fields.TYPE.value
+            });
         case 'operator_newline':
             return this.createConstantInput('\n');
         case 'operator_typeof':
@@ -583,6 +589,11 @@ class ScriptTreeGenerator {
             });
         case 'operator_cast':
             return new IntermediateInput(InputOpcode.OP_CAST, InputType.ANY, {
+                value: this.descendInputOfBlock(block, 'VALUE'),
+                type: block.fields.TYPE.value
+            });
+        case 'operator_to_case':
+            return new IntermediateInput(InputOpcode.OP_TO_CASE, InputType.STRING, {
                 value: this.descendInputOfBlock(block, 'VALUE'),
                 type: block.fields.TYPE.value
             });

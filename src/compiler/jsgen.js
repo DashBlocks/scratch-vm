@@ -413,6 +413,8 @@ class JSGenerator {
             return `Math.sqrt(${this.descendInput(node.value)})`;
         case InputOpcode.OP_SUBTRACT:
             return `(${this.descendInput(node.left)} - ${this.descendInput(node.right)})`;
+        case InputOpcode.OP_SE_WITH:
+            return `runtime.ext_scratch3_operators.startsEndsWith({VALUE1: ${this.descendInput(node.value1)}, VALUE2: ${this.descendInput(node.value2)}, TYPE: "${sanitize(node.type)}"})`;
         case InputOpcode.OP_TAN:
             return `tan(${this.descendInput(node.value)})`;
         case InputOpcode.OP_POW_10:
@@ -422,6 +424,8 @@ class JSGenerator {
         case InputOpcode.OP_IS_TYPE:
             return `runtime.ext_scratch3_operators.isType({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
         case InputOpcode.OP_CAST:
+            return `runtime.ext_scratch3_operators.cast({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
+        case InputOpcode.OP_TO_CASE:
             return `runtime.ext_scratch3_operators.cast({VALUE: ${this.descendInput(node.value)}, TYPE: "${sanitize(node.type)}"})`;
         case InputOpcode.OP_NUMS_IN_RANGE: {
             return `runtime.ext_scratch3_operators.numsInRange({FROM: ${this.descendInput(node.from)}, TO: ${this.descendInput(node.to)}})`;

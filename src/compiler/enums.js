@@ -289,9 +289,11 @@ const InputOpcode = {
     OP_RANDOM: 'op.random',
     OP_ROUND: 'op.round',
     OP_SUBTRACT: 'op.subtract',
+    OP_SE_WITH: 'op.startsEndsWith',
     OP_TYPE_OF: 'op.typeOf',
     OP_IS_TYPE: 'op.isType',
     OP_CAST: 'op.cast',
+    OP_TO_CASE: 'op.toCase',
     OP_NUMS_IN_RANGE: 'op.numsInRange',
     OP_IN_RANGE: 'op.inRange',
 
