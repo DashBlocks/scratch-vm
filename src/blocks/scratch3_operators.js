@@ -109,7 +109,7 @@ class Scratch3OperatorsBlocks {
     }
 
     joinExpandable (args) {
-        return Object.values(args).reduce((acc, value) => acc + Cast.toString(value), '');
+        return Object.entries(args).reduce((acc, [argName, value]) => acc + (argName === 'mutation' ? '' : Cast.toString(value)), '');
     }
 
     newline () {
