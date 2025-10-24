@@ -362,6 +362,8 @@ class JSGenerator {
         }
         case InputOpcode.OP_JOIN:
             return `(${this.descendInput(node.left)} + ${this.descendInput(node.right)})`;
+        case InputOpcode.OP_JOIN_EXPANDABLE:
+            return `(${node.inputs.map((input) => this.descendInput(input)).join('+')})`;
         case InputOpcode.OP_LENGTH:
             return `${this.descendInput(node.string)}.length`;
         case InputOpcode.OP_LESS: {
@@ -608,7 +610,7 @@ class JSGenerator {
         case InputOpcode.JSON_OBJECT_DELETE:
             return `runtime.ext_dash_json.objectDelete({OBJECT: ${this.descendInput(node.object)}, KEY: ${this.descendInput(node.key)}})`;
         case InputOpcode.JSON_OBJECT_ENTRIES:
-            return `runtime.ext_dash_json.objectEntries({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.key)}"})`;
+            return `runtime.ext_dash_json.objectEntries({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.property)}"})`;
 
         default:
             log.warn(`JS: Unknown input: ${block.opcode}`, node);

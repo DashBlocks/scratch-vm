@@ -266,6 +266,7 @@ const InputOpcode = {
     OP_GREATER: 'op.greater',
     OP_LESS: 'op.less',
     OP_JOIN: 'op.join',
+    OP_JOIN_EXPANDABLE: 'op.joinExpandable',
     OP_LENGTH: 'op.length',
     OP_LETTER_OF: 'op.letterOf',
     OP_ABS: 'op.abs',

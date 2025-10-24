@@ -28,6 +28,7 @@ class Scratch3OperatorsBlocks {
             operator_not: this.not,
             operator_random: this.random,
             operator_join: this.join,
+            operator_joinexpandable: this.joinExpandable,
             operator_newline: this.newline,
             operator_letter_of: this.letterOf,
             operator_length: this.length,
@@ -107,7 +108,11 @@ class Scratch3OperatorsBlocks {
         return Cast.toString(args.STRING1) + Cast.toString(args.STRING2);
     }
 
-    newline (args) {
+    joinExpandable (args) {
+        return args.reduce((acc, value) => acc + Cast.toString(value), '');
+    }
+
+    newline () {
         return "\n";
     }
 
