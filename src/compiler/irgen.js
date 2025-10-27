@@ -287,6 +287,22 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.JSON_LENGTH, InputType.NUMBER_POS_INT | InputType.NUMBER_ZERO, {
                 value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.JSON)
             });
+        case 'json_get_by_path':
+            return new IntermediateInput(InputOpcode.JSON_GET_BY_PATH, InputType.ANY, {
+                path: this.descendInputOfBlock(block, 'PATH').toType(InputType.ARRAY),
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.JSON)
+            });
+        case 'json_set_by_path':
+            return new IntermediateInput(InputOpcode.JSON_SET_BY_PATH, InputType.JSON, {
+                item: this.descendInputOfBlock(block, 'ITEM'),
+                path: this.descendInputOfBlock(block, 'PATH').toType(InputType.ARRAY),
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.JSON)
+            });
+        case 'json_stringify_spacer':
+            return new IntermediateInput(InputOpcode.JSON_STRINGIFY_SPACER, InputType.STRING, {
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.JSON),
+                spacer: this.descendInputOfBlock(block, 'SPACER')
+            });
         case 'json_array_empty':
             return new IntermediateInput(InputOpcode.JSON_ARRAY_EMPTY, InputType.ARRAY);
         case 'json_array_item_of':
@@ -331,6 +347,16 @@ class ScriptTreeGenerator {
                 index: this.descendInputOfBlock(block, 'INDEX'),
                 item: this.descendInputOfBlock(block, 'ITEM')
             });
+        case 'json_array_expandable':
+            const inputs = [];
+            for (const input of Object.values(block.inputs)) {
+                if (input.block == null) {
+                    delete block.inputs[input.name];
+                } else {
+                    inputs.push(this.descendInputOfBlock(block, input.name));
+                }
+            }
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_EXPANDABLE, InputType.ARRAY, {inputs});
         case 'json_object_empty':
             return new IntermediateInput(InputOpcode.JSON_OBJECT_EMPTY, InputType.OBJECT);
         case 'json_object_split':
