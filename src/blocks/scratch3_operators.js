@@ -66,28 +66,28 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
-        let builder = '';
-        let powWrap = 0;
-        for (var i = 0; i < args.length; i++) {
-            const op = args[i];
-            const prevOp = args[i - 1];
-            const opType = op[1];
-
-            if (opType === "^") {
-                builder += 'Math.pow(';
-                builder += Cast.toNumber(op[0]);
-                builder += ',';
-                powWrap++;
-            } else {
-                builder += Cast.toNumber(op[0]);
-                while (powWrap > 0) {
-                    builder += ')';
-                    powWrap--;
-                }
-                if (opType) builder += opType;
-            }
+        let numsAndOps = Object.entries(args).filter(([argName]) => argName !== 'mutation');
+        while (numsAndOps.includes('^')) {
+            const iOfOp = numsAndOps.indexOf('^');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) ** Cast.toNumber(numsAndOps[iOfOp + 1]));
         }
-        return builder;
+        while (numsAndOps.includes('*')) {
+            const iOfOp = numsAndOps.indexOf('*');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) * Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('/')) {
+            const iOfOp = numsAndOps.indexOf('/');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) / Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('+')) {
+            const iOfOp = numsAndOps.indexOf('+');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) + Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('-')) {
+            const iOfOp = numsAndOps.indexOf('-');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) - Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        return numsAndOps[0];
     }
 
     lt (args) {
