@@ -807,7 +807,16 @@ class ScriptTreeGenerator {
                         const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
                         if (!irFunc) return this.descendCompatLayerInput(block);
                         try {
-                            const [type, inputs, yields] = irFunc(this, block);
+                            const [type, inputs, yields] = irFunc(this, block, {
+                                IntermediateInput,
+                                IntermediateStackBlock,
+                                IntermediateStack,
+                                InputOpcode,
+                                StackOpcode,
+                                InputType,
+                                SCALAR_TYPE,
+                                LIST_TYPE
+                            });
                             return new IntermediateInput(
                                 InputOpcode.COMPILED_EXT_PRIMITIVE,
                                 type in InputType ? type : InputType.ANY,
@@ -1208,7 +1217,16 @@ class ScriptTreeGenerator {
                         const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
                         if (!irFunc) return this.descendCompatLayerStack(block);
                         try {
-                            const [inputs, yields] = irFunc(this, block);
+                            const [inputs, yields] = irFunc(this, block, {
+                                IntermediateInput,
+                                IntermediateStackBlock,
+                                IntermediateStack,
+                                InputOpcode,
+                                StackOpcode,
+                                InputType,
+                                SCALAR_TYPE,
+                                LIST_TYPE
+                            });
                             return new IntermediateStackBlock(
                                 StackOpcode.COMPILED_EXT_PRIMITIVE,
                                 {category, opcode, inputs: inputs ?? {}},
