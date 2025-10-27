@@ -521,15 +521,18 @@ class ScriptTreeGenerator {
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
         case 'operator_mathexpandable': {
-            const inputs = [];
-            for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
-                    delete block.inputs[input.name];
-                } else {
-                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.STRING));
-                }
+            const menuOperators = block.mutation.menuvalues;
+            const inputs = Object.values(block.inputs);
+            const operations = [];
+            for (var i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                if (input.block == null) delete block.inputs[input.name];
+                else operations.push([
+                  this.descendInputOfBlock(block, input.name),
+                  menuOperators[i]
+                ]);
             }
-            return new IntermediateInput(InputOpcode.OP_MATH, InputType.NUMBER_OR_NAN, {inputs});
+            return new IntermediateInput(InputOpcode.OP_MATH, InputType.NUMBER_OR_NAN, {operations});
         }
         case 'operator_not':
             return new IntermediateInput(InputOpcode.OP_NOT, InputType.BOOLEAN, {
