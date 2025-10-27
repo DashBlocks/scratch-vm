@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const ExtendedJSON = require('@turbowarp/json');
 
 class DashJSONBlocks {
     constructor (runtime) {
@@ -20,12 +21,16 @@ class DashJSONBlocks {
             json_array_item_no_of: this.arrayItemNoOf,
             json_contains: this.contains,
             json_length: this.length,
+            json_get_by_path: this.getByPath,
+            json_set_by_path: this.setByPath,
+            json_stringify_spacer: this.stringifySpacer,
             json_array_in_front_of: this.arrayAddFront,
             json_array_behind: this.arrayAddBack,
             json_array_at: this.arrayInsertAt,
             json_array_split: this.arraySplit,
             json_array_delete: this.arrayDelete,
             json_array_replace: this.arrayReplace,
+            json_array_expandable: this.arrayExpandable,
             json_object_empty: this.objectEmpty,
             json_object_split: this.objectSplit,
             json_object_item_of: this.objectItemOf,
@@ -64,6 +69,82 @@ class DashJSONBlocks {
     length (args) {
         const json = Cast.toJSON(args.VALUE, true);
         return Array.isArray(json) ? json.length : Object.keys(json).length;
+    }
+
+    getByPath (args) {
+        const path = Cast.toList(args.PATH);
+        const json = Cast.toJSON(args.VALUE, true);
+        let pathExist = true;
+        const result = path.reduce((acc, key) => {
+            if (!pathExist) return;
+            if (Array.isArray(acc)) {
+                key = Cast.toListIndex(key, acc.length, false);
+                if (key === Cast.LIST_INVALID) {
+                    pathExist = false;
+                    return;
+                }
+                return acc[key - 1];
+            } else if (typeof acc === 'object' && acc instanceof Object) {
+                key = Cast.toString(key);
+                if (!(key in acc)) {
+                    pathExist = false;
+                    return;
+                }
+                return acc[key];
+            } else {
+                pathExist = false;
+                return;
+            }
+        }, json);
+        return pathExist ? result : '';
+    }
+
+    setByPath (args) {
+        const path = Cast.toList(args.PATH);
+        const json = Cast.toJSON(args.VALUE, true);
+        let newJson = Array.isArray(json) ? [...json] : {...json};
+        let pathExist = true;
+        const result = path.reduce(([full, part], key, i) => {
+            if (!pathExist) return;
+            if (Array.isArray(part)) {
+                key = Cast.toListIndex(key, part.length, false);
+                if (key === Cast.LIST_INVALID) {
+                    pathExist = false;
+                    return;
+                }
+                if (i < path.length - 1 && !(typeof part[key - 1] === 'object' && part[key - 1] instanceof Object)) {
+                    pathExist = false;
+                    return;
+                }
+                part[key - 1] = i < path.length - 1
+                    ? Array.isArray(part[key - 1]) ? [...part[key - 1]] : {...part[key - 1]}
+                    : args.ITEM;
+                return [full, part[key - 1]];
+            } else if (typeof part === 'object' && part instanceof Object) {
+                key = Cast.toString(key);
+                if (!(key in part)) {
+                    pathExist = false;
+                    return;
+                }
+                if (i < path.length - 1 && !(typeof part[key] === 'object' && part[key] instanceof Object)) {
+                    pathExist = false;
+                    return;
+                }
+                part[key] = i < path.length - 1
+                    ? Array.isArray(part[key]) ? [...part[key]] : {...part[key]}
+                    : args.ITEM;
+                return [full, part[key]];
+            } else {
+                pathExist = false;
+                return;
+            }
+        }, [newJson, newJson]);
+        return pathExist ? result[0] : json;
+    }
+
+    stringifySpacer (args) {
+        const json = Cast.toJSON(args.VALUE, true);
+        return ExtendedJSON.stringify(json, null, args.SPACER);
     }
 
     arrayAddFront (args) {
@@ -113,6 +194,10 @@ class DashJSONBlocks {
             return array;
         }
         return [...array.slice(0, index - 1), item, ...array.slice(index)];
+    }
+
+    arrayExpandable (args) {
+        return Object.entries(args).reduce((acc, [argName, value]) => argName === 'mutation' ? acc : [...acc, value], []);
     }
 
     objectEmpty () {
