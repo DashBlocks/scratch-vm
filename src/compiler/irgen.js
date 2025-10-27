@@ -808,7 +808,7 @@ class ScriptTreeGenerator {
                         if (!irFunc) return this.descendCompatLayerInput(block);
                         try {
                             const [type, inputs, yields] = irFunc(this, block);
-                            return new IntermediateStackBlock(
+                            return new IntermediateInput(
                                 InputOpcode.COMPILED_EXT_PRIMITIVE,
                                 type in InputType ? type : InputType.ANY,
                                 inputs ?? {},
