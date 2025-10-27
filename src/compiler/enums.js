@@ -236,6 +236,9 @@ const InputOpcode = {
 
     JSON_CONTAINS: 'json.contains',
     JSON_LENGTH: 'json.length',
+    JSON_GET_BY_PATH: 'json.getByPath',
+    JSON_SET_BY_PATH: 'json.setByPath',
+    JSON_STRINGIFY_SPACER: 'json.stringifySpacer',
     JSON_ARRAY_EMPTY: 'json.arrayEmpty',
     JSON_ARRAY_ITEM_OF: 'json.arrayItemOf',
     JSON_ARRAY_ITEM_NO_OF: 'json.arrayItemNoOf',
@@ -245,6 +248,7 @@ const InputOpcode = {
     JSON_ARRAY_SPLIT: 'json.arraySplit',
     JSON_ARRAY_DELETE: 'json.arrayDelete',
     JSON_ARRAY_REPLACE: 'json.arrayReplace',
+    JSON_ARRAY_EXPANDABLE: 'json.arrayExpandable',
     JSON_OBJECT_EMPTY: 'json.objectEmpty',
     JSON_OBJECT_SPLIT: 'json.objectSplit',
     JSON_OBJECT_ITEM_OF: 'json.objectItemOf',
