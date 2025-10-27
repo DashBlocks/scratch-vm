@@ -20,6 +20,7 @@ class Scratch3OperatorsBlocks {
             operator_subtract: this.subtract,
             operator_multiply: this.multiply,
             operator_divide: this.divide,
+            operator_mathexpandable: this.math,
             operator_lt: this.lt,
             operator_equals: this.equals,
             operator_gt: this.gt,
@@ -62,6 +63,31 @@ class Scratch3OperatorsBlocks {
 
     divide (args) {
         return Cast.toNumber(args.NUM1) / Cast.toNumber(args.NUM2);
+    }
+
+    math (args) {
+        let builder = '';
+        let powWrap = 0;
+        for (var i = 0; i < args.length; i++) {
+            const op = args[i];
+            const prevOp = args[i - 1];
+            const opType = op[1];
+
+            if (opType === "^") {
+                builder += 'Math.pow(';
+                builder += Cast.toNumber(op[0]);
+                builder += ',';
+                powWrap++;
+            } else {
+                builder += Cast.toNumber(op[0]);
+                while (powWrap > 0) {
+                    builder += ')';
+                    powWrap--;
+                }
+                if (opType) builder += opType;
+            }
+        }
+        return builder;
     }
 
     lt (args) {
