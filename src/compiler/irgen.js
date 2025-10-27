@@ -522,11 +522,15 @@ class ScriptTreeGenerator {
             });
         case 'operator_mathexpandable': {
             const inputs = [];
+            let i = 0;
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    inputs.push(this.descendInputOfBlock(block, input.name));
+                    inputs.push(i % 2 == 0
+                        ? this.descendInputOfBlock(block, input.name).toType(InputType.NUMBER)
+                        : this.descendInputOfBlock(block, input.name));
+                    i++;
                 }
             }
             return new IntermediateInput(InputOpcode.OP_MATH, InputType.NUMBER_OR_NAN, {inputs});
