@@ -803,7 +803,20 @@ class ScriptTreeGenerator {
                         type === BlockType.REPORTER ||type === BlockType.BOOLEAN ||
                         type === BlockType.ARRAY || type === BlockType.OBJECT
                     ) {
-                        return this.descendCompatLayerInput(block);
+                        const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                        const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
+                        if (!irFunc) return this.descendCompatLayerInput(block);
+                        try {
+                            const [type, inputs, yields] = irFunc(this, block);
+                            return new IntermediateStackBlock(
+                                InputOpcode.COMPILED_EXT_PRIMITIVE,
+                                type in InputType ? type : InputType.ANY,
+                                inputs ?? {},
+                                yields ?? false
+                            );
+                        } catch {
+                            return this.descendCompatLayerInput(block);
+                        }
                     }
                 }
             }
@@ -1191,7 +1204,15 @@ class ScriptTreeGenerator {
                 if (blockInfo) {
                     const type = blockInfo.info.blockType;
                     if (type === BlockType.COMMAND || type === BlockType.CONDITIONAL || type === BlockType.LOOP) {
-                        return this.descendCompatLayerStack(block);
+                        const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                        const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
+                        if (!irFunc) return this.descendCompatLayerStack(block);
+                        try {
+                            const [inputs, yields] = irFunc(this, block);
+                            return new IntermediateStackBlock(StackOpcode.COMPILED_EXT_PRIMITIVE, inputs ?? {}, yields ?? false);
+                        } catch {
+                            return this.descendCompatLayerStack(block);
+                        }
                     }
                 }
             }
