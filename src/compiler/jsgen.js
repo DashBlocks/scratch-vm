@@ -395,6 +395,31 @@ class JSGenerator {
             return `mod(${this.descendInput(node.left)}, ${this.descendInput(node.right)})`;
         case InputOpcode.OP_MULTIPLY:
             return `(${this.descendInput(node.left)} * ${this.descendInput(node.right)})`;
+        case InputOpcode.OP_MATH: {
+            const operations = node.operations;
+            let builder = '';
+            let powWrap = 0;
+            for (var i = 0; i < operations.length; i++) {
+                const op = operations[i];
+                const prevOp = operations[i - 1];
+                const opType = op[1];
+
+                if (opType === "^") {
+                    builder += 'Math.pow(';
+                    builder += this.descendInput(op[0]).asNumber();
+                    builder += ',';
+                    powWrap++;
+                } else {
+                    builder += this.descendInput(op[0]).asNumber();
+                    while (powWrap > 0) {
+                        builder += ')';
+                        powWrap--;
+                    }
+                    if (opType) builder += opType;
+                }
+            }
+            return '(' + builder + ')';
+        }
         case InputOpcode.OP_NOT:
             return `!${this.descendInput(node.operand)}`;
         case InputOpcode.OP_OR:

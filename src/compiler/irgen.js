@@ -347,7 +347,7 @@ class ScriptTreeGenerator {
                 index: this.descendInputOfBlock(block, 'INDEX'),
                 item: this.descendInputOfBlock(block, 'ITEM')
             });
-        case 'json_array_expandable':
+        case 'json_array_expandable': {
             const inputs = [];
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
@@ -357,6 +357,7 @@ class ScriptTreeGenerator {
                 }
             }
             return new IntermediateInput(InputOpcode.JSON_ARRAY_EXPANDABLE, InputType.ARRAY, {inputs});
+        }
         case 'json_object_empty':
             return new IntermediateInput(InputOpcode.JSON_OBJECT_EMPTY, InputType.OBJECT);
         case 'json_object_split':
@@ -463,7 +464,7 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'STRING1').toType(InputType.STRING),
                 right: this.descendInputOfBlock(block, 'STRING2').toType(InputType.STRING)
             });
-        case 'operator_joinexpandable':
+        case 'operator_joinexpandable': {
             const inputs = [];
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
@@ -473,6 +474,7 @@ class ScriptTreeGenerator {
                 }
             }
             return new IntermediateInput(InputOpcode.OP_JOIN_EXPANDABLE, InputType.STRING, {inputs});
+        }
         case 'operator_length':
             return new IntermediateInput(InputOpcode.OP_LENGTH, InputType.NUMBER_POS_INT | InputType.NUMBER_ZERO, {
                 string: this.descendInputOfBlock(block, 'STRING').toType(InputType.STRING)
@@ -518,6 +520,17 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
+        case 'operator_mathexpandable': {
+            const inputs = [];
+            for (const input of Object.values(block.inputs)) {
+                if (input.block == null) {
+                    delete block.inputs[input.name];
+                } else {
+                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.STRING));
+                }
+            }
+            return new IntermediateInput(InputOpcode.OP_MATH, InputType.NUMBER_OR_NAN, {inputs});
+        }
         case 'operator_not':
             return new IntermediateInput(InputOpcode.OP_NOT, InputType.BOOLEAN, {
                 operand: this.descendInputOfBlock(block, 'OPERAND').toType(InputType.BOOLEAN)

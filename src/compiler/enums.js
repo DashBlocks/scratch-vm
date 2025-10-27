@@ -289,6 +289,7 @@ const InputOpcode = {
     OP_POW_10: 'op.10^',
     OP_MOD: 'op.mod',
     OP_MULTIPLY: 'op.multiply',
+    OP_MATH: 'op.mathexpandable',
     OP_NOT: 'op.not',
     OP_OR: 'op.or',
     OP_RANDOM: 'op.random',
