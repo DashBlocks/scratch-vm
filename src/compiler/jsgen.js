@@ -570,6 +570,12 @@ class JSGenerator {
             }
             return `(Array.isArray(${this.descendInput(value)}) ? ${this.descendInput(value)}.length : Object.keys(${this.descendInput(value)}).length)`;
         }
+        case InputOpcode.JSON_GET_BY_PATH:
+            return `runtime.ext_dash_json.getByPath({PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
+        case InputOpcode.JSON_SET_BY_PATH:
+            return `runtime.ext_dash_json.setByPath({ITEM: ${this.descendInput(node.item)}, PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
+        case InputOpcode.JSON_STRINGIFY_SPACER:
+            return `JSON.stringify(${this.descendInput(node.value)}, null, ${this.descendInput(node.spacer)})`;
         case InputOpcode.JSON_ARRAY_EMPTY:
             return '[]';
         case InputOpcode.JSON_ARRAY_ITEM_OF: {
@@ -597,6 +603,8 @@ class JSGenerator {
             return `arrayDelete(${this.descendInput(node.array)}, ${this.descendInput(node.index)})`;
         case InputOpcode.JSON_ARRAY_REPLACE:
             return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
+        case InputOpcode.JSON_ARRAY_EXPANDABLE:
+            return `[${node.inputs.map((input) => this.descendInput(input)).join(', ')}]`;
         case InputOpcode.JSON_OBJECT_EMPTY:
             return '{}';
         case InputOpcode.JSON_OBJECT_SPLIT:
