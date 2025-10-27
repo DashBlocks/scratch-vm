@@ -236,8 +236,21 @@ class ExtensionManager {
             const fakeWorkerId = this.nextExtensionWorker++;
             this.workerURLs[fakeWorkerId] = extensionURL;
 
+            const {IRGenerator} = require('../compiler/irgen');
+            const JSGenerator = require('../compiler/jsgen');
+
             for (const extensionObject of extensionObjects) {
                 const extensionInfo = extensionObject.getInfo();
+                if ('getCompileInfo' in extensionObject) {
+                    try {
+                        const extCompileInfo = extensionObject.getCompileInfo();
+                        if (!('ir' in extCompileInfo && 'js' in extCompileInfo)) throw new Error();
+                        IRGenerator.setExtensionIR(extensionInfo.id, extCompileInfo.ir);
+                        JSGenerator.setExtensionJS(extensionInfo.id, extCompileInfo.js);
+                    } catch {
+                        throw new Error(`Cannot register compile info of extension: ${extensionInfo.id}`);
+                    }
+                }
                 const serviceName = `unsandboxed.${fakeWorkerId}.${extensionInfo.id}`;
                 dispatch.setServiceSync(serviceName, extensionObject);
                 dispatch.callSync('extensions', 'registerExtensionServiceSync', serviceName);
