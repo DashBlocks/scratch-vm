@@ -811,7 +811,7 @@ class ScriptTreeGenerator {
                             return new IntermediateInput(
                                 InputOpcode.COMPILED_EXT_PRIMITIVE,
                                 type in InputType ? type : InputType.ANY,
-                                inputs ?? {},
+                                {category, opcode, inputs: inputs ?? {}},
                                 yields ?? false
                             );
                         } catch {
@@ -1209,7 +1209,11 @@ class ScriptTreeGenerator {
                         if (!irFunc) return this.descendCompatLayerStack(block);
                         try {
                             const [inputs, yields] = irFunc(this, block);
-                            return new IntermediateStackBlock(StackOpcode.COMPILED_EXT_PRIMITIVE, inputs ?? {}, yields ?? false);
+                            return new IntermediateStackBlock(
+                                StackOpcode.COMPILED_EXT_PRIMITIVE,
+                                {category, opcode, inputs: inputs ?? {}},
+                                yields ?? false
+                            );
                         } catch {
                             return this.descendCompatLayerStack(block);
                         }
