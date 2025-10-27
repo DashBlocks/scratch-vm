@@ -1326,6 +1326,14 @@ class JSGenerator {
 
         return fn;
     }
+
+    static _extensionJSInfo = {};
+    static setExtensionJS (id, info) {
+        JSGenerator._extensionJSInfo[id] = info;
+    }
+    static getExtensionJS (id) {
+        return JSGenerator._extensionJSInfo[id];
+    }
 }
 
 // For extensions.
