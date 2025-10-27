@@ -20,6 +20,7 @@ class Scratch3OperatorsBlocks {
             operator_subtract: this.subtract,
             operator_multiply: this.multiply,
             operator_divide: this.divide,
+            operator_mathexpandable: this.math,
             operator_lt: this.lt,
             operator_equals: this.equals,
             operator_gt: this.gt,
@@ -62,6 +63,31 @@ class Scratch3OperatorsBlocks {
 
     divide (args) {
         return Cast.toNumber(args.NUM1) / Cast.toNumber(args.NUM2);
+    }
+
+    math (args) {
+        let numsAndOps = Object.entries(args).filter(([argName]) => argName !== 'mutation');
+        while (numsAndOps.includes('^')) {
+            const iOfOp = numsAndOps.indexOf('^');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) ** Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('*')) {
+            const iOfOp = numsAndOps.indexOf('*');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) * Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('/')) {
+            const iOfOp = numsAndOps.indexOf('/');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) / Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('+')) {
+            const iOfOp = numsAndOps.indexOf('+');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) + Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        while (numsAndOps.includes('-')) {
+            const iOfOp = numsAndOps.indexOf('-');
+            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) - Cast.toNumber(numsAndOps[iOfOp + 1]));
+        }
+        return numsAndOps[0];
     }
 
     lt (args) {
