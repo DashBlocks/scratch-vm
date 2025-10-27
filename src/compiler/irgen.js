@@ -1684,6 +1684,14 @@ class IRGenerator {
         this.analyzedProcedures = [];
     }
 
+    static _extensionIRInfo = {};
+    static setExtensionIR (id, info) {
+        IRGenerator._extensionIRInfo[id] = info;
+    }
+    static getExtensionIR (id) {
+        return IRGenerator._extensionIRInfo[id];
+    }
+
     addProcedureDependencies (dependencies) {
         for (const procedureVariant of dependencies) {
             if (Object.prototype.hasOwnProperty.call(this.procedures, procedureVariant)) {
