@@ -396,29 +396,7 @@ class JSGenerator {
         case InputOpcode.OP_MULTIPLY:
             return `(${this.descendInput(node.left)} * ${this.descendInput(node.right)})`;
         case InputOpcode.OP_MATH: {
-            const operations = node.operations;
-            let builder = '';
-            let powWrap = 0;
-            for (var i = 0; i < operations.length; i++) {
-                const op = operations[i];
-                const prevOp = operations[i - 1];
-                const opType = op[1];
-
-                if (opType === "^") {
-                    builder += 'Math.pow(';
-                    builder += this.descendInput(op[0]).toType(InputType.NUMBER);
-                    builder += ',';
-                    powWrap++;
-                } else {
-                    builder += this.descendInput(op[0]).toType(InputType.NUMBER);
-                    while (powWrap > 0) {
-                        builder += ')';
-                        powWrap--;
-                    }
-                    if (opType) builder += opType;
-                }
-            }
-            return '(' + builder + ')';
+            return `(${node.inputs.map((value) => value === '^' ? '**' : value).join(' ')})`;
         }
         case InputOpcode.OP_NOT:
             return `!${this.descendInput(node.operand)}`;
