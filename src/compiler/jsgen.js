@@ -406,11 +406,11 @@ class JSGenerator {
 
                 if (opType === "^") {
                     builder += 'Math.pow(';
-                    builder += this.descendInput(op[0]).asNumber();
+                    builder += this.descendInput(op[0]).toType(InputType.NUMBER);
                     builder += ',';
                     powWrap++;
                 } else {
-                    builder += this.descendInput(op[0]).asNumber();
+                    builder += this.descendInput(op[0]).toType(InputType.NUMBER);
                     while (powWrap > 0) {
                         builder += ')';
                         powWrap--;
