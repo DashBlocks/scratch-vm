@@ -237,6 +237,25 @@ class JSGenerator {
                 return `"${sanitize(node.value.toString())}"`;
             } throw new Error(`JS: Unknown constant input type '${block.type}'.`);
 
+        case InputOpcode.COMPILED_EXT_PRIMITIVE: {
+            const {category, opcode, inputs} = node;
+            delete node.category;
+            delete node.opcode;
+            delete node.inputs;
+            Object.assign(node, inputs);
+            const jsFunc = JSGenerator.getExtensionJS(category)?.[opcode];
+            if (!jsFunc) {
+                log.warn(`JS: Unknown extension primitive: ${category}_${opcode}`, node);
+                throw new Error(`JS: Unknown extension primitive: ${category}_${opcode}`);
+            }
+            try {
+                return jsFunc(this, block, node, {...JSGenerator.unstable_exports, InputType});
+            } catch {
+                log.warn(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`, node);
+                throw new Error(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`);
+            }
+        }
+
         case InputOpcode.SENSING_KEY_DOWN:
             return `runtime.ioDevices.keyboard.getKeyIsDown(${this.descendInput(node.key)})`;
 
@@ -675,6 +694,26 @@ class JSGenerator {
 
         case InputOpcode.OLD_COMPILER_COMPATIBILITY_LAYER:
             return this.oldCompilerStub.descendStackedBlockFromNewCompiler(block);
+
+        case StackOpcode.COMPILED_EXT_PRIMITIVE: {
+            const {category, opcode, inputs} = node;
+            delete node.category;
+            delete node.opcode;
+            delete node.inputs;
+            Object.assign(node, inputs);
+            const jsFunc = JSGenerator.getExtensionJS(category)?.[opcode];
+            if (!jsFunc) {
+                log.warn(`JS: Unknown extension primitive: ${category}_${opcode}`, node);
+                throw new Error(`JS: Unknown extension primitive: ${category}_${opcode}`);
+            }
+            try {
+                jsFunc(this, block, node, {...JSGenerator.unstable_exports, InputType});
+            } catch {
+                log.warn(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`, node);
+                throw new Error(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`);
+            }
+            break;
+        }
 
         case StackOpcode.HAT_EDGE:
             this.isInHat = true;
@@ -1325,6 +1364,14 @@ class JSGenerator {
         }
 
         return fn;
+    }
+
+    static _extensionJSInfo = {};
+    static setExtensionJS (id, info) {
+        JSGenerator._extensionJSInfo[id] = info;
+    }
+    static getExtensionJS (id) {
+        return JSGenerator._extensionJSInfo[id];
     }
 }
 

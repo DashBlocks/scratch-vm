@@ -112,6 +112,7 @@ const StackOpcode = {
     VISUAL_REPORT: 'visualReport',
     COMPATIBILITY_LAYER: 'compat',
     OLD_COMPILER_COMPATIBILITY_LAYER: 'oldCompiler',
+    COMPILED_EXT_PRIMITIVE: 'compiledExtPrimitive',
 
     HAT_EDGE: 'hat.edge',
     HAT_PREDICATE: 'hat.predicate',
@@ -217,6 +218,8 @@ const InputOpcode = {
 
     COMPATIBILITY_LAYER: 'compat',
     OLD_COMPILER_COMPATIBILITY_LAYER: 'oldCompiler',
+
+    COMPILED_EXT_PRIMITIVE: 'compiledExtPrimitive',
 
     LOOKS_IS_VISIBLE: 'looks.isVisible',
     LOOKS_EFFECT_GET: 'looks.getEffect',

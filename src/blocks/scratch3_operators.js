@@ -66,7 +66,7 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
-        let numsAndOps = Object.entries(args).filter(([argName]) => argName !== 'mutation');
+        let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => argName === 'mutation' ? acc : [...acc, value], acc);
         while (numsAndOps.includes('^')) {
             const iOfOp = numsAndOps.indexOf('^');
             numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) ** Cast.toNumber(numsAndOps[iOfOp + 1]));

@@ -803,7 +803,29 @@ class ScriptTreeGenerator {
                         type === BlockType.REPORTER ||type === BlockType.BOOLEAN ||
                         type === BlockType.ARRAY || type === BlockType.OBJECT
                     ) {
-                        return this.descendCompatLayerInput(block);
+                        const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                        const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
+                        if (!irFunc) return this.descendCompatLayerInput(block);
+                        try {
+                            const [type, inputs, yields] = irFunc(this, block, {
+                                IntermediateInput,
+                                IntermediateStackBlock,
+                                IntermediateStack,
+                                InputOpcode,
+                                StackOpcode,
+                                InputType,
+                                SCALAR_TYPE,
+                                LIST_TYPE
+                            });
+                            return new IntermediateInput(
+                                InputOpcode.COMPILED_EXT_PRIMITIVE,
+                                type in InputType ? type : InputType.ANY,
+                                {category, opcode, inputs: inputs ?? {}},
+                                yields ?? false
+                            );
+                        } catch {
+                            return this.descendCompatLayerInput(block);
+                        }
                     }
                 }
             }
@@ -1191,7 +1213,28 @@ class ScriptTreeGenerator {
                 if (blockInfo) {
                     const type = blockInfo.info.blockType;
                     if (type === BlockType.COMMAND || type === BlockType.CONDITIONAL || type === BlockType.LOOP) {
-                        return this.descendCompatLayerStack(block);
+                        const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                        const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
+                        if (!irFunc) return this.descendCompatLayerStack(block);
+                        try {
+                            const [inputs, yields] = irFunc(this, block, {
+                                IntermediateInput,
+                                IntermediateStackBlock,
+                                IntermediateStack,
+                                InputOpcode,
+                                StackOpcode,
+                                InputType,
+                                SCALAR_TYPE,
+                                LIST_TYPE
+                            });
+                            return new IntermediateStackBlock(
+                                StackOpcode.COMPILED_EXT_PRIMITIVE,
+                                {category, opcode, inputs: inputs ?? {}},
+                                yields ?? false
+                            );
+                        } catch {
+                            return this.descendCompatLayerStack(block);
+                        }
                     }
                 }
             }
@@ -1682,6 +1725,14 @@ class IRGenerator {
         this.procedures = {};
 
         this.analyzedProcedures = [];
+    }
+
+    static _extensionIRInfo = {};
+    static setExtensionIR (id, info) {
+        IRGenerator._extensionIRInfo[id] = info;
+    }
+    static getExtensionIR (id) {
+        return IRGenerator._extensionIRInfo[id];
     }
 
     addProcedureDependencies (dependencies) {
