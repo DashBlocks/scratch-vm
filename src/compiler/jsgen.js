@@ -415,7 +415,8 @@ class JSGenerator {
         case InputOpcode.OP_MULTIPLY:
             return `(${this.descendInput(node.left)} * ${this.descendInput(node.right)})`;
         case InputOpcode.OP_MATH: {
-            return `(${node.inputs.map((value) => value === '^' ? '**' : value).join(' ')})`;
+            return `(${node.inputs.map((input, i) =>
+                i % 2 === 0 ? this.descendInput(value) : sanitize(input) === "^" ? "**" : sanitize(input)).join(' ')})`;
         }
         case InputOpcode.OP_NOT:
             return `!${this.descendInput(node.operand)}`;
