@@ -122,7 +122,7 @@ class Scratch3OperatorsBlocks {
         const booleans = Object.keys(args).filter(key => key.startsWith('BOOL')).map(key => Cast.toBoolean(args[key]));
         const comparators = args.mutation.menuvalues.split('');
         let result = booleans[0];
-        for (let i = 0; i < operators.length; i++) {
+        for (let i = 0; i < comparators.length; i++) {
             const comparator = comparators[i];
             const nextBool = booleans[i + 1];
             switch (comparator) {
