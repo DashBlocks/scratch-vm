@@ -66,10 +66,8 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
-        console.log(args);
         const numbers = Object.keys(args).filter(key => key.startsWith('NUM')).map(key => Cast.toNumber(args[key]));
         const operators = args.mutation.menuvalues.split('');
-        console.log(numbers, operators);
         let result = numbers[0];
         for (let i = 0; i < operators.length; i++) {
             const operator = operators[i];
