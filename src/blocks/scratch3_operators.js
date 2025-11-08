@@ -121,7 +121,7 @@ class Scratch3OperatorsBlocks {
     comparatorExpandable (args) {
         const booleans = Object.keys(args).filter(key => key.startsWith('BOOL')).map(key => Cast.toBoolean(args[key]));
         const comparators = args.mutation.menuvalues.split('');
-        let result = numbers[0];
+        let result = booleans[0];
         for (let i = 0; i < operators.length; i++) {
             const comparator = comparators[i];
             const nextBool = booleans[i + 1];
