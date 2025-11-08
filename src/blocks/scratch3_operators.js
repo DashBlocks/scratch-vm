@@ -66,6 +66,7 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
+        alert(args.toString())
         let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => argName === 'mutation' ? acc : [...acc, value], []);
         alert(numsAndOps.toString())
         while (numsAndOps.includes('^')) {
