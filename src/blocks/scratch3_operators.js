@@ -27,6 +27,7 @@ class Scratch3OperatorsBlocks {
             operator_and: this.and,
             operator_or: this.or,
             operator_not: this.not,
+            operator_comparatorexpandable: this.comparatorExpandable,
             operator_random: this.random,
             operator_join: this.join,
             operator_joinexpandable: this.joinExpandable,
@@ -115,6 +116,34 @@ class Scratch3OperatorsBlocks {
 
     not (args) {
         return !Cast.toBoolean(args.OPERAND);
+    }
+
+    comparatorExpandable (args) {
+        const booleans = Object.keys(args).filter(key => key.startsWith('BOOL')).map(key => Cast.toBoolean(args[key]));
+        const comparators = args.mutation.menuvalues.split('');
+        let result = booleans[0];
+        for (let i = 0; i < comparators.length; i++) {
+            const comparator = comparators[i];
+            const nextBool = booleans[i + 1];
+            switch (comparator) {
+                case '=':
+                    result = Cast.compare(result, nextBool) === 0;
+                    break;
+                case '>':
+                    result = Cast.compare(result, nextBool) > 0;
+                    break;
+                case '<':
+                    result = Cast.compare(result, nextBool) < 0;
+                    break;
+                case '&':
+                    result = result && nextNum;
+                    break;
+                case '|':
+                    result = result || nextNum;
+                    break;
+            }
+        }
+        return result;
     }
 
     random (args) {

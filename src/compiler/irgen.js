@@ -459,6 +459,21 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'OPERAND1'),
                 right: this.descendInputOfBlock(block, 'OPERAND2')
             });
+        case 'operator_comparatorexpandable': {
+            const inputs = [];
+            let i = 0;
+            for (const input of Object.values(block.inputs)) {
+                if (input.block == null) {
+                    delete block.inputs[input.name];
+                } else {
+                    inputs.push(i % 2 == 0
+                        ? this.descendInputOfBlock(block, input.name).toType(InputType.BOOLEAN)
+                        : this.descendInputOfBlock(block, input.name));
+                    i++;
+                }
+            }
+            return new IntermediateInput(InputOpcode.OP_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {inputs});
+        }
         case 'operator_join':
             return new IntermediateInput(InputOpcode.OP_JOIN, InputType.STRING, {
                 left: this.descendInputOfBlock(block, 'STRING1').toType(InputType.STRING),

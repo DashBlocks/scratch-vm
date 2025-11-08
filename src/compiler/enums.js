@@ -267,6 +267,7 @@ const InputOpcode = {
 
     OP_ADD: 'op.add',
     OP_AND: 'op.and',
+    OP_COMPARATOR_EXPANDABLE: 'op.comparatorExpandable',
     OP_CONTAINS: 'op.contains',
     OP_DIVIDE: 'op.divide',
     OP_EQUALS: 'op.equals',

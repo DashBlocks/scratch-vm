@@ -330,6 +330,10 @@ class JSGenerator {
             return `((Math.asin(${this.descendInput(node.value)}) * 180) / Math.PI)`;
         case InputOpcode.OP_ATAN:
             return `((Math.atan(${this.descendInput(node.value)}) * 180) / Math.PI)`;
+        case InputOpcode.OP_COMPARATOR_EXPANDABLE: {
+            return `(${node.inputs.map((input, i) =>
+                i % 2 === 0 ? this.descendInput(value) : sanitize(input) === "&" ? "&&" : sanitize(input) === "|" ? "||" : sanitize(input)).join(' ')})`;
+        }
         case InputOpcode.OP_CEILING:
             return `Math.ceil(${this.descendInput(node.value)})`;
         case InputOpcode.OP_CONTAINS:
