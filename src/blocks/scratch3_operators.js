@@ -66,28 +66,33 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
-        let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => argName === 'mutation' ? acc : [...acc, value], []);
-        while (numsAndOps.includes('^')) {
-            const iOfOp = numsAndOps.indexOf('^');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) ** Cast.toNumber(numsAndOps[iOfOp + 1]));
+        console.log(args);
+        const numbers = Object.keys(args).filter(key => key.startsWith('NUM')).map(key => Cast.toNumber(args[key]));
+        const operators = args.mutation.menuvalues.split('');
+        console.log(numbers, operators);
+        let result = numbers[0];
+        for (let i = 0; i < operators.length; i++) {
+            const operator = operators[i];
+            const nextNum = numbers[i + 1];
+            switch (operator) {
+                case '^':
+                    result = result ** nextNum;
+                    break;
+                case '*':
+                    result = result * nextNum;
+                    break;
+                case '/':
+                    result = result / nextNum;
+                    break;
+                case '+':
+                    result = result + nextNum;
+                    break;
+                case '-':
+                    result = result - nextNum;
+                    break;
+            }
         }
-        while (numsAndOps.includes('*')) {
-            const iOfOp = numsAndOps.indexOf('*');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) * Cast.toNumber(numsAndOps[iOfOp + 1]));
-        }
-        while (numsAndOps.includes('/')) {
-            const iOfOp = numsAndOps.indexOf('/');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) / Cast.toNumber(numsAndOps[iOfOp + 1]));
-        }
-        while (numsAndOps.includes('+')) {
-            const iOfOp = numsAndOps.indexOf('+');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) + Cast.toNumber(numsAndOps[iOfOp + 1]));
-        }
-        while (numsAndOps.includes('-')) {
-            const iOfOp = numsAndOps.indexOf('-');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) - Cast.toNumber(numsAndOps[iOfOp + 1]));
-        }
-        return numsAndOps[0];
+        return result;
     }
 
     lt (args) {
