@@ -125,31 +125,37 @@ class Scratch3OperatorsBlocks {
     }
 
     comparatorExpandable (args) {
-        const booleans = Object.keys(args).filter(key => key.startsWith('BOOL')).map(key => Cast.toBoolean(args[key]));
-        const comparators = args.mutation.menuvalues.split('');
-        let result = booleans[0];
-        for (let i = 0; i < comparators.length; i++) {
-            const comparator = comparators[i];
-            const nextBool = booleans[i + 1];
-            switch (comparator) {
-                case '=':
-                    result = Cast.compare(result, nextBool) === 0;
-                    break;
-                case '>':
-                    result = Cast.compare(result, nextBool) > 0;
-                    break;
-                case '<':
-                    result = Cast.compare(result, nextBool) < 0;
-                    break;
-                case '&':
-                    result = result && nextNum;
-                    break;
-                case '|':
-                    result = result || nextNum;
-                    break;
+        let i = 0;
+        let boolsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
+            if (argName === 'mutation') {
+                return acc;
+            } else {
+                const result = i > 0 ? [...acc, args.mutation.menuvalues[i - 1], value] : [value];
+                i++;
+                return result;
             }
+        }, []);
+        while (boolsAndComps.includes('=')) {
+            const iOfComp = boolsAndComps.indexOf('=');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) === 0);
         }
-        return result;
+        while (boolsAndComps.includes('>')) {
+            const iOfComp = boolsAndComps.indexOf('>');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) > 0);
+        }
+        while (boolsAndComps.includes('<')) {
+            const iOfComp = boolsAndComps.indexOf('<');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) < 0);
+        }
+        while (boolsAndComps.includes('and')) {
+            const iOfComp = boolsAndComps.indexOf('and');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) && 0);
+        }
+        while (boolsAndComps.includes('or')) {
+            const iOfComp = boolsAndComps.indexOf('or');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) || 0);
+        }
+        return boolsAndComps[0];
     }
 
     random (args) {
