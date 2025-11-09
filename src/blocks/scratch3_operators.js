@@ -135,8 +135,8 @@ class Scratch3OperatorsBlocks {
                 return result;
             }
         }, []);
-        while (boolsAndComps.includes('=')) {
-            const iOfComp = boolsAndComps.indexOf('=');
+        while (boolsAndComps.includes('==')) {
+            const iOfComp = boolsAndComps.indexOf('==');
             boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) === 0);
         }
         while (boolsAndComps.includes('>')) {
@@ -147,12 +147,12 @@ class Scratch3OperatorsBlocks {
             const iOfComp = boolsAndComps.indexOf('<');
             boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) < 0);
         }
-        while (boolsAndComps.includes('and')) {
-            const iOfComp = boolsAndComps.indexOf('and');
+        while (boolsAndComps.includes('&&')) {
+            const iOfComp = boolsAndComps.indexOf('&&');
             boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) && 0);
         }
-        while (boolsAndComps.includes('or')) {
-            const iOfComp = boolsAndComps.indexOf('or');
+        while (boolsAndComps.includes('||')) {
+            const iOfComp = boolsAndComps.indexOf('||');
             boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(Cast.toBoolean(boolsAndComps[iOfComp - 1])), Cast.toBoolean(boolsAndComps[iOfComp + 1]) || 0);
         }
         return boolsAndComps[0];
