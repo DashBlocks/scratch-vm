@@ -466,9 +466,8 @@ class ScriptTreeGenerator {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    inputs.push(i % 2 == 0
-                        ? this.descendInputOfBlock(block, input.name).toType(InputType.BOOLEAN)
-                        : this.descendInputOfBlock(block, input.name));
+                    if (i > 0) inputs.push(block.mutation.menuvalues[i - 1]);
+                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.BOOLEAN));
                     i++;
                 }
             }
