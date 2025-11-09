@@ -332,7 +332,7 @@ class JSGenerator {
             return `((Math.atan(${this.descendInput(node.value)}) * 180) / Math.PI)`;
         case InputOpcode.OP_COMPARATOR_EXPANDABLE: {
             return `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(value) : sanitize(input) === "&" ? "&&" : sanitize(input) === "|" ? "||" : sanitize(input)).join(' ')})`;
+                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === "=" ? "==" : sanitize(input) === "and" ? "&&" : sanitize(input) === "or" ? "||" : sanitize(input)).join(' ')})`;
         }
         case InputOpcode.OP_CEILING:
             return `Math.ceil(${this.descendInput(node.value)})`;
