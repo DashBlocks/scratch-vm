@@ -67,7 +67,7 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
-        const menuValues = Cast.toArray(args.mutation.menuvalues);
+        const menuValues = Cast.toList(args.mutation.menuvalues);
         let i = 0;
         let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => {
             if (argName === 'mutation') {
@@ -126,7 +126,7 @@ class Scratch3OperatorsBlocks {
     }
 
     comparatorExpandable (args) {
-        const menuValues = Cast.toArray(args.mutation.menuvalues);
+        const menuValues = Cast.toList(args.mutation.menuvalues);
         let i = 0;
         let boolsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
             if (argName === 'mutation') {
