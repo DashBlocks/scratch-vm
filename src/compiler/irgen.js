@@ -460,13 +460,14 @@ class ScriptTreeGenerator {
                 right: this.descendInputOfBlock(block, 'OPERAND2')
             });
         case 'operator_comparatorexpandable': {
+            const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
             let i = 0;
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    if (i > 0) inputs.push(block.mutation.menuvalues[i - 1]);
+                    if (i > 0) inputs.push(menuValues[i - 1]);
                     inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.BOOLEAN));
                     i++;
                 }
@@ -535,13 +536,14 @@ class ScriptTreeGenerator {
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
         case 'operator_mathexpandable': {
+            const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
             let i = 0;
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    if (i > 0) inputs.push(block.mutation.menuvalues[i - 1]);
+                    if (i > 0) inputs.push(menuValues[i - 1]);
                     inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.NUMBER));
                     i++;
                 }

@@ -67,12 +67,13 @@ class Scratch3OperatorsBlocks {
     }
 
     math (args) {
+        const menuValues = Cast.toList(args.mutation.menuvalues);
         let i = 0;
         let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => {
             if (argName === 'mutation') {
                 return acc;
             } else {
-                const result = i > 0 ? [...acc, args.mutation.menuvalues[i - 1], value] : [value];
+                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
                 i++;
                 return result;
             }
@@ -125,12 +126,13 @@ class Scratch3OperatorsBlocks {
     }
 
     comparatorExpandable (args) {
+        const menuValues = Cast.toList(args.mutation.menuvalues);
         let i = 0;
         let boolsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
             if (argName === 'mutation') {
                 return acc;
             } else {
-                const result = i > 0 ? [...acc, args.mutation.menuvalues[i - 1], value] : [value];
+                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
                 i++;
                 return result;
             }
