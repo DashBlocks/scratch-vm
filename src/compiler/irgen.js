@@ -535,7 +535,7 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
-        case 'operator_mathexpandable': {
+        case 'operator_math_expandable': {
             const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
             let i = 0;
