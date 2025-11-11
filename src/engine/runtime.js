@@ -1542,7 +1542,7 @@ class Runtime extends EventEmitter {
             break;
         case BlockType.OBJECT:
             blockJSON.output = 'Object';
-            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE;
+            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_PLUS;
             break;
         case BlockType.HAT:
         case BlockType.EVENT:
