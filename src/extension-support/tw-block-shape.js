@@ -12,14 +12,19 @@ const BlockShape = {
     HEXAGONAL: ScratchBlocksConstants.OUTPUT_SHAPE_HEXAGONAL,
 
     /**
-     * Output shape: rounded (numbers).
+     * Output shape: rounded (any/all values; strings,numbers).
      */
     ROUND: ScratchBlocksConstants.OUTPUT_SHAPE_ROUND,
 
     /**
-     * Output shape: squared (any/all values; strings).
+     * Output shape: squared (arrays).
      */
-    SQUARE: ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE
+    SQUARE: ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE,
+
+    /**
+     * Output shape: plus (objects).
+     */
+    PLUS: ScratchBlocksConstants.OUTPUT_SHAPE_PLUS
 };
 
 module.exports = BlockShape;
