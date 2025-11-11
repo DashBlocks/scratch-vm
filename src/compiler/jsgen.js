@@ -336,8 +336,8 @@ class JSGenerator {
             return `(${this.descendInput(node.string)}.toLowerCase().indexOf(${this.descendInput(node.contains)}.toLowerCase()) !== -1)`;
         case InputOpcode.OP_CONDITIONS_COMPARATOR_EXPANDABLE: {
             const value = `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
-            if (value === '()') return '(false)';
+                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === '=' ? '==' : sanitize(input)).join(' ')})`;
+            if (value === '()') return '(true)';
             return value;
         }
         case InputOpcode.OP_COS:
@@ -423,14 +423,14 @@ class JSGenerator {
         case InputOpcode.OP_MATH: {
             const value = `(${node.inputs.map((input, i) =>
                 i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
-            if (value === '()') return '(false)';
+            if (value === '()') return '(0)';
             return value;
         }
         case InputOpcode.OP_NOT:
             return `!${this.descendInput(node.operand)}`;
         case InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE: {
             const value = `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
+                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === '=' ? '==' : sanitize(input)).join(' ')})`;
             if (value === '()') return '(false)';
             return value;
         }

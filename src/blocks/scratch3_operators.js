@@ -126,8 +126,8 @@ class Scratch3OperatorsBlocks {
                 return result;
             }
         }, []);
-        while (numsAndComps.includes('==')) {
-            const iOfOp = numsAndComps.indexOf('==');
+        while (numsAndComps.includes('=')) {
+            const iOfOp = numsAndComps.indexOf('=');
             numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) === 0);
         }
         while (numsAndComps.includes('>')) {
@@ -165,8 +165,8 @@ class Scratch3OperatorsBlocks {
                 return result;
             }
         }, []);
-        while (boolsAndComps.includes('==')) {
-            const iOfComp = boolsAndComps.indexOf('==');
+        while (boolsAndComps.includes('=')) {
+            const iOfComp = boolsAndComps.indexOf('=');
             boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) === 0);
         }
         while (boolsAndComps.includes('&&')) {
