@@ -330,14 +330,16 @@ class JSGenerator {
             return `((Math.asin(${this.descendInput(node.value)}) * 180) / Math.PI)`;
         case InputOpcode.OP_ATAN:
             return `((Math.atan(${this.descendInput(node.value)}) * 180) / Math.PI)`;
-        case InputOpcode.OP_COMPARATOR_EXPANDABLE: {
-            return `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
-        }
         case InputOpcode.OP_CEILING:
             return `Math.ceil(${this.descendInput(node.value)})`;
         case InputOpcode.OP_CONTAINS:
             return `(${this.descendInput(node.string)}.toLowerCase().indexOf(${this.descendInput(node.contains)}.toLowerCase()) !== -1)`;
+        case InputOpcode.OP_CONDITIONS_COMPARATOR_EXPANDABLE: {
+            const value = `(${node.inputs.map((input, i) =>
+                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === '=' ? '==' : sanitize(input)).join(' ')})`;
+            if (value === '()') return '(true)';
+            return value;
+        }
         case InputOpcode.OP_COS:
             return `(Math.round(Math.cos((Math.PI * ${this.descendInput(node.value)}) / 180) * 1e10) / 1e10)`;
         case InputOpcode.OP_DIVIDE:
@@ -419,11 +421,19 @@ class JSGenerator {
         case InputOpcode.OP_MULTIPLY:
             return `(${this.descendInput(node.left)} * ${this.descendInput(node.right)})`;
         case InputOpcode.OP_MATH: {
-            return `(${node.inputs.map((input, i) =>
+            const value = `(${node.inputs.map((input, i) =>
                 i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
+            if (value === '()') return '(0)';
+            return value;
         }
         case InputOpcode.OP_NOT:
             return `!${this.descendInput(node.operand)}`;
+        case InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE: {
+            const value = `(${node.inputs.map((input, i) =>
+                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === '=' ? '==' : sanitize(input)).join(' ')})`;
+            if (value === '()') return '(false)';
+            return value;
+        }
         case InputOpcode.OP_OR:
             return `(${this.descendInput(node.left)} || ${this.descendInput(node.right)})`;
         case InputOpcode.OP_RANDOM:
