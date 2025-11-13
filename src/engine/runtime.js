@@ -1529,18 +1529,22 @@ class Runtime extends EventEmitter {
             }
             break;
         case BlockType.REPORTER:
+            blockInfo.branchCount = blockInfo.branchCount || 1;
             blockJSON.output = blockInfo.allowDropAnywhere ? null : 'String'; // TODO: distinguish number & string here?
             blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_ROUND;
             break;
         case BlockType.BOOLEAN:
+            blockInfo.branchCount = blockInfo.branchCount || 1;
             blockJSON.output = 'Boolean';
             blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_HEXAGONAL;
             break;
         case BlockType.ARRAY:
+            blockInfo.branchCount = blockInfo.branchCount || 1;
             blockJSON.output = 'Array';
             blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE;
             break;
         case BlockType.OBJECT:
+            blockInfo.branchCount = blockInfo.branchCount || 1;
             blockJSON.output = 'Object';
             blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_PLUS;
             break;
@@ -1567,6 +1571,10 @@ class Runtime extends EventEmitter {
         // Allow extensions to override outputShape
         if (blockInfo.blockShape) {
             blockJSON.outputShape = blockInfo.blockShape;
+        }
+        // Allow extensions to override output
+        if (blockInfo.forceOutputType) {
+            blockJSON.output = blockInfo.forceOutputType;
         }
 
         const blockText = Array.isArray(blockInfo.text) ? blockInfo.text : [blockInfo.text];
