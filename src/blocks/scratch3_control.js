@@ -36,6 +36,7 @@ class Scratch3ControlBlocks {
             control_wait_until: this.waitUntil,
             control_if: this.if,
             control_if_else: this.ifElse,
+            control_if_else_expandable: this.ifElseExpandable,
             control_if_then_else: this.ifThenElse,
             control_resume: this.resume,
             control_pause: this.pause,
@@ -142,6 +143,25 @@ class Scratch3ControlBlocks {
             util.startBranch(1, false);
         } else {
             util.startBranch(2, false);
+        }
+    }
+
+    ifElseExpandable (args, util) {
+        const branchCount = Cast.toNumber(args.mutation.branches);
+        const hasElse = Cast.toBoolean(args.mutation['ends-in-else']);
+        let conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
+
+        for (let i = 1; i <= conditionBranchCount; i++) {
+            const boolName = 'BOOL' + i;
+            const condition = Cast.toBoolean(args[boolName]);
+            if (condition) {
+                util.startBranch(i, false);
+                return;
+            }
+        }
+
+        if (hasElse && branchCount > 0) {
+            util.startBranch(branchCount, false);
         }
     }
 

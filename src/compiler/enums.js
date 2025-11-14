@@ -118,6 +118,7 @@ const StackOpcode = {
     HAT_PREDICATE: 'hat.predicate',
 
     CONTROL_IF_ELSE: 'control.if',
+    CONTROL_IF_ELSE_EXPANDABLE: 'control.ifElseExpandable',
     CONTROL_CLONE_CREATE: 'control.createClone',
     CONTROL_CLONE_DELETE: 'control.deleteClone',
     CONTROL_WHILE: 'control.while',
