@@ -924,6 +924,29 @@ class ScriptTreeGenerator {
                 whenTrue: this.descendSubstack(block, 'SUBSTACK'),
                 whenFalse: this.descendSubstack(block, 'SUBSTACK2')
             });
+        case 'control_if_else_expandable': {
+            const branchCount = Cast.toNumber(block.mutation.branches);
+            const hasElse = block.mutation['ends-in-else'] === 'true';
+            const branches = [];
+            let conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
+            for (let i = 1; i <= conditionBranchCount; i++) {
+                const condition = this.descendInputOfBlock(block, `BOOL${i}`).toType(InputType.BOOLEAN);
+                const substack = this.descendSubstack(block, `SUBSTACK${i}`);
+                branches.push({
+                    condition: condition,
+                    substack: substack
+                });
+            }
+            let elseBranch = new IntermediateStack();
+            if (hasElse && branchCount > 0) {
+                elseBranch = this.descendSubstack(block, `SUBSTACK${branchCount}`);
+            }
+            
+            return new IntermediateStackBlock(StackOpcode.CONTROL_IF_ELSE_EXPANDABLE, {
+                branches,
+                elseBranch
+            });
+        }
         case 'control_repeat':
             return new IntermediateStackBlock(StackOpcode.CONTROL_REPEAT, {
                 times: this.descendInputOfBlock(block, 'TIMES').toType(InputType.NUMBER),

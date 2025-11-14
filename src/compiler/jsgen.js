@@ -789,6 +789,24 @@ class JSGenerator {
             }
             this.source += `}\n`;
             break;
+        case StackOpcode.CONTROL_IF_ELSE_EXPANDABLE: {
+            let isFirst = true;
+            for (const branch of node.branches) {
+                if (isFirst) {
+                    this.source += `if (${this.descendInput(branch.condition)}) {\n`;
+                    isFirst = false;
+                } else {
+                    this.source += `} else if (${this.descendInput(branch.condition)}) {\n`;
+                }
+                this.descendStack(branch.substack, new Frame(false));
+            }
+            if (node.elseBranch && node.elseBranch.blocks.length > 0) {
+                this.source += `} else {\n`;
+                this.descendStack(node.elseBranch, new Frame(false));
+            }
+            this.source += `}\n`;
+            break;
+        }
         case StackOpcode.CONTROL_REPEAT: {
             const i = this.localVariables.next();
             if (node.times.isAlwaysType(InputType.NUMBER_INT | InputType.NUMBER_INF)) {
