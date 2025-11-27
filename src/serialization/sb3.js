@@ -318,9 +318,8 @@ const getExtensionURLsToSave = (extensionIDs, runtime) => {
     for (const extension of extensionIDs) {
         let url = extensionURLs[extension];
         if (typeof url === 'string') {
-            if (url.includes('dashblocks.github.io/tw-extensions/')) {
-                const filename = url.split('/').pop();
-                url = `https://extensions.turbowarp.org/${filename}`;
+            if (url.includes('https://dashblocks.github.io/tw-extensions/')) {
+                url = url.replace('https://dashblocks.github.io/tw-extensions', 'https://extensions.turbowarp.org/');
             }
             toSave[extension] = url;
         }
