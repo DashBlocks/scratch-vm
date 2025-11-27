@@ -20,12 +20,14 @@ class Scratch3OperatorsBlocks {
             operator_subtract: this.subtract,
             operator_multiply: this.multiply,
             operator_divide: this.divide,
-            operator_mathexpandable: this.math,
+            operator_math_expandable: this.mathExpandable,
             operator_lt: this.lt,
             operator_equals: this.equals,
             operator_gt: this.gt,
+            operator_numbers_comparator_expandable: this.numbersComparatorExpandable,
             operator_and: this.and,
             operator_or: this.or,
+            operator_conditions_comparator_expandable: this.conditionsComparatorExpandable,
             operator_not: this.not,
             operator_random: this.random,
             operator_join: this.join,
@@ -65,10 +67,20 @@ class Scratch3OperatorsBlocks {
         return Cast.toNumber(args.NUM1) / Cast.toNumber(args.NUM2);
     }
 
-    math (args) {
-        let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => argName === 'mutation' ? acc : [...acc, value], []);
-        while (numsAndOps.includes('^')) {
-            const iOfOp = numsAndOps.indexOf('^');
+    mathExpandable (args) {
+        const menuValues = Cast.toList(args.mutation.menuvalues);
+        let i = 0;
+        let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => {
+            if (argName === 'mutation') {
+                return acc;
+            } else {
+                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
+                i++;
+                return result;
+            }
+        }, []);
+        while (numsAndOps.includes('**')) {
+            const iOfOp = numsAndOps.indexOf('**');
             numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) ** Cast.toNumber(numsAndOps[iOfOp + 1]));
         }
         while (numsAndOps.includes('*')) {
@@ -102,6 +114,33 @@ class Scratch3OperatorsBlocks {
         return Cast.compare(args.OPERAND1, args.OPERAND2) > 0;
     }
 
+    numbersComparatorExpandable (args) {
+        const menuValues = Cast.toList(args.mutation.menuvalues);
+        let i = 0;
+        let numsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
+            if (argName === 'mutation') {
+                return acc;
+            } else {
+                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
+                i++;
+                return result;
+            }
+        }, []);
+        while (numsAndComps.includes('=')) {
+            const iOfOp = numsAndComps.indexOf('=');
+            numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) === 0);
+        }
+        while (numsAndComps.includes('>')) {
+            const iOfOp = numsAndComps.indexOf('>');
+            numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) > 0);
+        }
+        while (numsAndComps.includes('<')) {
+            const iOfOp = numsAndComps.indexOf('<');
+            numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) < 0);
+        }
+        return numsAndComps[0];
+    }
+
     and (args) {
         return Cast.toBoolean(args.OPERAND1) && Cast.toBoolean(args.OPERAND2);
     }
@@ -112,6 +151,33 @@ class Scratch3OperatorsBlocks {
 
     not (args) {
         return !Cast.toBoolean(args.OPERAND);
+    }
+
+    conditionsComparatorExpandable (args) {
+        const menuValues = Cast.toList(args.mutation.menuvalues);
+        let i = 0;
+        let boolsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
+            if (argName === 'mutation') {
+                return acc;
+            } else {
+                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
+                i++;
+                return result;
+            }
+        }, []);
+        while (boolsAndComps.includes('=')) {
+            const iOfComp = boolsAndComps.indexOf('=');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) === 0);
+        }
+        while (boolsAndComps.includes('&&')) {
+            const iOfComp = boolsAndComps.indexOf('&&');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) && 0);
+        }
+        while (boolsAndComps.includes('||')) {
+            const iOfComp = boolsAndComps.indexOf('||');
+            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) || 0);
+        }
+        return boolsAndComps[0];
     }
 
     random (args) {

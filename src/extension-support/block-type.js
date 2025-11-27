@@ -57,7 +57,7 @@ const BlockType = {
     ARRAY: 'Array',
 
     /**
-     * Object reporter with square (currently) shape
+     * Object reporter with plus shape
      */
     OBJECT: 'Object',
 

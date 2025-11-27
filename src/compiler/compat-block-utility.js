@@ -1,5 +1,3 @@
-// @ts-check
-
 const BlockUtility = require('../engine/block-utility');
 
 class CompatibilityLayerBlockUtility extends BlockUtility {

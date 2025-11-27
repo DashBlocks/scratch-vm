@@ -118,6 +118,7 @@ const StackOpcode = {
     HAT_PREDICATE: 'hat.predicate',
 
     CONTROL_IF_ELSE: 'control.if',
+    CONTROL_IF_ELSE_EXPANDABLE: 'control.ifElseExpandable',
     CONTROL_CLONE_CREATE: 'control.createClone',
     CONTROL_CLONE_DELETE: 'control.deleteClone',
     CONTROL_WHILE: 'control.while',
@@ -268,6 +269,7 @@ const InputOpcode = {
     OP_ADD: 'op.add',
     OP_AND: 'op.and',
     OP_CONTAINS: 'op.contains',
+    OP_CONDITIONS_COMPARATOR_EXPANDABLE: 'op.conditionsComparatorExpandable',
     OP_DIVIDE: 'op.divide',
     OP_EQUALS: 'op.equals',
     OP_GREATER: 'op.greater',
@@ -294,6 +296,7 @@ const InputOpcode = {
     OP_MULTIPLY: 'op.multiply',
     OP_MATH: 'op.mathexpandable',
     OP_NOT: 'op.not',
+    OP_NUMBERS_COMPARATOR_EXPANDABLE: 'op.numbersComparatorExpandable',
     OP_OR: 'op.or',
     OP_RANDOM: 'op.random',
     OP_ROUND: 'op.round',

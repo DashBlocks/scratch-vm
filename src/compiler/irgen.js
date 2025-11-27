@@ -444,6 +444,21 @@ class ScriptTreeGenerator {
                 string: this.descendInputOfBlock(block, 'STRING1').toType(InputType.STRING),
                 contains: this.descendInputOfBlock(block, 'STRING2').toType(InputType.STRING)
             });
+        case 'operator_conditions_comparator_expandable': {
+            const menuValues = Cast.toList(block.mutation.menuvalues);
+            const inputs = [];
+            let i = 0;
+            for (const input of Object.values(block.inputs)) {
+                if (input.block == null) {
+                    delete block.inputs[input.name];
+                } else {
+                    if (i > 0) inputs.push(menuValues[i - 1]);
+                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.BOOLEAN));
+                    i++;
+                }
+            }
+            return new IntermediateInput(InputOpcode.OP_CONDITIONS_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {inputs});
+        }
         case 'operator_divide':
             return new IntermediateInput(InputOpcode.OP_DIVIDE, InputType.NUMBER_OR_NAN, {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
@@ -520,16 +535,16 @@ class ScriptTreeGenerator {
                 left: this.descendInputOfBlock(block, 'NUM1').toType(InputType.NUMBER),
                 right: this.descendInputOfBlock(block, 'NUM2').toType(InputType.NUMBER)
             });
-        case 'operator_mathexpandable': {
+        case 'operator_math_expandable': {
+            const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
             let i = 0;
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    inputs.push(i % 2 == 0
-                        ? this.descendInputOfBlock(block, input.name).toType(InputType.NUMBER)
-                        : this.descendInputOfBlock(block, input.name));
+                    if (i > 0) inputs.push(menuValues[i - 1]);
+                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.NUMBER));
                     i++;
                 }
             }
@@ -539,6 +554,21 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.OP_NOT, InputType.BOOLEAN, {
                 operand: this.descendInputOfBlock(block, 'OPERAND').toType(InputType.BOOLEAN)
             });
+        case 'operator_numbers_comparator_expandable': {
+            const menuValues = Cast.toList(block.mutation.menuvalues);
+            const inputs = [];
+            let i = 0;
+            for (const input of Object.values(block.inputs)) {
+                if (input.block == null) {
+                    delete block.inputs[input.name];
+                } else {
+                    if (i > 0) inputs.push(menuValues[i - 1]);
+                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.STRING));
+                    i++;
+                }
+            }
+            return new IntermediateInput(InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {inputs});
+        }
         case 'operator_or':
             return new IntermediateInput(InputOpcode.OP_OR, InputType.BOOLEAN, {
                 left: this.descendInputOfBlock(block, 'OPERAND1').toType(InputType.BOOLEAN),
@@ -894,6 +924,29 @@ class ScriptTreeGenerator {
                 whenTrue: this.descendSubstack(block, 'SUBSTACK'),
                 whenFalse: this.descendSubstack(block, 'SUBSTACK2')
             });
+        case 'control_if_else_expandable': {
+            const branchCount = Cast.toNumber(block.mutation.branches);
+            const hasElse = block.mutation['ends-in-else'] === 'true';
+            const branches = [];
+            let conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
+            for (let i = 1; i <= conditionBranchCount; i++) {
+                const condition = this.descendInputOfBlock(block, `BOOL${i}`).toType(InputType.BOOLEAN);
+                const substack = this.descendSubstack(block, `SUBSTACK${i}`);
+                branches.push({
+                    condition: condition,
+                    substack: substack
+                });
+            }
+            let elseBranch = new IntermediateStack();
+            if (hasElse && branchCount > 0) {
+                elseBranch = this.descendSubstack(block, `SUBSTACK${branchCount}`);
+            }
+            
+            return new IntermediateStackBlock(StackOpcode.CONTROL_IF_ELSE_EXPANDABLE, {
+                branches,
+                elseBranch
+            });
+        }
         case 'control_repeat':
             return new IntermediateStackBlock(StackOpcode.CONTROL_REPEAT, {
                 times: this.descendInputOfBlock(block, 'TIMES').toType(InputType.NUMBER),
