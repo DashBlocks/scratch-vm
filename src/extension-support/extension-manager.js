@@ -226,6 +226,7 @@ class ExtensionManager {
 
         this.loadingAsyncExtensions++;
 
+        console.log(extensionURL);
         if (extensionURL.startsWith('https://extensions.turbowarp.org/')) {
             try {
                 const res = {ok:false} // !!! await fetch(extensionURL);
