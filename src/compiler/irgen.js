@@ -249,6 +249,24 @@ class ScriptTreeGenerator {
             }
             return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, InputType.ANY, {index});
         }
+        case 'argument_reporter_array': {
+            // see argument_reporter_string_number above
+            const name = block.fields.VALUE.value;
+            const index = this.script.arguments.lastIndexOf(name);
+            if (index === -1) {
+                return this.createConstantInput(0);
+            }
+            return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, InputType.ANY, {index});
+        }
+        case 'argument_reporter_object': {
+            // see argument_reporter_string_number above
+            const name = block.fields.VALUE.value;
+            const index = this.script.arguments.lastIndexOf(name);
+            if (index === -1) {
+                return this.createConstantInput(0);
+            }
+            return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, InputType.ANY, {index});
+        }
 
         case 'data_variable':
             return new IntermediateInput(InputOpcode.VAR_GET, InputType.ANY, {

@@ -226,6 +226,23 @@ class ExtensionManager {
 
         this.loadingAsyncExtensions++;
 
+        if (extensionURL.startsWith('https://extensions.turbowarp.org/')) {
+            try {
+                const res = await fetch(extensionURL);
+                if (!res.ok) {
+                    extensionURL = extensionURL.replace(
+                        'https://extensions.turbowarp.org/',
+                        'https://dashblocks.github.io/tw-extensions/'
+                    );
+                }
+            } catch (_) {
+                extensionURL = extensionURL.replace(
+                    'https://extensions.turbowarp.org/',
+                    'https://dashblocks.github.io/tw-extensions/'
+                );
+            }
+        }
+
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
 

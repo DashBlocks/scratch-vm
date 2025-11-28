@@ -93,6 +93,10 @@ class Cast {
      * @return {string} The Scratch-casted string value.
      */
     static toString (value) {
+        // Convert custom types to string
+        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+            return String(value);
+        }
         // Stringify JSON values
         if (typeof value === 'object') {
             return ExtendedJSON.stringify(value);
@@ -107,6 +111,10 @@ class Cast {
      * @return {Array} The Scratch-casted array value.
      */
     static toList (value) {
+        // Convert custom types to empty array
+        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+            return [];
+        }
         // Already an array?
         if (Array.isArray(value)) {
             return value;
@@ -126,6 +134,10 @@ class Cast {
      * @return {Object} The Scratch-casted object value.
      */
     static toObject (value) {
+        // Convert custom types to empty object
+        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+            return {};
+        }
         // Already an object?
         if (typeof value === 'object' && value instanceof Object && !Array.isArray(value)) {
             return value;
@@ -146,6 +158,10 @@ class Cast {
      * @return {(Array|Object)} The Scratch-casted array or object value.
      */
     static toJSON (value, arrayIfFail) {
+        // Convert custom types to empty array or object
+        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+            return arrayIfFail ? [] : {};
+        }
         // Already an array or an object?
         if (typeof value === 'object' && value instanceof Object) {
             return value;
