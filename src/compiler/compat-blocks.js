@@ -24,7 +24,6 @@ const stacked = [
     'motion_pointtowards',
     'motion_scroll_right',
     'motion_scroll_up',
-    'operator_newline',
     'sensing_askandwait',
     'sensing_setdragmode',
     'sound_changeeffectby',
