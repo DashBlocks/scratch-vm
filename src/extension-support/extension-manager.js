@@ -226,18 +226,17 @@ class ExtensionManager {
 
         this.loadingAsyncExtensions++;
 
-        console.log(extensionURL);
         if (extensionURL.startsWith('https://extensions.turbowarp.org/')) {
             try {
                 const res = {ok:false} // !!! await fetch(extensionURL);
                 if (!res.ok) {
-                    extensionURL.replace(
+                    extensionURL = extensionURL.replace(
                         'https://extensions.turbowarp.org/',
                         'https://dashblocks.github.io/tw-extensions/'
                     );
                 }
             } catch (_) {
-                extensionURL.replace(
+                extensionURL = extensionURL.replace(
                     'https://extensions.turbowarp.org/',
                     'https://dashblocks.github.io/tw-extensions/'
                 );
