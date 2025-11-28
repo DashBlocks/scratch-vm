@@ -228,7 +228,7 @@ class ExtensionManager {
 
         if (extensionURL.startsWith('https://extensions.turbowarp.org/')) {
             try {
-                const res = {ok:false} // !!! await fetch(extensionURL);
+                const res = await fetch(extensionURL);
                 if (!res.ok) {
                     extensionURL = extensionURL.replace(
                         'https://extensions.turbowarp.org/',
