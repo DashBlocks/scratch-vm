@@ -24,7 +24,6 @@ const stacked = [
     'motion_pointtowards',
     'motion_scroll_right',
     'motion_scroll_up',
-    'operator_newline',
     'sensing_askandwait',
     'sensing_setdragmode',
     'sound_changeeffectby',
@@ -40,7 +39,6 @@ const stacked = [
 const inputs = [
     'motion_xscroll',
     'motion_yscroll',
-    'operator_newline',
     'sensing_loud',
     'sensing_loudness',
     'sensing_userid',
