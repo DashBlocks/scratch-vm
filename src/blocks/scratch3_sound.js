@@ -145,6 +145,7 @@ class Scratch3SoundBlocks {
             sound_playfromuntildone: this.playSoundFromAndWait,
             sound_stop: this.stopSound,
             sound_stopallsounds: this.stopAllSounds,
+            sound_issoundplaying: this.isSoundPlaying,
             sound_seteffectto: this.setEffect,
             sound_changeeffectby: this.changeEffect,
             sound_cleareffects: this.clearEffects,
@@ -251,7 +252,7 @@ class Scratch3SoundBlocks {
         return -1;
     }
 
-    stopSound () {
+    stopSound (args, util) {
         const index = this._getSoundIndex(args.SOUND_MENU, util);
         if (index >= 0) {
             const {target} = util;
@@ -289,6 +290,18 @@ class Scratch3SoundBlocks {
                 }
                 this.waitingSounds[target.id].clear();
             }
+        }
+    }
+
+    isSoundPlaying (args, util) {
+        const index = this._getSoundIndex(args.SOUND_MENU, util);
+        if (index < 0) return false;
+        const {sprite} = util.target;
+        const {soundId} = sprite.sounds[index];
+        if (sprite.soundBank) {
+            return sprite.soundBank.soundPlayers[soundId].isPlaying;
+        } else {
+            return false;
         }
     }
 

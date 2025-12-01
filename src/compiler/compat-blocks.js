@@ -31,8 +31,11 @@ const stacked = [
     'sound_cleareffects',
     'sound_play',
     'sound_playuntildone',
+    'sound_playfrom',
+    'sound_playfromuntildone',
     'sound_seteffectto',
     'sound_setvolumeto',
+    'sound_stop',
     'sound_stopallsounds'
 ];
 
@@ -42,6 +45,8 @@ const inputs = [
     'sensing_loud',
     'sensing_loudness',
     'sensing_userid',
+    'sound_geteffect',
+    'sound_issoundplaying',
     'sound_volume'
 ];
 
