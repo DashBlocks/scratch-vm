@@ -192,7 +192,7 @@ class Scratch3SoundBlocks {
             const {target} = util;
             const {sprite} = target;
             const {soundId} = sprite.sounds[index];
-            const from = Math.max(Scratch.Cast.toNumber(args.FROM), 0);
+            const from = Math.max(Cast.toNumber(args.FROM), 0);
             if (sprite.soundBank) {
                 if (storeWaiting === STORE_WAITING) {
                     this._addWaitingSound(target.id, soundId);
