@@ -141,10 +141,14 @@ class Scratch3SoundBlocks {
         return {
             sound_play: this.playSound,
             sound_playuntildone: this.playSoundAndWait,
+            sound_playfrom: this.playSoundFrom,
+            sound_playfromuntildone: this.playSoundFromAndWait,
+            sound_stop: this.stopSound,
             sound_stopallsounds: this.stopAllSounds,
             sound_seteffectto: this.setEffect,
             sound_changeeffectby: this.changeEffect,
             sound_cleareffects: this.clearEffects,
+            sound_geteffect: this.getEffect,
             sound_sounds_menu: this.soundsMenu,
             sound_beats_menu: this.beatsMenu,
             sound_effects_menu: this.effectsMenu,
@@ -172,19 +176,29 @@ class Scratch3SoundBlocks {
         return this._playSound(args, util, STORE_WAITING);
     }
 
+    playSoundFrom (args, util) {
+        // Don't return the promise, it's the only difference for AndWait
+        this._playSound(args, util);
+    }
+
+    playSoundFromAndWait (args, util) {
+        return this._playSound(args, util, STORE_WAITING);
+    }
+
     _playSound (args, util, storeWaiting) {
         const index = this._getSoundIndex(args.SOUND_MENU, util);
         if (index >= 0) {
             const {target} = util;
             const {sprite} = target;
             const {soundId} = sprite.sounds[index];
+            const from = Math.max(Scratch.Cast.toNumber(args.FROM), 0);
             if (sprite.soundBank) {
                 if (storeWaiting === STORE_WAITING) {
                     this._addWaitingSound(target.id, soundId);
                 } else {
                     this._removeWaitingSound(target.id, soundId);
                 }
-                return sprite.soundBank.playSound(target, soundId);
+                return sprite.soundBank.playSound(target, soundId, from);
             }
         }
     }
@@ -235,6 +249,19 @@ class Scratch3SoundBlocks {
         }
         // if there is no sound by that name, return -1
         return -1;
+    }
+
+    stopSound () {
+        const index = this._getSoundIndex(args.SOUND_MENU, util);
+        if (index >= 0) {
+            const {target} = util;
+            const {sprite} = target;
+            const {soundId} = sprite.sounds[index];
+            if (sprite.soundBank) {
+                sprite.soundBank.stop(target, soundId);
+                this._removeWaitingSound(target.id, soundId);
+            }
+        }
     }
 
     stopAllSounds () {
@@ -329,6 +356,14 @@ class Scratch3SoundBlocks {
         for (let i = 0; i < allTargets.length; i++) {
             this._clearEffectsForTarget(allTargets[i]);
         }
+    }
+
+    getEffect (args, util) {
+        const effect = Cast.toString(args.EFFECT).toLowerCase();
+        const soundState = this._getSoundState(util.target);
+
+        if (!Object.prototype.hasOwnProperty.call(soundState.effects, effect)) return 0;
+        return soundState.effects[effect];
     }
 
     setVolume (args, util) {
