@@ -51,7 +51,8 @@ class Scratch3SoundBlocks {
         return {
             effects: {
                 pitch: 0,
-                pan: 0
+                pan: 0,
+                highpass: 0
             }
         };
     }
@@ -86,7 +87,8 @@ class Scratch3SoundBlocks {
     static get EFFECT_RANGE () {
         return {
             pitch: {min: -360, max: 360}, // -3 to 3 octaves
-            pan: {min: -100, max: 100} // 100% left to 100% right
+            pan: {min: -100, max: 100}, // 100% left to 100% right
+            highpass: {min: 0, max: 24000} // 0 to 24000 Hz (half of sampleRate in AudioContext)
         };
     }
 
@@ -97,7 +99,10 @@ class Scratch3SoundBlocks {
             pitch: {min: -1000, max: 1000},
 
             // No reason for these to go beyond 100
-            pan: {min: -100, max: 100}
+            pan: {min: -100, max: 100},
+
+            // No reason for these to go beyond default limits
+            highpass: {min: 0, max: 24000}
         };
     }
 
