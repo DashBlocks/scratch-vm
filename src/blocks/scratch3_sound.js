@@ -52,7 +52,8 @@ class Scratch3SoundBlocks {
             effects: {
                 pitch: 0,
                 pan: 0,
-                highpass: 0
+                highpass: 0,
+                lowpass: 0
             }
         };
     }
@@ -88,7 +89,8 @@ class Scratch3SoundBlocks {
         return {
             pitch: {min: -360, max: 360}, // -3 to 3 octaves
             pan: {min: -100, max: 100}, // 100% left to 100% right
-            highpass: {min: 0, max: 24000} // 0 to 24000 Hz (half of sampleRate in AudioContext)
+            highpass: {min: 0, max: 24000}, // 0 to 24000 Hz (half of sampleRate in AudioContext)
+            lowpass: {min: 0, max: 24000} // 0 to 24000 Hz (half of sampleRate in AudioContext)
         };
     }
 
@@ -102,7 +104,10 @@ class Scratch3SoundBlocks {
             pan: {min: -100, max: 100},
 
             // No reason for these to go beyond default limits
-            highpass: {min: 0, max: 24000}
+            highpass: {min: 0, max: 24000},
+
+            // No reason for these to go beyond default limits
+            lowpass: {min: 0, max: 24000}
         };
     }
 
