@@ -53,7 +53,7 @@ class Scratch3SoundBlocks {
                 pitch: 0,
                 pan: 0,
                 highpass: 0,
-                lowpass: 0
+                lowpass: 24000
             }
         };
     }
