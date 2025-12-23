@@ -112,6 +112,11 @@ class DashCoreExample {
                         }
                     }
                 },
+                {
+                    opcode: 'exWithCompiledPrimitive',
+                    blockType: BlockType.REPORTER,
+                    text: 'block with compiled primitive'
+                },
                 '---',
                 {
                     opcode: 'exArray',
@@ -154,9 +159,27 @@ class DashCoreExample {
         };
     }
 
+    /**
+     * @returns {object} metadata for compiler.
+     */
+    getCompileInfo () {
+        return {
+            ir: {
+                exWithCompiledPrimitive: (_, __, {InputType}) => [InputType.STRING]
+            },
+            js: {
+                exWithCompiledPrimitive: () => '"I\'m in compiler!"'
+            }
+        };
+    }
+
     exampleOpcode () {
         const stage = this.runtime.getTargetForStage();
         return stage ? stage.getName() : 'no stage yet';
+    }
+
+    exWithCompiledPrimitive () {
+        return "I'm in interpreter... :/";
     }
 
     exArray (args) {
