@@ -179,6 +179,20 @@ class ExtensionManager {
 
         const extension = this.builtinExtensions[extensionId]();
         const extensionInstance = new extension(this.runtime);
+
+        const {IRGenerator} = require('../compiler/irgen');
+        const JSGenerator = require('../compiler/jsgen');
+        if ('getCompileInfo' in extensionInstance) {
+            try {
+                const extCompileInfo = extensionInstance.getCompileInfo();
+                if (!('ir' in extCompileInfo && 'js' in extCompileInfo)) throw new Error();
+                IRGenerator.setExtensionIR(extensionId, extCompileInfo.ir);
+                JSGenerator.setExtensionJS(extensionId, extCompileInfo.js);
+            } catch {
+                throw new Error(`Cannot register compile info of extension: ${extensionId}`);
+            }
+        }
+        
         const serviceName = this._registerInternalExtension(extensionInstance);
         this._loadedExtensions.set(extensionId, serviceName);
         this.runtime.compilerRegisterExtension(extensionId, extensionInstance);
