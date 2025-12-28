@@ -24,6 +24,7 @@ class DashJSONBlocks {
             json_get_by_path: this.getByPath,
             json_set_by_path: this.setByPath,
             json_stringify_spacer: this.stringifySpacer,
+            json_assign: this.assign,
             json_array_in_front_of: this.arrayAddFront,
             json_array_behind: this.arrayAddBack,
             json_array_at: this.arrayInsertAt,
@@ -145,6 +146,14 @@ class DashJSONBlocks {
     stringifySpacer (args) {
         const json = Cast.toJSON(args.VALUE, true);
         return ExtendedJSON.stringify(json, null, args.SPACER);
+    }
+
+    assign (args) {
+        const main = Cast.toJSON(args.MAIN, true);
+        return Object.entries(args).reduce((acc, [argName, value]) =>
+            argName === 'mutation' || argName === 'MAIN' ? acc : Array.isArray(acc)
+                ? [...acc, ...Cast.toList(value)]
+                : {...acc, ...Cast.toJSON(value, true)}, main);
     }
 
     arrayAddFront (args) {
