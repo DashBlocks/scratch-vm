@@ -245,6 +245,7 @@ const InputOpcode = {
     JSON_GET_BY_PATH: 'json.getByPath',
     JSON_SET_BY_PATH: 'json.setByPath',
     JSON_STRINGIFY_SPACER: 'json.stringifySpacer',
+    JSON_ASSIGN: 'json.assign',
     JSON_ARRAY_EMPTY: 'json.arrayEmpty',
     JSON_ARRAY_ITEM_OF: 'json.arrayItemOf',
     JSON_ARRAY_ITEM_NO_OF: 'json.arrayItemNoOf',

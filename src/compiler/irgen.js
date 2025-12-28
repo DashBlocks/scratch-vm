@@ -321,6 +321,20 @@ class ScriptTreeGenerator {
                 value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.JSON),
                 spacer: this.descendInputOfBlock(block, 'SPACER')
             });
+        case 'json_assign': {
+            const inputs = [];
+            for (const input of Object.values(block.inputs)) {
+                if (input.block == null) {
+                    delete block.inputs[input.name];
+                } else if (input.name != 'MAIN') {
+                    inputs.push(this.descendInputOfBlock(block, input.name));
+                }
+            }
+            return new IntermediateInput(InputOpcode.JSON_ASSIGN, InputType.JSON, {
+                main: this.descendInputOfBlock(block, 'MAIN').toType(InputType.JSON),
+                inputs
+            });
+        }
         case 'json_array_empty':
             return new IntermediateInput(InputOpcode.JSON_ARRAY_EMPTY, InputType.ARRAY);
         case 'json_array_item_of':
