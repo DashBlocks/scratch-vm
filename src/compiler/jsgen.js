@@ -613,6 +613,16 @@ class JSGenerator {
             return `runtime.ext_dash_json.setByPath({ITEM: ${this.descendInput(node.item)}, PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
         case InputOpcode.JSON_STRINGIFY_SPACER:
             return `JSON.stringify(${this.descendInput(node.value)}, null, ${this.descendInput(node.spacer)})`;
+        case InputOpcode.JSON_ASSIGN: {
+            const main = node.main;
+            if (main.isAlwaysType(InputType.ARRAY)) {
+                return `[...${this.descendInput(main)}, ${node.inputs.map((input) => `...toArray(${this.descendInput(input)})`).join(', ')}]`;
+            }
+            if (main.isAlwaysType(InputType.OBJECT)) {
+                return `{...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
+            }
+            return `Array.isArray(${this.descendInput(main)}) ? [...${this.descendInput(main)}, ${node.inputs.map((input) => `...toArray(${this.descendInput(input)})`).join(', ')}] : {...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
+        }
         case InputOpcode.JSON_ARRAY_EMPTY:
             return '[]';
         case InputOpcode.JSON_ARRAY_ITEM_OF: {
