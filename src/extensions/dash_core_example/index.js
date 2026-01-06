@@ -1,5 +1,6 @@
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
+const ExtensionManager = require('../../virtual-machine');
 const Cast = require('../../util/cast');
 
 /* eslint-disable-next-line max-len */
@@ -154,6 +155,30 @@ class DashCoreExample {
                     opcode: 'exCustomDataTypeGetter',
                     blockType: BlockType.REPORTER,
                     text: 'sum in ExampleDataType [EXDATATYPE]'
+                },
+                "---",
+                {
+                    opcode: 'exRemoveExtension',
+                    blockType: BlockType.COMMAND,
+                    text: 'remove extension with id [ID]',
+                    arguments: {
+                        ID: {
+                            type: ArgumentType.STRING
+                        }
+                    }
+                },
+                {
+                    opcode: 'exEditExtension',
+                    blockType: BlockType.COMMAND,
+                    text: 'edit extension with id [ID] to [DATA]',
+                    arguments: {
+                        ID: {
+                            type: ArgumentType.STRING
+                        },
+                        DATA: {
+                            type: ArgumentType.STRING
+                        }
+                    }
                 }
             ]
         };
@@ -200,6 +225,14 @@ class DashCoreExample {
 
     exampleWithInlineImage () {
         return;
+    }
+
+    exRemoveExtension (args) {
+        ExtensionManager.removeExtension(args.ID);
+    }
+
+    exEditExtension (args) {
+        ExtensionManager.editExtension(args.ID, args.DATA);
     }
 }
 
