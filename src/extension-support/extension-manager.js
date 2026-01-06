@@ -640,6 +640,58 @@ class ExtensionManager {
         return blockInfo;
     }
 
+    /**
+     * Get all opcodes for a loaded extension.
+     * @param {string} extensionId - the ID of the extension
+     * @returns {Array<string>} - list of opcodes
+     * @private
+     */
+    _getExtensionOpcodes (extensionId) {
+        const categoryInfo = this.runtime._blockInfo.find(info => info.id === extensionId);
+        if (!categoryInfo) return [];
+        return categoryInfo.blocks.filter(block => block.json).map(block => block.json.type);
+    }
+
+    /**
+     * Remove an extension.
+     * @param {string} extensionId - the ID of the extension
+     */
+    removeExtension (extensionId) {
+        if (!this.isExtensionLoaded(extensionId)) return;
+
+        const opcodes = this._getExtensionOpcodes(extensionId);
+        for (const target of this.runtime.targets) {
+            for (const opcode of opcodes) {
+                target.blocks.deleteBlocksWithOpcode(opcode);
+            }
+        }
+
+        this._loadedExtensions.delete(extensionId);
+        this.runtime._unregisterExtension(extensionId);
+    }
+
+    /**
+     * Edit an extension.
+     * @param {string} extensionId - the ID of the extension
+     * @param {ExtensionInfo} newExtensionInfo - the new extension info
+     */
+    editExtension (extensionId, newExtensionInfo) {
+        if (!this.isExtensionLoaded(extensionId)) return;
+
+        const oldOpcodes = this._getExtensionOpcodes(extensionId);
+        const serviceName = this._loadedExtensions.get(extensionId);
+        newExtensionInfo = this._prepareExtensionInfo(serviceName, newExtensionInfo);
+        const newOpcodes = newExtensionInfo.blocks.filter(block => block.json).map(block => block.json.type);
+        const removedOpcodes = oldOpcodes.filter(opcode => !newOpcodes.includes(opcode));
+        for (const target of this.runtime.targets) {
+            for (const opcode of removedOpcodes) {
+                target.blocks.deleteBlocksWithOpcode(opcode);
+            }
+        }
+
+        this.runtime._refreshExtensionPrimitives(newExtensionInfo);
+    }
+
     getExtensionURLs () {
         const extensionURLs = {};
         for (const [extensionId, serviceName] of this._loadedExtensions.entries()) {

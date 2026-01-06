@@ -797,6 +797,23 @@ class VirtualMachine extends EventEmitter {
     }
 
     /**
+     * Remove an extension.
+     * @param {string} extensionId - the ID of the extension
+     */
+    removeExtension (extensionId) {
+        this.extensionManager.removeExtension(extensionId);
+    }
+
+    /**
+     * Edit an extension.
+     * @param {string} extensionId - the ID of the extension
+     * @param {ExtensionInfo} newExtensionInfo - the new extension info
+     */
+    editExtension (extensionId, newExtensionInfo) {
+        this.extensionManager.editExtension(extensionId, newExtensionInfo);
+    }
+
+    /**
      * Install `deserialize` results: zero or more targets after the extensions (if any) used by those targets.
      * @param {Array.<Target>} targets - the targets to be installed
      * @param {ImportedExtensionsInfo} extensions - metadata about extensions used by these targets

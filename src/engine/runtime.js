@@ -926,6 +926,14 @@ class Runtime extends EventEmitter {
     }
 
     /**
+     * Event name for reporting that an extension was removed.
+     * @const {string}
+     */
+    static get EXTENSION_REMOVED () {
+        return 'EXTENSION_REMOVED';
+    }
+
+    /**
      * Event name for reporting that an extension as asked for a custom field to be added
      * @const {string}
      */
@@ -1230,6 +1238,40 @@ class Runtime extends EventEmitter {
 
             this.emit(Runtime.BLOCKSINFO_UPDATE, categoryInfo);
         }
+    }
+
+    /**
+     * Unregister an extension, removing its primitives and category.
+     * @param {string} extensionId - the ID of the extension to unregister
+     * @private
+     */
+    _unregisterExtension (extensionId) {
+        // Remove category
+        this._blockInfo = this._blockInfo.filter(info => info.id !== extensionId);
+
+        // Remove primitives
+        for (const key in this._primitives) {
+            if (key.startsWith(`${extensionId}.`)) {
+                delete this._primitives[key];
+            }
+        }
+
+        // Remove hats
+        for (const key in this._hats) {
+            if (key.startsWith(`${extensionId}.`)) {
+                delete this._hats[key];
+            }
+        }
+
+        // Remove flowing
+        for (const key in this._flowing) {
+            if (key.startsWith(`${extensionId}.`)) {
+                delete this._flowing[key];
+            }
+        }
+
+        // Emit event
+        this.emit(Runtime.EXTENSION_REMOVED, extensionId);
     }
 
     /**
