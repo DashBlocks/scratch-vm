@@ -947,6 +947,15 @@ class Blocks {
     }
 
     /**
+     * Delete all blocks with the given opcode.
+     * @param {string} opcode The opcode to match.
+     */
+    deleteBlocksWithOpcode (opcode) {
+        const blockIds = Object.keys(this._blocks).filter(id => this._blocks[id].opcode === opcode);
+        blockIds.forEach(id => this.deleteBlock(id));
+    }
+
+    /**
      * Returns a map of all references to variables or lists from blocks
      * in this block container.
      * @param {Array<object>} optBlocks Optional list of blocks to constrain the search to.
