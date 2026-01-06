@@ -1,6 +1,5 @@
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
-const ExtensionManager = require('../../virtual-machine');
 const Cast = require('../../util/cast');
 
 /* eslint-disable-next-line max-len */
@@ -228,11 +227,11 @@ class DashCoreExample {
     }
 
     exRemoveExtension (args) {
-        ExtensionManager.removeExtension(args.ID);
+        this.runtime.extensionManager.removeExtension(args.ID);
     }
 
     exEditExtension (args) {
-        ExtensionManager.editExtension(args.ID, args.DATA);
+        this.runtime.extensionManager.editExtension(args.ID, args.DATA);
     }
 }
 
