@@ -1241,37 +1241,13 @@ class Runtime extends EventEmitter {
     }
 
     /**
-     * Unregister an extension, removing its primitives and category.
-     * @param {string} extensionId - the ID of the extension to unregister
+     * Remove all extension primitives.
+     * @param {string} extensionId - the ID of the extension to remove
      * @private
      */
-    _unregisterExtension (extensionId) {
-        // Remove category
-        this._blockInfo = this._blockInfo.filter(info => info.id !== extensionId);
-
-        // Remove primitives
-        for (const key in this._primitives) {
-            if (key.startsWith(`${extensionId}.`)) {
-                delete this._primitives[key];
-            }
-        }
-
-        // Remove hats
-        for (const key in this._hats) {
-            if (key.startsWith(`${extensionId}.`)) {
-                delete this._hats[key];
-            }
-        }
-
-        // Remove flowing
-        for (const key in this._flowing) {
-            if (key.startsWith(`${extensionId}.`)) {
-                delete this._flowing[key];
-            }
-        }
-
-        // Emit event
-        this.emit(Runtime.EXTENSION_REMOVED, extensionId);
+    _removeExtensionPrimitive(extensionId) {
+        this._blockInfo = this._blockInfo.filter(ext => ext.id !== extensionId);
+        this.emit(Runtime.EXTENSION_REMOVED);
     }
 
     /**
@@ -1939,6 +1915,7 @@ class Runtime extends EventEmitter {
 
             let xml = `<category name="${xmlEscape(name)}"`;
             xml += ` id="${xmlEscape(categoryInfo.id)}"`;
+            xml += ` options="extensionControls"`;
             xml += ` ${statusButtonXML}`;
             xml += ` ${colorXML}`;
             xml += ` ${menuIconXML}>`;

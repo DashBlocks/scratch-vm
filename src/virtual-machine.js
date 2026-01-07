@@ -51,6 +51,7 @@ const createRuntimeService = runtime => {
     const service = {};
     service._refreshExtensionPrimitives = runtime._refreshExtensionPrimitives.bind(runtime);
     service._registerExtensionPrimitives = runtime._registerExtensionPrimitives.bind(runtime);
+    service._removeExtensionPrimitive = runtime._removeExtensionPrimitive.bind(runtime);
     return service;
 };
 
@@ -126,6 +127,9 @@ class VirtualMachine extends EventEmitter {
         });
         this.runtime.on(Runtime.EXTENSION_ADDED, categoryInfo => {
             this.emit(Runtime.EXTENSION_ADDED, categoryInfo);
+        });
+        this.runtime.on(Runtime.EXTENSION_REMOVED, () => {
+            this.emit(Runtime.EXTENSION_REMOVED);
         });
         this.runtime.on(Runtime.EXTENSION_FIELD_ADDED, (fieldName, fieldImplementation) => {
             this.emit(Runtime.EXTENSION_FIELD_ADDED, fieldName, fieldImplementation);
@@ -794,23 +798,6 @@ class VirtualMachine extends EventEmitter {
             }
         }
         return Promise.all(extensionPromises);
-    }
-
-    /**
-     * Remove an extension.
-     * @param {string} extensionId - the ID of the extension
-     */
-    removeExtension (extensionId) {
-        this.extensionManager.removeExtension(extensionId);
-    }
-
-    /**
-     * Edit an extension.
-     * @param {string} extensionId - the ID of the extension
-     * @param {ExtensionInfo} newExtensionInfo - the new extension info
-     */
-    editExtension (extensionId, newExtensionInfo) {
-        this.extensionManager.editExtension(extensionId, newExtensionInfo);
     }
 
     /**
