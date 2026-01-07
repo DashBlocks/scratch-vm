@@ -154,6 +154,17 @@ class DashCoreExample {
                     opcode: 'exCustomDataTypeGetter',
                     blockType: BlockType.REPORTER,
                     text: 'sum in ExampleDataType [EXDATATYPE]'
+                },
+                "---",
+                {
+                    opcode: 'exRemoveExtension',
+                    blockType: BlockType.COMMAND,
+                    text: 'remove extension with id [ID]',
+                    arguments: {
+                        ID: {
+                            type: ArgumentType.STRING
+                        }
+                    }
                 }
             ]
         };
@@ -200,6 +211,10 @@ class DashCoreExample {
 
     exampleWithInlineImage () {
         return;
+    }
+
+    exRemoveExtension (args) {
+        this.runtime.extensionManager.removeExtension(args.ID);
     }
 }
 
