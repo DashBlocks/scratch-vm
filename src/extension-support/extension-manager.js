@@ -712,9 +712,12 @@ class ExtensionManager {
      */
     prepareSwap (id) {
         const serviceName = this._loadedExtensions.get(id);
-        const {provider, isRemote} = dispatch._getServiceProvider(serviceName);
-        if (isRemote || typeof provider.dispose === 'function') 
-            dispatch.call(serviceName, 'dispose');
+        const serviceProvider = dispatch._getServiceProvider(serviceName);
+        if (serviceProvider) {
+            const {provider, isRemote} = serviceProvider;
+            if (isRemote || typeof provider.dispose === 'function') 
+                dispatch.call(serviceName, 'dispose');
+        }
         delete dispatch.services[serviceName];
         delete this.runtime[`ext_${id}`];
 
@@ -730,9 +733,12 @@ class ExtensionManager {
     removeExtension (extensionId) {
         if (!this.isExtensionLoaded(extensionId)) return;
         const serviceName = this._loadedExtensions.get(extensionId);
-        const {provider, isRemote} = dispatch._getServiceProvider(serviceName);
-        if (isRemote || typeof provider.dispose === 'function') 
-            dispatch.call(serviceName, 'dispose');
+        const serviceProvider = dispatch._getServiceProvider(serviceName);
+        if (serviceProvider) {
+            const {provider, isRemote} = serviceProvider;
+            if (isRemote || typeof provider.dispose === 'function') 
+                dispatch.call(serviceName, 'dispose');
+        }
         delete dispatch.services[serviceName];
         delete this.runtime[`ext_${extensionId}`];
 
