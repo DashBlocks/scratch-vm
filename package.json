@@ -4,10 +4,10 @@
   "description": "Virtual Machine for Dash",
   "author": "DashBlocks Team",
   "license": "MPL-2.0",
-  "homepage": "https://github.com/dashblocks/scratch-vm#readme",
+  "homepage": "https://github.com/DashBlocks/scratch-vm#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dashblocks/scratch-vm.git"
+    "url": "https://github.com/DashBlocks/scratch-vm.git"
   },
   "main": "./src/index.js",
   "browser": "./src/index.js",
