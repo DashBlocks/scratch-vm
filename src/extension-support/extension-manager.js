@@ -2,7 +2,6 @@ const dispatch = require('../dispatch/central-dispatch');
 const log = require('../util/log');
 const {CORE_EXTENSIONS} = require('../serialization/sb3');
 const maybeFormatMessage = require('../util/maybe-format-message');
-const staticFetch = require('../util/tw-static-fetch');
 
 const BlockType = require('./block-type');
 const SecurityManager = require('./tw-security-manager');
@@ -40,17 +39,6 @@ async function sha256 (source) {
     const resultBytes = [...new Uint8Array(digest)];
     return resultBytes.map(x => x.toString(16).padStart(2, '0')).join("");
 }
-
-/**
- * @param {Blob} blob Blob
- * @returns {Promise<string>} data: uri
- */
-const readAsDataURL = blob => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error(`Could not read extension as data URL: ${reader.error}`));
-    reader.readAsDataURL(blob);
-});
 
 /**
  * @typedef {object} ArgumentInfo - Information about an extension block argument
@@ -300,9 +288,6 @@ class ExtensionManager {
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
         const blob = await (await fetch(rewritten)).blob();
-        const base64 = await readAsDataURL(blob);
-        const extensionInfo = await staticFetch(base64).json();
-        this.extensionsIDs.push(extensionInfo.id);
         const blobURL = URL.createObjectURL(blob);
         const newHash = await new Promise(resolve => {
             const reader = new FileReader();
@@ -330,6 +315,7 @@ class ExtensionManager {
 
             for (const extensionObject of extensionObjects) {
                 const extensionInfo = extensionObject.getInfo();
+                this.extensionsIDs.push(extensionInfo.id);
                 if ('getCompileInfo' in extensionObject) {
                     try {
                         const extCompileInfo = extensionObject.getCompileInfo();
@@ -424,6 +410,8 @@ class ExtensionManager {
      */
     registerExtensionServiceSync (serviceName) {
         const info = dispatch.callSync(serviceName, 'getInfo');
+        this._loadedExtensions.set(info.id, serviceName);
+        this.extensionsIDs.push(info.id);
         this._registerExtensionInfo(serviceName, info);
     }
 
@@ -434,6 +422,7 @@ class ExtensionManager {
     registerExtensionService (serviceName) {
         dispatch.call(serviceName, 'getInfo').then(info => {
             this._loadedExtensions.set(info.id, serviceName);
+            this.extensionsIDs.push(info.id);
             this._registerExtensionInfo(serviceName, info);
             this._finishedLoadingExtensionScript();
         });
