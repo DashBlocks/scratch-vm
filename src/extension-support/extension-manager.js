@@ -290,8 +290,7 @@ class ExtensionManager {
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
         const response = await fetch(rewritten);
-        const extensionInfo = await response.json()
-                                .then(data => data.getInfo());
+        const extensionInfo = await response.json().then(data => data.getInfo());
         this.extensionsIDs.push(extensionInfo.id);
         const blob = await response.blob();
         const blobURL = URL.createObjectURL(blob);
