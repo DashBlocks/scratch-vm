@@ -253,7 +253,7 @@ class ExtensionManager {
 
         if (this.isBuiltinExtension(extensionURL)) {
             this.loadExtensionIdSync(extensionURL);
-            this.extensionsIDs = [extensionURL];
+            this.extensionsIDs.push(extensionURL);
             return;
         }
 
@@ -289,12 +289,14 @@ class ExtensionManager {
 
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
-        const blob = (await fetch(rewritten).then(req => req.blob()))
-        const blobURL = URL.createObjectURL(blob)
+        const response = await fetch(rewritten);
+        const extensionInfo = await response.json().getInfo();
+        this.extensionsIDs.push(extensionInfo.id);
+        const blob = await response.blob();
+        const blobURL = URL.createObjectURL(blob);
         const newHash = await new Promise(resolve => {
-            const reader = new FileReader()
-            reader.onload = async ({ target: { result } }) => {
-                console.log(result);
+            const reader = new FileReader();
+            reader.onload = async ({target: {result}}) => {
                 this.extensionsURLCodes[extensionURL] = result;
                 resolve(await sha256(result));
             }
@@ -324,7 +326,6 @@ class ExtensionManager {
                         if (!('ir' in extCompileInfo && 'js' in extCompileInfo)) throw new Error();
                         IRGenerator.setExtensionIR(extensionInfo.id, extCompileInfo.ir);
                         JSGenerator.setExtensionJS(extensionInfo.id, extCompileInfo.js);
-                        this.extensionsIDs.push(extensionInfo.id);
                     } catch {
                         throw new Error(`Cannot register compile info of extension: ${extensionInfo.id}`);
                     }
