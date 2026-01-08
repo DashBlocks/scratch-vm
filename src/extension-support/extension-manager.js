@@ -141,7 +141,7 @@ class ExtensionManager {
         this.extensionsHashes = {};
 
         /**
-         * List of currently loaded extension IDs. Resets when `loadExtensionURL` is called.
+         * List of loaded extension IDs.
          * @type {Array.<string>}
          */
         this.extensionsIDs = [];
@@ -261,8 +261,6 @@ class ExtensionManager {
      * @returns {Promise} resolved once the extension is loaded and initialized or rejected on failure
      */
     async loadExtensionURL (extensionURL, oldHash = '') {
-        this.extensionsIDs = [];
-
         if (this.isBuiltinExtension(extensionURL)) {
             this.loadExtensionIdSync(extensionURL);
             this.extensionsIDs.push(extensionURL);
@@ -302,7 +300,7 @@ class ExtensionManager {
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
         const blob = await await fetch(rewritten).blob();
-        const base64 = readAsDataURL(blob);
+        const base64 = await readAsDataURL(blob);
         const extensionInfo = await staticFetch(base64).json();
         this.extensionsIDs.push(extensionInfo.id);
         const blobURL = URL.createObjectURL(blob);
