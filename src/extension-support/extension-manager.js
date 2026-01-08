@@ -129,6 +129,12 @@ class ExtensionManager {
         this.extensionsHashes = {};
 
         /**
+         * List of currently loaded extension IDs. Resets when `loadExtensionURL` is called.
+         * @type {Array.<string>}
+         */
+        this.extensionsIDs = [];
+
+        /**
          * Responsible for determining security policies related to custom extensions.
          */
         this.securityManager = new SecurityManager();
@@ -243,8 +249,11 @@ class ExtensionManager {
      * @returns {Promise} resolved once the extension is loaded and initialized or rejected on failure
      */
     async loadExtensionURL (extensionURL, oldHash = '') {
+        this.extensionsIDs = [];
+
         if (this.isBuiltinExtension(extensionURL)) {
             this.loadExtensionIdSync(extensionURL);
+            this.extensionsIDs = [extensionURL];
             return;
         }
 
@@ -315,6 +324,7 @@ class ExtensionManager {
                         if (!('ir' in extCompileInfo && 'js' in extCompileInfo)) throw new Error();
                         IRGenerator.setExtensionIR(extensionInfo.id, extCompileInfo.ir);
                         JSGenerator.setExtensionJS(extensionInfo.id, extCompileInfo.js);
+                        this.extensionsIDs.push(extensionInfo.id);
                     } catch {
                         throw new Error(`Cannot register compile info of extension: ${extensionInfo.id}`);
                     }
