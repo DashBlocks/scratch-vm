@@ -1603,5 +1603,6 @@ module.exports = {
     serializeBlocks: serializeBlocks,
     deserializeStandaloneBlocks: deserializeStandaloneBlocks,
     serializeStandaloneBlocks: serializeStandaloneBlocks,
-    getExtensionIdForOpcode: getExtensionIdForOpcode
+    getExtensionIdForOpcode: getExtensionIdForOpcode,
+    CORE_EXTENSIONS: CORE_EXTENSIONS
 };

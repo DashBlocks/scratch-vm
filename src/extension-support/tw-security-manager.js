@@ -162,6 +162,16 @@ class SecurityManager {
     canDownload (resourceURL, name) {
         return Promise.resolve(true);
     }
+
+    /**
+     * Determine whether to use the local cached version of an extension
+     * or the updated version when the extension code has changed.
+     * @param {*} referenceName The URL or ID of the extension.
+     * @returns {Promise<boolean>|boolean}
+     */
+    shouldUseLocal (referenceName) {
+        return Promise.resolve(!confirm(`It seems that the extension ${referenceName} has been updated, use the up-to-date code?`))
+    }
 }
 
 module.exports = SecurityManager;
