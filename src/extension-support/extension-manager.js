@@ -2,6 +2,7 @@ const dispatch = require('../dispatch/central-dispatch');
 const log = require('../util/log');
 const {CORE_EXTENSIONS} = require('../serialization/sb3');
 const maybeFormatMessage = require('../util/maybe-format-message');
+const staticFetch = require('../util/tw-static-fetch');
 
 const BlockType = require('./block-type');
 const SecurityManager = require('./tw-security-manager');
@@ -39,6 +40,17 @@ async function sha256 (source) {
     const resultBytes = [...new Uint8Array(digest)];
     return resultBytes.map(x => x.toString(16).padStart(2, '0')).join("");
 }
+
+/**
+ * @param {Blob} blob Blob
+ * @returns {Promise<string>} data: uri
+ */
+const readAsDataURL = blob => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error(`Could not read extension as data URL: ${reader.error}`));
+    reader.readAsDataURL(blob);
+});
 
 /**
  * @typedef {object} ArgumentInfo - Information about an extension block argument
@@ -289,10 +301,10 @@ class ExtensionManager {
 
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
-        const response = await fetch(rewritten);
-        const extensionInfo = await response.json().then(data => data.getInfo());
+        const blob = await await fetch(rewritten).blob();
+        const base64 = readAsDataURL(blob);
+        const extensionInfo = await staticFetch(base64).json();
         this.extensionsIDs.push(extensionInfo.id);
-        const blob = await response.blob();
         const blobURL = URL.createObjectURL(blob);
         const newHash = await new Promise(resolve => {
             const reader = new FileReader();
