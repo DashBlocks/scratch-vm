@@ -368,22 +368,25 @@ class ExtensionManager {
      * @returns {Promise} resolved once all the extensions have been reinitialized
      */
     refreshBlocks (optExtensionId) {
-        const refresh = serviceName => dispatch.call(serviceName, 'getInfo')
-            .then(info => {
-                info = this._prepareExtensionInfo(serviceName, info);
-                dispatch.call('runtime', '_refreshExtensionPrimitives', info);
-            })
-            .catch(e => {
-                log.error('Failed to refresh built-in extension primitives', e);
-            });
-        if (optExtensionId) {
-            if (!this._loadedExtensions.has(optExtensionId)) {
-                return Promise.reject(new Error(`Unknown extension: ${optExtensionId}`));
-            }
-            return refresh(this._loadedExtensions.get(optExtensionId));
+        const refresh_service = service =>
+            dispatch.call(service, 'getInfo')
+                .then(info => {
+                    info = this._prepareExtensionInfo(service, info);
+                    dispatch.call('runtime', '_refreshExtensionPrimitives', info);
+                })
+                .catch(e => {
+                    log.error(`Failed to refresh built-in extension primitives: ${e}`);
+                });
+
+        if (!optExtensionId) {
+            const all_services = Array.from(this._loadedExtensions.values()).map(refresh_service);
+            return Promise.all(all_services);
         }
-        const allPromises = Array.from(this._loadedExtensions.values()).map(refresh);
-        return Promise.all(allPromises);
+        if (!this._loadedExtensions.has(optExtensionId)) {
+            return Promise.reject(new Error(`Unknown extension: ${optExtensionId}`));
+        }
+
+        return refresh_service(this._loadedExtensions.get(optExtensionId));
     }
 
     allocateWorker () {
