@@ -323,6 +323,7 @@ const InputOpcode = {
     SENSING_TIME_SECOND: 'sensing.second',
     SENSING_TIME_DAYS_SINCE_2000: 'sensing.daysSince2000',
     SENSING_DISTANCE: 'sensing.distance',
+    SENSING_DISTANCE_XY: 'sensing.distanceXY',
     SENSING_KEY_DOWN: 'keyboard.pressed',
     SENSING_MODALS_PROMPT: 'sensing.prompt',
     SENSING_MODALS_CONFIRM: 'sensing.confirm',

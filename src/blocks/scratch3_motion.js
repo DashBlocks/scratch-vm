@@ -24,6 +24,7 @@ class Scratch3MotionBlocks {
             motion_turnleft: this.turnLeft,
             motion_pointindirection: this.pointInDirection,
             motion_pointtowards: this.pointTowards,
+            motion_pointtowardsxy: this.pointTowardsXY,
             motion_glidesecstoxy: this.glide,
             motion_glideto: this.glideTo,
             motion_ifonedgebounce: this.ifOnEdgeBounce,
@@ -145,6 +146,16 @@ class Scratch3MotionBlocks {
 
         const dx = targetX - util.target.x;
         const dy = targetY - util.target.y;
+        const direction = 90 - MathUtil.radToDeg(Math.atan2(dy, dx));
+        util.target.setDirection(direction);
+    }
+
+    pointTowardsXY (args, util) {
+        const x = Cast.toNumber(args.X);
+        const y = Cast.toNumber(args.Y);
+
+        const dx = x - util.target.x;
+        const dy = y - util.target.y;
         const direction = 90 - MathUtil.radToDeg(Math.atan2(dy, dx));
         util.target.setDirection(direction);
     }

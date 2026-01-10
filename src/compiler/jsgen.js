@@ -517,6 +517,8 @@ class JSGenerator {
         case InputOpcode.SENSING_DISTANCE:
             // TODO: on stages, this can be computed at compile time
             return `distance(${this.descendInput(node.target)})`;
+        case InputOpcode.SENSING_DISTANCE_XY:
+            return `distanceXY(${this.descendInput(node.x)}, ${this.descendInput(node.y)})`;
         case InputOpcode.SENSING_TIME_HOUR:
             return `(new Date().getHours())`;
         case InputOpcode.SENSING_TIME_MINUTE:

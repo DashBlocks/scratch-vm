@@ -20,6 +20,7 @@ const stacked = [
     'motion_glideto',
     'motion_goto',
     'motion_pointtowards',
+    'motion_pointtowardsxy',
     'motion_scroll_right',
     'motion_scroll_up',
     'sensing_askandwait',

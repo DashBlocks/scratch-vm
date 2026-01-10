@@ -754,6 +754,11 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.SENSING_DISTANCE, InputType.NUMBER_POS | InputType.NUMBER_ZERO, {
                 target: this.descendInputOfBlock(block, 'DISTANCETOMENU').toType(InputType.STRING)
             });
+        case 'sensing_distancetoxy':
+            return new IntermediateInput(InputOpcode.SENSING_DISTANCE_XY, InputType.NUMBER_POS | InputType.NUMBER_ZERO, {
+                x: this.descendInputOfBlock(block, 'X').toType(InputType.NUMBER),
+                y: this.descendInputOfBlock(block, 'Y').toType(InputType.NUMBER)
+            });
         case 'sensing_keypressed':
             return new IntermediateInput(InputOpcode.SENSING_KEY_DOWN, InputType.BOOLEAN, {
                 key: this.descendInputOfBlock(block, 'KEY_OPTION', true)

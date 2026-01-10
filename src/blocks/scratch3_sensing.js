@@ -60,6 +60,7 @@ class Scratch3SensingBlocks {
             sensing_touchingcolor: this.touchingColor,
             sensing_coloristouchingcolor: this.colorTouchingColor,
             sensing_distanceto: this.distanceTo,
+            sensing_distancetoxy: this.distanceToXY,
             sensing_timer: this.getTimer,
             sensing_resettimer: this.resetTimer,
             sensing_of: this.getAttributeOf,
@@ -230,6 +231,17 @@ class Scratch3SensingBlocks {
             targetX = distTarget.x;
             targetY = distTarget.y;
         }
+
+        const dx = util.target.x - targetX;
+        const dy = util.target.y - targetY;
+        return Math.sqrt((dx * dx) + (dy * dy));
+    }
+
+    distanceToXY (args, util) {
+        if (util.target.isStage) return 10000;
+
+        const targetX = Cast.toNumber(args.X);
+        const targetY = Cast.toNumber(args.Y);
 
         const dx = util.target.x - targetX;
         const dy = util.target.y - targetY;
