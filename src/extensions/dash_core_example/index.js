@@ -165,6 +165,23 @@ class DashCoreExample {
                             type: ArgumentType.STRING
                         }
                     }
+                },
+                "---",
+                {
+                    opcode: 'exAddLineToConsole',
+                    blockType: BlockType.COMMAND,
+                    text: 'add [LINE] line to pseudo-console',
+                    arguments: {
+                        LINE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'Hello, world!'
+                        }
+                    }
+                },
+                {
+                    opcode: 'exClearConsole',
+                    blockType: BlockType.COMMAND,
+                    text: 'clear pseudo-console'
                 }
             ]
         };
@@ -215,6 +232,14 @@ class DashCoreExample {
 
     exRemoveExtension (args) {
         this.runtime.extensionManager.removeExtension(args.ID);
+    }
+
+    exAddLineToConsole (args) {
+        this.runtime.console.addLine(args.LINE);
+    }
+
+    exClearConsole () {
+        this.runtime.console.clear();
     }
 }
 

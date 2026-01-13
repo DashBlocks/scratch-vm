@@ -129,7 +129,7 @@ class ExtensionManager {
         this.extensionsHashes = {};
 
         /**
-         * List of currently loaded extension IDs. Resets when `loadExtensionURL` is called.
+         * List of loaded extension IDs.
          * @type {Array.<string>}
          */
         this.extensionsIDs = [];
@@ -249,8 +249,6 @@ class ExtensionManager {
      * @returns {Promise} resolved once the extension is loaded and initialized or rejected on failure
      */
     async loadExtensionURL (extensionURL, oldHash = '') {
-        this.extensionsIDs = [];
-
         if (this.isBuiltinExtension(extensionURL)) {
             this.loadExtensionIdSync(extensionURL);
             this.extensionsIDs.push(extensionURL);
@@ -289,10 +287,7 @@ class ExtensionManager {
 
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
-        const response = await fetch(rewritten);
-        const extensionInfo = await response.json().getInfo();
-        this.extensionsIDs.push(extensionInfo.id);
-        const blob = await response.blob();
+        const blob = await (await fetch(rewritten)).blob();
         const blobURL = URL.createObjectURL(blob);
         const newHash = await new Promise(resolve => {
             const reader = new FileReader();
@@ -320,6 +315,7 @@ class ExtensionManager {
 
             for (const extensionObject of extensionObjects) {
                 const extensionInfo = extensionObject.getInfo();
+                this.extensionsIDs.push(extensionInfo.id);
                 if ('getCompileInfo' in extensionObject) {
                     try {
                         const extCompileInfo = extensionObject.getCompileInfo();
@@ -414,6 +410,8 @@ class ExtensionManager {
      */
     registerExtensionServiceSync (serviceName) {
         const info = dispatch.callSync(serviceName, 'getInfo');
+        this._loadedExtensions.set(info.id, serviceName);
+        this.extensionsIDs.push(info.id);
         this._registerExtensionInfo(serviceName, info);
     }
 
@@ -424,6 +422,7 @@ class ExtensionManager {
     registerExtensionService (serviceName) {
         dispatch.call(serviceName, 'getInfo').then(info => {
             this._loadedExtensions.set(info.id, serviceName);
+            this.extensionsIDs.push(info.id);
             this._registerExtensionInfo(serviceName, info);
             this._finishedLoadingExtensionScript();
         });
@@ -713,9 +712,12 @@ class ExtensionManager {
      */
     prepareSwap (id) {
         const serviceName = this._loadedExtensions.get(id);
-        const {provider, isRemote} = dispatch._getServiceProvider(serviceName);
-        if (isRemote || typeof provider.dispose === 'function') 
-            dispatch.call(serviceName, 'dispose');
+        const serviceProvider = dispatch._getServiceProvider(serviceName);
+        if (serviceProvider) {
+            const {provider, isRemote} = serviceProvider;
+            if (isRemote || typeof provider.dispose === 'function') 
+                dispatch.call(serviceName, 'dispose');
+        }
         delete dispatch.services[serviceName];
         delete this.runtime[`ext_${id}`];
 
@@ -731,9 +733,12 @@ class ExtensionManager {
     removeExtension (extensionId) {
         if (!this.isExtensionLoaded(extensionId)) return;
         const serviceName = this._loadedExtensions.get(extensionId);
-        const {provider, isRemote} = dispatch._getServiceProvider(serviceName);
-        if (isRemote || typeof provider.dispose === 'function') 
-            dispatch.call(serviceName, 'dispose');
+        const serviceProvider = dispatch._getServiceProvider(serviceName);
+        if (serviceProvider) {
+            const {provider, isRemote} = serviceProvider;
+            if (isRemote || typeof provider.dispose === 'function') 
+                dispatch.call(serviceName, 'dispose');
+        }
         delete dispatch.services[serviceName];
         delete this.runtime[`ext_${extensionId}`];
 
