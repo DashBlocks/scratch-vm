@@ -168,6 +168,7 @@ class DashCoreExample {
                 },
                 "---",
                 {
+                    opcode: 'exAddLineToConsole',
                     blockType: BlockType.COMMAND,
                     text: 'add [LINE] line to pseudo-console',
                     arguments: {
@@ -178,6 +179,7 @@ class DashCoreExample {
                     }
                 },
                 {
+                    opcode: 'exClearConsole',
                     blockType: BlockType.COMMAND,
                     text: 'clear pseudo-console'
                 }
