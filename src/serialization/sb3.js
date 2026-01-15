@@ -49,6 +49,7 @@ const CORE_EXTENSIONS = [
     'control',
     'data',
     'json',
+    'console',
     'event',
     'looks',
     'math',
