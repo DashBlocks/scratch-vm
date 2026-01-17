@@ -146,6 +146,9 @@ const StackOpcode = {
     VAR_SHOW: 'var.show',
     VAR_HIDE: 'var.hide',
 
+    CONSOLE_CLEAR: 'console.clear',
+    CONSOLE_ADD_LINE: 'console.addLine',
+
     EVENT_BROADCAST: 'event.broadcast',
     EVENT_BROADCAST_AND_WAIT: 'event.broadcastAndWait',
 
@@ -263,6 +266,11 @@ const InputOpcode = {
     JSON_OBJECT_SET: 'json.objectSet',
     JSON_OBJECT_DELETE: 'json.objectDelete',
     JSON_OBJECT_ENTRIES: 'json.objectEntries',
+
+    CONSOLE_OF: 'console.of',
+    CONSOLE_OF_CONTENT: 'console.of.content',
+    CONSOLE_OF_LINES_COUNT: 'console.of.linesCount',
+    CONSOLE_OF_SYMBOLS: 'console.of.symbols',
 
     MOTION_X_GET: 'motion.x',
     MOTION_Y_GET: 'motion.y',
