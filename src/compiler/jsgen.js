@@ -36,6 +36,9 @@ const sanitize = string => {
 const PEN_EXT = 'runtime.ext_pen';
 const PEN_STATE = `${PEN_EXT}._getPenState(target)`;
 
+// Dash's console-related constants
+const CONSOLE = 'runtime.console';
+
 /**
  * Variable pool used for factory function names.
  */
@@ -542,7 +545,7 @@ class JSGenerator {
             return `(${targetRef} ? ${targetRef}.y : 0)`;
         } case InputOpcode.SENSING_OF_POS_XY: {
             const targetRef = this.descendTargetReference(node.object);
-            return `(${targetRef} ? [${targetRef}.x, ${targetRef}.y] : [0, 0])`;
+            return `(${targetRef} ? [${targetRef}.x, ${targetRef}.y] : 0)`;
         } case InputOpcode.SENSING_OF_DIRECTION: {
             const targetRef = this.descendTargetReference(node.object);
             return `(${targetRef} ? ${targetRef}.direction : 0)`;
@@ -618,12 +621,12 @@ class JSGenerator {
         case InputOpcode.JSON_ASSIGN: {
             const main = node.main;
             if (main.isAlwaysType(InputType.ARRAY)) {
-                return `[...${this.descendInput(main)}, ${node.inputs.map((input) => `...toArray(${this.descendInput(input)})`).join(', ')}]`;
+                return `[...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input.toType(InputType.ARRAY))}`).join(', ')}]`;
             }
             if (main.isAlwaysType(InputType.OBJECT)) {
                 return `{...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
             }
-            return `Array.isArray(${this.descendInput(main)}) ? [...${this.descendInput(main)}, ${node.inputs.map((input) => `...toArray(${this.descendInput(input)})`).join(', ')}] : {...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
+            return `Array.isArray(${this.descendInput(main)}) ? [...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input.toType(InputType.ARRAY))}`).join(', ')}] : {...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
         }
         case InputOpcode.JSON_ARRAY_EMPTY:
             return '[]';
@@ -668,6 +671,13 @@ class JSGenerator {
             return `runtime.ext_dash_json.objectDelete({OBJECT: ${this.descendInput(node.object)}, KEY: ${this.descendInput(node.key)}})`;
         case InputOpcode.JSON_OBJECT_ENTRIES:
             return `runtime.ext_dash_json.objectEntries({OBJECT: ${this.descendInput(node.object)}, PROPERTY: "${sanitize(node.property)}"})`;
+
+        case InputOpcode.CONSOLE_OF_CONTENT:
+            return `(${CONSOLE} ? ${CONSOLE}.props.lines : 0)`;
+        case InputOpcode.CONSOLE_OF_LINES_COUNT:
+            return `(${CONSOLE} ? ${CONSOLE}.state.linesCount : 0)`;
+        case InputOpcode.CONSOLE_OF_SYMBOLS:
+            return `(${CONSOLE} ? ${CONSOLE}.state.symbols : 0)`;
 
         default:
             log.warn(`JS: Unknown input: ${block.opcode}`, node);
@@ -935,6 +945,13 @@ class JSGenerator {
             break;
         case StackOpcode.LIST_SHOW:
             this.source += `runtime.monitorBlocks.changeBlock({ id: "${sanitize(node.list.id)}", element: "checkbox", value: true }, runtime);\n`;
+            break;
+
+        case StackOpcode.CONSOLE_CLEAR:
+            this.source += `if (${CONSOLE}) ${CONSOLE}.clear();\n`;
+            break;
+        case StackOpcode.CONSOLE_ADD_LINE:
+            this.source += `if (${CONSOLE}) ${CONSOLE}.addLine(${this.descendInput(node.line)});\n`;
             break;
 
         case StackOpcode.LOOKS_LAYER_BACKWARD:
