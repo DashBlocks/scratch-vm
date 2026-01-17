@@ -267,7 +267,6 @@ const InputOpcode = {
     JSON_OBJECT_DELETE: 'json.objectDelete',
     JSON_OBJECT_ENTRIES: 'json.objectEntries',
 
-    CONSOLE_OF: 'console.of',
     CONSOLE_OF_CONTENT: 'console.of.content',
     CONSOLE_OF_LINES_COUNT: 'console.of.linesCount',
     CONSOLE_OF_SYMBOLS: 'console.of.symbols',
