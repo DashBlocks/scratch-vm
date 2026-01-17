@@ -15,15 +15,37 @@ class DashConsoleBlocks {
      */
     getPrimitives () {
         return {
-            /* console_blockopcode: this.method */
+            console_clear: this.clear,
+            console_addline: this.addLine,
+            console_of: this.getAttributeOf
         };
     }
 
-    /*
-    method () {
-        return;
+    clear () {
+        if (this.runtime.console) {
+            this.runtime.console.clear();
+        }
     }
-    */
+
+    addLine (args) {
+        if (this.runtime.console) {
+            const line = Cast.toString(args.LINE);
+            this.runtime.console.addLine(line);
+        }
+    }
+
+    getAttributeOf (args) {
+        if (this.runtime.console) {
+            switch (args.PROPERTY) {
+            case 'content': return this.runtime.console.props.lines;
+            case 'linescount': return this.runtime.console.state.linesCount;
+            case 'symbols': return this.runtime.console.state.symbols;
+            }
+        }
+
+        // Otherwise, 0
+        return 0;
+    }
 }
 
 module.exports = DashConsoleBlocks;
