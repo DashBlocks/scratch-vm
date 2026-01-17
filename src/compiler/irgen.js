@@ -425,6 +425,22 @@ class ScriptTreeGenerator {
                 property: block.fields.PROPERTY.value
             });
 
+        case 'console_of': {
+            const property = block.fields.PROPERTY.value;
+
+            // If the runtime.console does not exist, these may all return 0.
+            switch (property) {
+            case 'content':
+                return new IntermediateInput(InputOpcode.CONSOLE_OF_CONTENT, InputType.ARRAY);
+            case 'linescount':
+                return new IntermediateInput(InputOpcode.CONSOLE_OF_LINES_COUNT, InputType.NUMBER);
+            case 'symbols':
+                return new IntermediateInput(InputOpcode.CONSOLE_OF_SYMBOLS, InputType.NUMBER);
+            default:
+                return this.createConstantInput(0);
+            }
+        }
+
         case 'event_broadcast_menu': {
             const broadcastOption = block.fields.BROADCAST_OPTION;
             const broadcastVariable = this.target.lookupBroadcastMsg(broadcastOption.id, broadcastOption.value);
@@ -1105,6 +1121,13 @@ class ScriptTreeGenerator {
         case 'data_showvariable':
             return new IntermediateStackBlock(StackOpcode.VAR_SHOW, {
                 variable: this.descendVariable(block, 'VARIABLE', SCALAR_TYPE)
+            });
+
+        case 'console_clear':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_CLEAR);
+        case 'console_addline':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_ADD_LINE, {
+                line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING)
             });
 
         case 'event_broadcast':
