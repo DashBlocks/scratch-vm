@@ -461,6 +461,8 @@ class Runtime extends EventEmitter {
         this.stageWidth = Runtime.STAGE_WIDTH;
         this.stageHeight = Runtime.STAGE_HEIGHT;
 
+        this.stageMode = Runtime.STAGE_MODE;
+
         this.runtimeOptions = {
             maxClones: Runtime.MAX_CLONES,
             miscLimits: true,
@@ -680,6 +682,15 @@ class Runtime extends EventEmitter {
     }
 
     /**
+     * Stage mode for the stage.
+     * @const {string}
+     */
+    static get STAGE_MODE () {
+        // Stage size is set per-runtime, this is only the initial value
+        return '2d';
+    }
+
+    /**
      * Event name for glowing a script.
      * @const {string}
      */
@@ -774,6 +785,14 @@ class Runtime extends EventEmitter {
      */
     static get STAGE_SIZE_CHANGED () {
         return 'STAGE_SIZE_CHANGED';
+    }
+
+    /**
+     * Event name for stage mode changing.
+     * @const {string}
+     */
+    static get STAGE_MODE_CHANGED () {
+        return 'STAGE_MODE_CHANGED';
     }
 
     /**
@@ -2925,6 +2944,17 @@ class Runtime extends EventEmitter {
         }
     }
 
+    /**
+     * Set the stage mode (2d or console).
+     * @param {string} mode New stage mode
+     */
+    setStageMode (mode) {
+        if (this.stageMode !== mode) {
+            this.stageMode = mode;
+            this.emit(Runtime.STAGE_MODE_CHANGED, mode);
+        }
+    }
+
     // eslint-disable-next-line no-unused-vars
     setInEditor (inEditor) {
         // no-op
@@ -3074,6 +3104,9 @@ class Runtime extends EventEmitter {
         if (storedWidth !== this.stageWidth || storedHeight !== this.stageHeight) {
             this.setStageSize(storedWidth, storedHeight);
         }
+        if (parsed.stageMode) {
+            this.setStageMode(parsed.stageMode);
+        }
     }
 
     _generateAllProjectOptions () {
@@ -3084,7 +3117,8 @@ class Runtime extends EventEmitter {
             turbo: this.turboMode,
             hq: this.renderer ? this.renderer.useHighQualityRender : false,
             width: this.stageWidth,
-            height: this.stageHeight
+            height: this.stageHeight,
+            stageMode: this.stageMode
         };
     }
 
@@ -3111,7 +3145,7 @@ class Runtime extends EventEmitter {
     storeProjectOptions () {
         const options = this.generateDifferingProjectOptions();
         // TODO: translate
-        const text = `Configuration for https://dashblocks.github.io/ (scratch mod)\nYou can move, resize, and minimize this comment, but don't edit it by hand. This comment can be deleted to remove the stored settings.\n${ExtendedJSON.stringify(options)}${COMMENT_CONFIG_MAGIC}`;
+        const text = `Configuration for https://dashblocks.github.io/\nYou can move, resize, and minimize this comment, but don't edit it by hand. This comment can be deleted to remove the stored settings.\n${ExtendedJSON.stringify(options)}${COMMENT_CONFIG_MAGIC}`;
         const existingComment = this.findProjectOptionsComment();
         if (existingComment) {
             existingComment.text = text;
