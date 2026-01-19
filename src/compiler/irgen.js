@@ -1127,7 +1127,26 @@ class ScriptTreeGenerator {
             return new IntermediateStackBlock(StackOpcode.CONSOLE_CLEAR);
         case 'console_addline':
             return new IntermediateStackBlock(StackOpcode.CONSOLE_ADD_LINE, {
+                line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING),
+                moveCursor: false
+            });
+        case 'console_addlineandmove':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_ADD_LINE, {
+                line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING),
+                moveCursor: true
+            });
+        case 'console_editline':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_EDIT_LINE, {
                 line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING)
+            });
+        case 'console_editsymbol':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_EDIT_SYMBOL, {
+                value: this.descendInputOfBlock(block, 'VALUE').toType(InputType.STRING)
+            });
+        case 'console_movecursor':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_MOVE_CURSOR, {
+                row: this.descendInputOfBlock(block, 'ROW'),
+                symbol: this.descendInputOfBlock(block, 'SYMBOL')
             });
 
         case 'event_broadcast':
