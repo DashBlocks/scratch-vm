@@ -148,6 +148,9 @@ const StackOpcode = {
 
     CONSOLE_CLEAR: 'console.clear',
     CONSOLE_ADD_LINE: 'console.addLine',
+    CONSOLE_EDIT_LINE: 'console.editLine',
+    CONSOLE_EDIT_SYMBOL: 'console.editSymbol',
+    CONSOLE_MOVE_CURSOR: 'console.moveCursor',
 
     EVENT_BROADCAST: 'event.broadcast',
     EVENT_BROADCAST_AND_WAIT: 'event.broadcastAndWait',
