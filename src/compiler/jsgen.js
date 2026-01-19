@@ -951,7 +951,16 @@ class JSGenerator {
             this.source += `if (${CONSOLE}) ${CONSOLE}.clear();\n`;
             break;
         case StackOpcode.CONSOLE_ADD_LINE:
-            this.source += `if (${CONSOLE}) ${CONSOLE}.addLine(${this.descendInput(node.line)});\n`;
+            this.source += `if (${CONSOLE}) ${CONSOLE}.addLine(${this.descendInput(node.line)}, ${node.moveCursor});\n`;
+            break;
+        case StackOpcode.CONSOLE_EDIT_LINE:
+            this.source += `if (${CONSOLE}) ${CONSOLE}.editLine(${this.descendInput(node.line)});\n`;
+            break;
+        case StackOpcode.CONSOLE_EDIT_SYMBOL:
+            this.source += `if (${CONSOLE}) ${CONSOLE}.editSymbol(${this.descendInput(node.value)});\n`;
+            break;
+        case StackOpcode.CONSOLE_MOVE_CURSOR:
+            this.source += `runtime.ext_dash_console.moveCursor({ ROW: ${this.descendInput(node.row)}, SYMBOL: ${this.descendInput(node.symbol)} });\n`;
             break;
 
         case StackOpcode.LOOKS_LAYER_BACKWARD:
