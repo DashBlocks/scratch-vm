@@ -59,7 +59,7 @@ class DashConsoleBlocks {
         }
     }
 
-    moveResult (args) {
+    moveCursor (args) {
         if (this.runtime.console) {
             const row = Cast.toListIndex(args.ROW, this.runtime.console.state.linesCount, false);
             const symbol = Cast.toListIndex(args.SYMBOL, this.runtime.console.state.symbols, false);
