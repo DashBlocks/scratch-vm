@@ -12,7 +12,7 @@ class Patcher extends ExtensibleFunction {
             const bindedOgFunc = patcherFunc.ogFunc.bind(this);
 
             return patchesIds.reduce((accFunc, patchId) => (
-                patcherFunc.enablePatches[patchId]
+                patcherFunc.enabledPatches[patchId]
                     ? function (...args) {
                           return patcherFunc.patches[patchId].call(this, accFunc.bind(this), ...args);
                       }
@@ -28,6 +28,9 @@ class Patcher extends ExtensibleFunction {
     addPatch (id, patch, enabled = true) {
         if (!(typeof id === 'symbol')) {
             throw new Error('id is not a Symbol');
+        }
+        if (!(typeof patch === 'function')) {
+            throw new Error('patch is not a function');
         }
         
         this.patches[id] = patch;
