@@ -26,7 +26,7 @@ class Patcher extends ExtensibleFunction {
     }
 
     addPatch (id, patch, enabled = true) {
-        if (!(id instanceof Symbol)) {
+        if (!(typeof id === 'symbol')) {
             throw new Error('id is not a Symbol');
         }
         
@@ -35,7 +35,7 @@ class Patcher extends ExtensibleFunction {
     }
 
     removePatch (id) {
-        if (!(id instanceof Symbol)) {
+        if (!(typeof id === 'symbol')) {
             throw new Error('id is not a Symbol');
         }
         if (!(id in this.patches)) {
@@ -47,7 +47,7 @@ class Patcher extends ExtensibleFunction {
     }
 
     enablePatch (id) {
-        if (!(id instanceof Symbol)) {
+        if (!(typeof id === 'symbol')) {
             throw new Error('id is not a Symbol');
         }
         if (!(id in this.patches)) {
@@ -58,7 +58,7 @@ class Patcher extends ExtensibleFunction {
     }
 
     disablePatch (id) {
-        if (!(id instanceof Symbol)) {
+        if (!(typeof id === 'symbol')) {
             throw new Error('id is not a Symbol');
         }
         if (!(id in this.patches)) {
