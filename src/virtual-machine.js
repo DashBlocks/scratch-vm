@@ -12,6 +12,7 @@ const centralDispatch = require('./dispatch/central-dispatch');
 const ExtensionManager = require('./extension-support/extension-manager');
 const log = require('./util/log');
 const MathUtil = require('./util/math-util');
+const Patcher = require('./util/patcher');
 const Runtime = require('./engine/runtime');
 const RenderedTarget = require('./sprites/rendered-target');
 const Sprite = require('./sprites/sprite');
@@ -226,6 +227,7 @@ class VirtualMachine extends EventEmitter {
          */
         this.exports = {
             Sprite,
+            Patcher,
             RenderedTarget,
             JSZip,
             Variable,
