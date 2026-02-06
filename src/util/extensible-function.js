@@ -9,7 +9,7 @@ class ExtensibleFunction extends Function {
      * @returns {object} a class instance.
      * @constructor
      */
-    constructor(func) {
+    constructor (func) {
         return Object.setPrototypeOf(func, new.target.prototype);
     }
 }
