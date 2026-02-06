@@ -5,7 +5,7 @@
 class ExtensibleFunction extends Function {
     /**
      * Creates an instance of ExtensibleFunction.
-     * @param {function} func - the function for callable class.
+     * @param {Function} func - the function for callable class.
      * @returns {object} a class instance.
      * @constructor
      */
