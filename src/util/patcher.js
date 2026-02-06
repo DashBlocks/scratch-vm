@@ -8,13 +8,16 @@ class Patcher extends ExtensibleFunction {
         }
 
         super(function patcherFunc (...args) {
-            return Object.getOwnPropertySymbols(patcherFunc.patches).reduce((accFunc, patchKey) => (
-                patcherFunc.enablePatches[patchKey]
+            const patchesIds = Object.getOwnPropertySymbols(patcherFunc.patches);
+            const bindedOgFunc = patcherFunc.ogFunc.bind(this);
+
+            return patchesIds.reduce((accFunc, patchId) => (
+                patcherFunc.enablePatches[patchId]
                     ? function (...args) {
-                          return patcherFunc.patches[patchKey].call(this, accFunc.bind(this), ...args);
+                          return patcherFunc.patches[patchId].call(this, accFunc.bind(this), ...args);
                       }
                     : accFunc
-            ), patcherFunc.ogFunc)(...args);
+            ), bindedOgFunc)(...args);
         });
 
         this.ogFunc = value;
@@ -22,22 +25,47 @@ class Patcher extends ExtensibleFunction {
         this.enabledPatches = {};
     }
 
-    addPatch (symbol, patch, enabled = true) {
-        this.patches[symbol] = patch;
-        this.enabledPatches[symbol] = enabled;
+    addPatch (id, patch, enabled = true) {
+        if (!(symbol instanceof Symbol)) {
+            throw new Error('id is not a Symbol');
+        }
+        
+        this.patches[id] = patch;
+        this.enabledPatches[id] = enabled;
     }
 
-    removePatch (symbol) {
-        delete this.patches[symbol];
-        delete this.enabledPatches[symbol];
+    removePatch (id) {
+        if (!(symbol instanceof Symbol)) {
+            throw new Error('id is not a Symbol');
+        }
+        if (!(symbol in this.patches)) {
+            throw new Error('Unknown patch');
+        }
+        
+        delete this.patches[id];
+        delete this.enabledPatches[id];
     }
 
-    enablePatch (symbol) {
-        this.enabledPatches[symbol] = true;
+    enablePatch (id) {
+        if (!(symbol instanceof Symbol)) {
+            throw new Error('id is not a Symbol');
+        }
+        if (!(symbol in this.patches)) {
+            throw new Error('Unknown patch');
+        }
+        
+        this.enabledPatches[id] = true;
     }
 
-    disablePatch (symbol) {
-        this.enabledPatches[symbol] = false;
+    disablePatch (id) {
+        if (!(symbol instanceof Symbol)) {
+            throw new Error('id is not a Symbol');
+        }
+        if (!(symbol in this.patches)) {
+            throw new Error('Unknown patch');
+        }
+        
+        this.enabledPatches[id] = false;
     }
 }
 
