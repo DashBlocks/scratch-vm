@@ -134,6 +134,12 @@ const ArgumentTypeMap = (() => {
             fieldName: 'SOUND_MENU'
         }
     };
+    map[ArgumentType.BUTTON_EXPANDABLE_ADD] = {
+        fieldType: 'field_expandable_add'
+    };
+    map[ArgumentType.BUTTON_EXPANDABLE_REMOVE] = {
+        fieldType: 'field_expandable_remove'
+    };
     return map;
 })();
 
@@ -1697,6 +1703,10 @@ class Runtime extends EventEmitter {
             }
         }
 
+        if (blockInfo.thisProps) {
+            blockJSON.thisProps = blockInfo.thisProps;
+        }
+
         return {
             info: context.blockInfo,
             json: context.blockJSON,
@@ -1823,6 +1833,16 @@ class Runtime extends EventEmitter {
         // check if this is not one of those cases. E.g. an inline image on a block.
         if (argTypeInfo.fieldType === 'field_image') {
             argJSON = this._constructInlineImageJson(argInfo);
+        } else if (argTypeInfo.fieldType === 'field_expandable_add') {
+            argJSON = {
+                type: 'field_expandable_add',
+                name: placeholder
+            };
+        } else if (argTypeInfo.fieldType === 'field_expandable_remove') {
+            argJSON = {
+                type: 'field_expandable_remove',
+                name: placeholder
+            };
         } else {
             // Construct input value
 
