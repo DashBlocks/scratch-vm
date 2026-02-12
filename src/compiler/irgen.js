@@ -1359,7 +1359,7 @@ class ScriptTreeGenerator {
                         const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
                         if (!irFunc) return this.descendCompatLayerStack(block);
                         try {
-                            const [inputs, yields] = irFunc(this, block, {
+                            const [inputs, yields] = irFunc.call(this, block, {
                                 IntermediateInput,
                                 IntermediateStackBlock,
                                 IntermediateStack,
