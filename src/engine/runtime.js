@@ -1703,8 +1703,8 @@ class Runtime extends EventEmitter {
             }
         }
 
-        if (blockInfo.thisProps) {
-            blockJSON.thisProps = blockInfo.thisProps;
+        if (blockInfo.afterJsonInit) {
+            blockJSON.afterJsonInit = blockInfo.afterJsonInit;
         }
 
         return {
