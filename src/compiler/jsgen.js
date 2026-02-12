@@ -252,7 +252,7 @@ class JSGenerator {
                 throw new Error(`JS: Unknown extension primitive: ${category}_${opcode}`);
             }
             try {
-                return jsFunc(this, block, node, {...JSGenerator.unstable_exports, InputType});
+                return jsFunc.call(this, block, node, {...JSGenerator.unstable_exports, InputType});
             } catch {
                 log.warn(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`, node);
                 throw new Error(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`);
@@ -744,7 +744,7 @@ class JSGenerator {
                 throw new Error(`JS: Unknown extension primitive: ${category}_${opcode}`);
             }
             try {
-                jsFunc(this, block, node, {...JSGenerator.unstable_exports, InputType});
+                jsFunc.call(this, block, node, {...JSGenerator.unstable_exports, InputType});
             } catch {
                 log.warn(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`, node);
                 throw new Error(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`);
