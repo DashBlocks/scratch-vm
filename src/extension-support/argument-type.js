@@ -61,7 +61,17 @@ const ArgumentType = {
     /**
      * Name of sound in the current target
      */
-    SOUND: 'sound'
+    SOUND: 'sound',
+
+    /**
+     * Button used by expandable blocks to add inputs
+     */
+    BUTTON_EXPANDABLE_ADD: 'expandable_add',
+
+    /**
+     * Button used by expandable blocks to remove inputs
+     */
+    BUTTON_EXPANDABLE_REMOVE: 'expandable_remove'
 };
 
 module.exports = ArgumentType;
