@@ -313,10 +313,7 @@ class DashCoreExample {
     }
 
     exJoinExpandable (args) {
-        return Object.entries(args).reduce((acc, [argName, value]) => {
-            if (value === null || typeof value === 'undefined') return acc;
-            return acc + (argName === 'mutation' ? '' : Cast.toString(value));
-        }, '');
+        return Object.entries(args).reduce((acc, [argName, value]) => acc + (argName === 'mutation' ? '' : Cast.toString(value)), '');
     }
 }
 
