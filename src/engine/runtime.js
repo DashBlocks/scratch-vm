@@ -1674,7 +1674,12 @@ class Runtime extends EventEmitter {
             blockInfo.blockType === BlockType.ARRAY ||
             blockInfo.blockType === BlockType.OBJECT
         ) {
-            if (!blockInfo.disableMonitor && context.inputList.length === 0) {
+            if (
+                !blockInfo.disableMonitor &&
+                context.inputList.length === 0 &&
+                !Object.values(blockInfo.arguments || {}).some((arg) =>
+                    [ArgumentType.BUTTON_EXPANDABLE_ADD, ArgumentType.BUTTON_EXPANDABLE_REMOVE].includes(arg.type))
+            ) {
                 blockJSON.checkboxInFlyout = true;
             }
         } else if (
