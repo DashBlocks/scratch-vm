@@ -1669,7 +1669,11 @@ class ScriptTreeGenerator {
         const inputs = {};
         const fields = {};
         for (const name of Object.keys(block.inputs)) {
-            inputs[name] = this.descendInputOfBlock(block, name, true);
+            if (block.inputs[name].block == null) {
+                delete block.inputs[name];
+            } else {
+                inputs[name] = this.descendInputOfBlock(block, name, true);
+            }
         }
         for (const name of Object.keys(block.fields)) {
             fields[name] = block.fields[name].value;
@@ -1692,7 +1696,11 @@ class ScriptTreeGenerator {
         const inputs = {};
         for (const name of Object.keys(block.inputs)) {
             if (!name.startsWith('SUBSTACK')) {
-                inputs[name] = this.descendInputOfBlock(block, name, true);
+                if (block.inputs[name].block == null) {
+                    delete block.inputs[name];
+                } else {
+                    inputs[name] = this.descendInputOfBlock(block, name, true);
+                }
             }
         }
 
