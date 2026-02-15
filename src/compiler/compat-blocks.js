@@ -43,6 +43,7 @@ const inputs = [
     'motion_yscroll',
     'sensing_loud',
     'sensing_loudness',
+    'sensing_online',
     'sensing_userid',
     'sound_geteffect',
     'sound_issoundplaying',
