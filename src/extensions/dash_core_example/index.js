@@ -313,6 +313,7 @@ class DashCoreExample {
     }
 
     exJoinExpandable (args) {
+        console.log(args);
         return Object.entries(args).reduce((acc, [argName, value]) => acc + (argName === 'mutation' ? '' : Cast.toString(value)), '');
     }
 }
