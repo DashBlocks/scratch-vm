@@ -125,6 +125,11 @@ class DashCoreExample {
                     blockType: BlockType.REPORTER,
                     text: 'block with compiled primitive'
                 },
+                {
+                    opcode: 'exEscSymbol',
+                    blockType: BlockType.REPORTER,
+                    text: 'ESC symbol (\\x1B)'
+                },
                 '---',
                 {
                     opcode: 'exArray',
@@ -286,6 +291,10 @@ class DashCoreExample {
 
     exWithCompiledPrimitive () {
         return "I'm in interpreter... :/";
+    }
+
+    exEscSymbol () {
+        return '\x1B';
     }
 
     exArray (args) {
