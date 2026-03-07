@@ -28,6 +28,7 @@ const {serializeSounds, serializeCostumes} = require('./serialization/serialize-
 require('canvas-toBlob');
 const {exportCostume} = require('./serialization/tw-costume-import-export');
 const Base64Util = require('./util/base64-util');
+const SandboxRunner = require('./util/sandboxed-javascript-runner');
 
 const RESERVED_NAMES = ['_mouse_', '_stage_', '_edge_', '_myself_', '_random_'];
 
@@ -210,6 +211,7 @@ class VirtualMachine extends EventEmitter {
 
         this.extensionManager = new ExtensionManager(this);
         this.securityManager = this.extensionManager.securityManager;
+        this.SandboxRunner = SandboxRunner;
         this.runtime.extensionManager = this.extensionManager;
 
         // Load core extensions
