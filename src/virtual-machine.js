@@ -58,6 +58,25 @@ const createRuntimeService = runtime => {
 };
 
 /**
+ * Check whether the input data should be converted to json string
+ * @param {*} input 
+ * @returns {boolean} true - need to do JSON.stringify before validating false - input already a string or binary
+ */
+const isSerializedObjectInput = input => (
+    input !== null &&
+    typeof input === 'object' &&
+    !(input instanceof ArrayBuffer) &&
+    !ArrayBuffer.isView(input)
+);
+
+/**
+ * reject promise with message
+ * @param {*} [message] 
+ * @returns {Promise<never>} 
+ */
+const rejectLegacyMessage = message => Promise.reject(message);
+    
+/**
  * Handles connections between blocks, stage, and extensions.
  * @constructor
  */
@@ -471,14 +490,12 @@ class VirtualMachine extends EventEmitter {
      * @return {!Promise} Promise that resolves after targets are installed.
      */
     loadProject (input) {
-        if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
-          !ArrayBuffer.isView(input)) {
+        if (isSerializedObjectInput(input)) {
             // If the input is an object and not any ArrayBuffer
             // or an ArrayBuffer view (this includes all typed arrays and DataViews)
             // turn the object into a JSON string, because we suspect
             // this is a project.json as an object
             // validate expects a string or buffer as input
-            // TODO not sure if we need to check that it also isn't a data view
             input = JSON.stringify(input);
         }
 
@@ -557,9 +574,6 @@ class VirtualMachine extends EventEmitter {
      */
     _saveProjectZip () {
         const projectJson = this.toJSON();
-
-        // TODO want to eventually move zip creation out of here, and perhaps
-        // into scratch-storage
         const zip = new JSZip();
 
         // Put everything in a zip file
@@ -673,7 +687,6 @@ class VirtualMachine extends EventEmitter {
     }
 
     _addFileDescsToZip (fileDescs, zip) {
-        // TODO: sort files, smallest first
         for (let i = 0; i < fileDescs.length; i++) {
             const currFileDesc = fileDescs[i];
             zip.file(currFileDesc.fileName, currFileDesc.fileContent);
@@ -720,8 +733,6 @@ class VirtualMachine extends EventEmitter {
         return StringUtil.stringify(sb3.serialize(this.runtime, optTargetId, serializationOptions));
     }
 
-    // TODO do we still need this function? Keeping it here so as not to introduce
-    // a breaking change.
     /**
      * Load a project from a Scratch JSON representation.
      * @param {string} json JSON string representing a project.
@@ -756,9 +767,7 @@ class VirtualMachine extends EventEmitter {
                 const sb3 = require('./serialization/sb3');
                 return sb3.deserialize(projectJSON, runtime, zip);
             }
-            // TODO: reject with an Error (possible breaking API change!)
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject('Unable to verify Scratch Project version.');
+            return rejectLegacyMessage('Unable to check project version');
         };
         return deserializePromise()
             .then(({targets, extensions}) => {
@@ -868,14 +877,12 @@ class VirtualMachine extends EventEmitter {
      */
     addSprite (input) {
         const errorPrefix = 'Sprite Upload Error:';
-        if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
-          !ArrayBuffer.isView(input)) {
+        if (isSerializedObjectInput(input)) {
             // If the input is an object and not any ArrayBuffer
             // or an ArrayBuffer view (this includes all typed arrays and DataViews)
             // turn the object into a JSON string, because we suspect
             // this is a project.json as an object
             // validate expects a string or buffer as input
-            // TODO not sure if we need to check that it also isn't a data view
             input = JSON.stringify(input);
         }
 
@@ -899,9 +906,7 @@ class VirtualMachine extends EventEmitter {
                 if (projectVersion === 3) {
                     return this._addSprite3(validatedInput[0], validatedInput[1]);
                 }
-                // TODO: reject with an Error (possible breaking API change!)
-                // eslint-disable-next-line prefer-promise-reject-errors
-                return Promise.reject(`${errorPrefix} Unable to verify sprite version.`);
+                return rejectLegacyMessage(`${errorPrefix} Unable to verify sprite version.`);
             })
             .then(() => this.runtime.emitProjectChanged())
             .catch(error => {
@@ -909,9 +914,7 @@ class VirtualMachine extends EventEmitter {
                 if (Object.prototype.hasOwnProperty.call(error, 'validationError')) {
                     return Promise.reject(JSON.stringify(error));
                 }
-                // TODO: reject with an Error (possible breaking API change!)
-                // eslint-disable-next-line prefer-promise-reject-errors
-                return Promise.reject(`${errorPrefix} ${error}`);
+                return rejectLegacyMessage(`${errorPrefix} ${error}`);
             });
     }
 
@@ -969,9 +972,7 @@ class VirtualMachine extends EventEmitter {
             });
         }
         // If the target cannot be found by id, return a rejected promise
-        // TODO: reject with an Error (possible breaking API change!)
-        // eslint-disable-next-line prefer-promise-reject-errors
-        return Promise.reject();
+        return rejectLegacyMessage();
     }
 
     /**
@@ -985,9 +986,7 @@ class VirtualMachine extends EventEmitter {
      * @returns {?Promise} - a promise that resolves when the costume has been added
      */
     addCostumeFromLibrary (md5ext, costumeObject) {
-        // TODO: reject with an Error (possible breaking API change!)
-        // eslint-disable-next-line prefer-promise-reject-errors
-        if (!this.editingTarget) return Promise.reject();
+        if (!this.editingTarget) return rejectLegacyMessage();
         return this.addCostume(md5ext, costumeObject, this.editingTarget.id, 2 /* optVersion */);
     }
 
@@ -1222,7 +1221,6 @@ class VirtualMachine extends EventEmitter {
         // If the bitmap originally had a zero width or height, use that value
         const bitmapWidth = bitmap.sourceWidth === 0 ? 0 : bitmap.width;
         const bitmapHeight = bitmap.sourceHeight === 0 ? 0 : bitmap.height;
-        // @todo: updateBitmapSkin does not take ImageData
         const canvas = document.createElement('canvas');
         canvas.width = bitmapWidth;
         canvas.height = bitmapHeight;
@@ -1233,12 +1231,11 @@ class VirtualMachine extends EventEmitter {
         // is the rotation center divided by the bitmap resolution
         this.runtime.renderer.updateBitmapSkin(
             costume.skinId,
-            canvas,
+            bitmap,
             bitmapResolution,
             [rotationCenterX / bitmapResolution, rotationCenterY / bitmapResolution]
         );
 
-        // @todo there should be a better way to get from ImageData to a decodable storage format
         canvas.toBlob(blob => {
             const reader = new FileReader();
             reader.addEventListener('loadend', () => {
