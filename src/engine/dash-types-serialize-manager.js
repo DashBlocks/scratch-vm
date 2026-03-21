@@ -44,7 +44,38 @@ class TypesSerializeManager {
          */
         this._serializers = {
             // Not actual a serializer of custom type, but it needed for serializing/deserializing Object/Array
-            json_json: {}
+            json_json: {
+                serialize: function* (obj) {
+                    if (Array.isArray(obj)) {
+                        const result = [];
+                        for (let item of obj) {
+                            result.push(yield item);
+                        }
+                        return result;
+                    } else {
+                        const result = {};
+                        for (let key of obj) {
+                            result[key] = yield obj[key];
+                        }
+                        return result;
+                    }
+                },
+                deserialize: function* (serialized) {
+                    if (Array.isArray(serialized)) {
+                        const result = [];
+                        for (let item of serialized) {
+                            result.push(yield item);
+                        }
+                        return result;
+                    } else {
+                        const result = {};
+                        for (let key of serialized) {
+                            result[key] = yield serialized[key];
+                        }
+                        return result;
+                    }
+                }
+            }
         };
     }
 
@@ -58,14 +89,14 @@ class TypesSerializeManager {
                     value?.constructor?.prototype === Object.prototype
                 ) {
                     actions.unshift([
-                        this.serializers.json_json.serialize(),
+                        this._serializers.json_json.serialize(),
                         fn4serializedWrapper(value)
                     ]);
                 } else if (typeof value?.customId === 'string') {
-                    if (!(value.customId in this.serializers))
-                        throw new Error(`Unknown custom serializer with id: ${value.customId}`);
+                    if (!(value.customId in this._serializers))
+                        throw new Error(`Unknown serializer of custom type with id: ${value.customId}`);
                     actions.unshift([
-                        this.serializers[value.customId].serialize(),
+                        this._serializers[value.customId].serialize(),
                         fn4serializedWrapper(value)
                     ]);
                 } else if (!isValueSafeForJSON(value)) {
@@ -99,6 +130,14 @@ class TypesSerializeManager {
 
     deserialize (value) {
         
+    }
+
+    registerSerializer (id, serialize, deserialize) {
+        if (typeof id !== 'string') throw new TypeError('ID must be of type string');
+        if (id === 'json_json') throw new TypeError('json_json is a special serializer');
+        if (typeof serialize !== 'function') throw new TypeError('Serialize must be of type function');
+        if (typeof deserialize !== 'function') throw new TypeError('Deserialize must be of type function');
+        this._serializers[id] = {serialize, deserialize};
     }
 }
 
