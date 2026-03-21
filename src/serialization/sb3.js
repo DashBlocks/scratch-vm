@@ -486,40 +486,17 @@ const serializeSound = function (sound) {
     return obj;
 };
 
-// Using some bugs, it can be possible to get values like undefined, null, or complex objects into
-// variables or lists. This will cause make the project unusable after exporting without JSON editing
-// as it will fail validation in scratch-parser.
-// To avoid this, we'll convert those objects to strings before saving them.
-const isVariableValueSafeForJSON = value => (
-    typeof value === 'number' ||
-    typeof value === 'string' ||
-    typeof value === 'boolean'
-);
+// Some values like undefined, null, or complex objects within variables or lists
+// will cause next problems:
+// * Making the project unusable after exporting without JSON editing
+//   as it will fail validation in scratch-parser.
+// * Some values like undefined, functions, custom types can not be writed
+//   in .json file.
+//
+// To avoid this, we'll serialize those values into serialized wrapper or
+// convert to strings before saving them.
 const makeSafeForJSON = (runtime, value) => {
-    if (Array.isArray(value)) {
-        const {serialize} = runtime.serializers.json_json;
-        return serialize(value);
-    } else if (value?.constructor?.prototype === Object.prototype) {
-        const {serialize} = runtime.serializers.json_json;
-        return {
-            customType: false,
-            serialized: serialize(value)
-        };
-    } else if (typeof value?.customId === 'string') {
-        if (value.customId in runtime.serializers) {
-            const {serialize} = runtime.serializers[value.customId];
-            return {
-                customType: true,
-                typeId: value.customId,
-                serialized: serialize(value)
-            };
-        } else {
-            throw new Error(`Unknown custom serializer with id: ${value.customId}`);
-        }
-    } else if (!isVariableValueSafeForJSON(value)) {
-        return String(value);
-    }
-    return value;
+    return runtime.typesSerializeManager.serialize(value);
 };
 
 /**
