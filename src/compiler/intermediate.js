@@ -57,7 +57,6 @@ class IntermediateStackBlock {
  * This could be a constant, variable or math operation.
  */
 class IntermediateInput {
-
     static getNumberInputType (number) {
         if (typeof number !== 'number') throw new Error('Expected a number.');
         if (number === Infinity) return InputType.NUMBER_POS_INF;
@@ -70,8 +69,8 @@ class IntermediateInput {
     }
 
     static getJSONInputType (json) {
-        if (!(typeof json === 'object' && json instanceof Object)) throw new Error('Expected a JSON.');
-        if (Array.isArray(json)) return InputType.ARRAY;
+        if (!(Cast.isNormalArray(json) || Cast.isNormalObject(json))) throw new Error('Expected a JSON.');
+        if (Cast.isNormalArray(json)) return InputType.ARRAY;
         return InputType.OBJECT;
     }
 
