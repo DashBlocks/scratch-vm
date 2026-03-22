@@ -243,8 +243,8 @@ class Scratch3OperatorsBlocks {
     typeof (args) {
         const value = args.VALUE;
         if (value === null) return 'null';
-        if (Array.isArray(value)) return 'array';
-        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+        if (Cast.isNormalArray(value)) return 'array';
+        if (Cast.isCustomType(value)) {
             return {customType: true, typeId: value.customId};
         }
         return typeof value;
@@ -279,16 +279,12 @@ class Scratch3OperatorsBlocks {
                 if ((lowerCase == 'true' || lowerCase == 'false') || (lowerCase == '0' || lowerCase == '1')) return true;
                 return false;
             }
-            case 'array': {
-                return Array.isArray(value);
-            }
-            case 'object': {
-                return !(value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') &&
-                    typeof value === 'object' && value instanceof Object && !Array.isArray(value);
-            }
-            case 'custom type': {
-                return value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string';
-            }
+            case 'array':
+                return Cast.isNormalArray(value);
+            case 'object':
+                return Cast.isNormalObject(value);
+            case 'custom type':
+                return Cast.isCustomType(value);
             default:
                 return false;
         }
