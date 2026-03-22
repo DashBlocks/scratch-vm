@@ -273,6 +273,38 @@ class Cast {
         return false;
     }
 
+    /**
+     * Determine if a Scratch argument represents a normal (non-custom type) array.
+     * @param {*} val Value to check.
+     * @return {boolean} True if argument is a normal array.
+     */
+    static isNormalArray (val) {
+        return Array.isArray(val) && !Cast.isCustomType(val);
+    }
+
+    /**
+     * Determine if a Scratch argument represents a normal (non-custom type) object.
+     * @param {*} val Value to check.
+     * @return {boolean} True if argument is a normal object.
+     */
+    static isNormalObject (val) {
+        return (
+            typeof val === 'object' &&
+            val instanceof Object &&
+            !Array.isArray(val) &&
+            !Cast.isCustomType(val)
+        );
+    }
+
+    /**
+     * Determine if a Scratch argument represents a custom type.
+     * @param {*} val Value to check.
+     * @return {boolean} True if argument is a custom type.
+     */
+    static isCustomType (val) {
+        return val?.constructor?.prototype !== Object.prototype && typeof val?.customId === 'string';
+    }
+
     static get LIST_INVALID () {
         return 'INVALID';
     }
