@@ -1,3 +1,5 @@
+const Cast = require('../util/cast');
+
 /**
  * @fileoverview
  * Store serializers and deserializers of custom types
@@ -16,9 +18,9 @@ const isGenerator = obj => (
 );
 
 const fn4serializedWrapper = value => serialized => {
-    if (Array.isArray(value)) {
+    if (Cast.isNormalArray(value)) {
         return serialized;
-    } else if (value?.constructor?.prototype === Object.prototype) {
+    } else if (Cast.isNormalObject(value)) {
         return {
             customType: false,
             serialized
@@ -83,15 +85,12 @@ class TypesSerializeManager {
         const go2Prev = false;
         do {
             if (!go2Prev) {
-                if (
-                    Array.isArray(value) ||
-                    value?.constructor?.prototype === Object.prototype
-                ) {
+                if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
                     actions.unshift([
                         this._serializers.json_json.serialize(value),
                         fn4serializedWrapper(value)
                     ]);
-                } else if (typeof value?.customId === 'string') {
+                } else if (Cast.isCustomType(value)) {
                     if (!(value.customId in this._serializers))
                         throw new Error(`Unknown serializer of custom type with id: ${value.customId}`);
                     actions.unshift([
@@ -127,7 +126,7 @@ class TypesSerializeManager {
         return value;
     }
 
-    deserialize (value) {
+    deserialize (value, target) {
         const actions = [];
         const go2Prev = false;
         do {
@@ -136,17 +135,17 @@ class TypesSerializeManager {
                     go2Prev = true;
                     continue;
                 } else if (Array.isArray(value)) {
-                    actions.unshift(this._serializers.json_json.deserialize(value));
+                    actions.unshift(this._serializers.json_json.deserialize(value, target));
                 } else if ('customType' in value) {
                     if (!value.customType) {
-                        actions.unshift(this._serializers.json_json.deserialize(value.serialized));
+                        actions.unshift(this._serializers.json_json.deserialize(value.serialized, target));
                     } else if (value.typeId in this._serializers) {
-                        actions.unshift(this._serializers[value.customId].deserialize(value.serialized));
+                        actions.unshift(this._serializers[value.customId].deserialize(value.serialized, target));
                     } else {
                         throw new Error(`Unknown deserializer of custom type with id: ${value.customId}`);
                     }
                 } else {
-                    actions.unshift(this._serializers.json_json.deserialize(value));
+                    actions.unshift(this._serializers.json_json.deserialize(value, target));
                 }
             }
             go2Prev = false;
