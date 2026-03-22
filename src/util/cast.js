@@ -112,11 +112,11 @@ class Cast {
      */
     static toList (value) {
         // Convert custom types to empty array
-        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+        if (Cast.isCustomType(value)) {
             return [];
         }
         // Already an array?
-        if (Array.isArray(value)) {
+        if (Cast.isNormalArray(value)) {
             return value;
         }
         try {
@@ -135,11 +135,11 @@ class Cast {
      */
     static toObject (value) {
         // Convert custom types to empty object
-        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+        if (Cast.isCustomType(value)) {
             return {};
         }
         // Already an object?
-        if (typeof value === 'object' && value instanceof Object && !Array.isArray(value)) {
+        if (Cast.isNormalObject(value)) {
             return value;
         }
         try {
@@ -159,11 +159,11 @@ class Cast {
      */
     static toJSON (value, arrayIfFail) {
         // Convert custom types to empty array or object
-        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+        if (Cast.isCustomType(value)) {
             return arrayIfFail ? [] : {};
         }
         // Already an array or an object?
-        if (typeof value === 'object' && value instanceof Object) {
+        if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
             return value;
         }
         try {
