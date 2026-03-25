@@ -129,6 +129,7 @@ const StackOpcode = {
     CONTROL_STOP_ALL: 'control.stopAll',
     CONTROL_STOP_OTHERS: 'control.stopOthers',
     CONTROL_STOP_SCRIPT: 'control.stopScript',
+    CONTROL_STOP_THIS_TARGET: 'control.stopThisTarget',
     CONTROL_WAIT: 'control.wait',
     CONTROL_WAIT_UNTIL: 'control.waitUntil',
     CONTROL_CLEAR_COUNTER: 'control.counterClear',
@@ -363,6 +364,7 @@ const InputOpcode = {
 
     CONTROL_IF_THEN_ELSE: 'control.ifThenElse',
     CONTROL_IS_PAUSED: 'control.isPaused',
+    CONTROL_IS_CLONE: 'control.isClone',
     CONTROL_COUNTER: 'control.counter',
 
     TW_KEY_LAST_PRESSED: 'tw.lastKeyPressed'
