@@ -676,8 +676,6 @@ class JSGenerator {
             return `(${CONSOLE} ? ${CONSOLE}.props.lines : 0)`;
         case InputOpcode.CONSOLE_OF_LINES_COUNT:
             return `(${CONSOLE} ? ${CONSOLE}.state.linesCount : 0)`;
-        case InputOpcode.CONSOLE_OF_SYMBOLS:
-            return `(${CONSOLE} ? ${CONSOLE}.state.symbols : 0)`;
 
         default:
             log.warn(`JS: Unknown input: ${block.opcode}`, node);
