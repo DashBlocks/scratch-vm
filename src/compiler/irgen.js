@@ -434,8 +434,6 @@ class ScriptTreeGenerator {
                 return new IntermediateInput(InputOpcode.CONSOLE_OF_CONTENT, InputType.ARRAY);
             case 'linescount':
                 return new IntermediateInput(InputOpcode.CONSOLE_OF_LINES_COUNT, InputType.NUMBER);
-            case 'symbols':
-                return new IntermediateInput(InputOpcode.CONSOLE_OF_SYMBOLS, InputType.NUMBER);
             default:
                 return this.createConstantInput(0);
             }
