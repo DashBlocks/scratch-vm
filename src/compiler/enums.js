@@ -272,7 +272,6 @@ const InputOpcode = {
 
     CONSOLE_OF_CONTENT: 'console.of.content',
     CONSOLE_OF_LINES_COUNT: 'console.of.linesCount',
-    CONSOLE_OF_SYMBOLS: 'console.of.symbols',
 
     MOTION_X_GET: 'motion.x',
     MOTION_Y_GET: 'motion.y',
