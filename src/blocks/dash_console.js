@@ -18,6 +18,7 @@ class DashConsoleBlocks {
             console_clear: this.clear,
             console_addline: this.addLine,
             console_addlineandmove: this.addLineAndMove,
+            console_print: this.print,
             console_editline: this.editLine,
             console_editsymbol: this.editSymbol,
             console_movecursor: this.moveCursor,
@@ -42,6 +43,13 @@ class DashConsoleBlocks {
         if (this.runtime.console) {
             const line = Cast.toString(args.LINE);
             this.runtime.console.addLine(line, true);
+        }
+    }
+
+    print (args) {
+        if (this.runtime.console) {
+            const line = Cast.toString(args.LINE);
+            this.runtime.console.print(line, false);
         }
     }
 
@@ -75,7 +83,6 @@ class DashConsoleBlocks {
             switch (args.PROPERTY) {
             case 'content': return this.runtime.console.props.lines;
             case 'linescount': return this.runtime.console.state.linesCount;
-            case 'symbols': return this.runtime.console.state.symbols;
             }
         }
 
