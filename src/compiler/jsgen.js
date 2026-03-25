@@ -583,6 +583,8 @@ class JSGenerator {
             return `(${this.descendInput(node.condition)} ? ${this.descendInput(node.then)} : ${this.descendInput(node.else)})`;
         case InputOpcode.CONTROL_IS_PAUSED:
             return 'runtime.ext_scratch3_control.isPaused()';
+        case InputOpcode.CONTROL_IS_CLONE:
+            return '!target.isOriginal';
         case InputOpcode.CONTROL_COUNTER:
             return 'runtime.ext_scratch3_control._counter';
 
@@ -854,6 +856,9 @@ class JSGenerator {
             break;
         case StackOpcode.CONTROL_STOP_SCRIPT:
             this.stopScript();
+            break;
+        case StackOpcode.CONTROL_STOP_THIS_TARGET:
+            this.source += 'runtime.stopForTarget(target);\n';
             break;
         case StackOpcode.CONTROL_WAIT: {
             const duration = this.localVariables.next();
