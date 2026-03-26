@@ -82,7 +82,7 @@ class TypesSerializeManager {
 
     serialize (value) {
         const actions = [];
-        const go2Prev = false;
+        let go2Prev = false;
         do {
             if (!go2Prev) {
                 if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
@@ -128,7 +128,7 @@ class TypesSerializeManager {
 
     deserialize (value, target) {
         const actions = [];
-        const go2Prev = false;
+        let go2Prev = false;
         do {
             if (!go2Prev) {
                 if (!(typeof value === "object" && value instanceof Object)) {
