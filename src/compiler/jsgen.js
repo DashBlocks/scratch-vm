@@ -859,6 +859,7 @@ class JSGenerator {
             break;
         case StackOpcode.CONTROL_STOP_THIS_TARGET:
             this.source += 'runtime.stopForTarget(target);\n';
+            this.retire();
             break;
         case StackOpcode.CONTROL_WAIT: {
             const duration = this.localVariables.next();
@@ -955,6 +956,9 @@ class JSGenerator {
             break;
         case StackOpcode.CONSOLE_ADD_LINE:
             this.source += `if (${CONSOLE}) ${CONSOLE}.addLine(${this.descendInput(node.line)}, ${node.moveCursor});\n`;
+            break;
+        case StackOpcode.CONSOLE_PRINT:
+            this.source += `if (${CONSOLE}) ${CONSOLE}.print(${this.descendInput(node.line)}, ${node.moveCursor});\n`;
             break;
         case StackOpcode.CONSOLE_EDIT_LINE:
             this.source += `if (${CONSOLE}) ${CONSOLE}.editLine(${this.descendInput(node.line)});\n`;
