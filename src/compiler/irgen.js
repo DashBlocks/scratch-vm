@@ -1137,6 +1137,11 @@ class ScriptTreeGenerator {
                 line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING),
                 moveCursor: true
             });
+        case 'console_print':
+            return new IntermediateStackBlock(StackOpcode.CONSOLE_PRINT, {
+                line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING),
+                moveCursor: false
+            });
         case 'console_editline':
             return new IntermediateStackBlock(StackOpcode.CONSOLE_EDIT_LINE, {
                 line: this.descendInputOfBlock(block, 'LINE').toType(InputType.STRING)
