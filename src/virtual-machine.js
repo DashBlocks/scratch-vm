@@ -15,6 +15,7 @@ const MathUtil = require('./util/math-util');
 const Patcher = require('./util/patcher');
 const Runtime = require('./engine/runtime');
 const RenderedTarget = require('./sprites/rendered-target');
+const SandboxRunner = require('./util/sandboxed-javascript-runner');
 const Sprite = require('./sprites/sprite');
 const StringUtil = require('./util/string-util');
 const formatMessage = require('format-message');
@@ -28,7 +29,6 @@ const {serializeSounds, serializeCostumes} = require('./serialization/serialize-
 require('canvas-toBlob');
 const {exportCostume} = require('./serialization/tw-costume-import-export');
 const Base64Util = require('./util/base64-util');
-const SandboxRunner = require('./util/sandboxed-javascript-runner');
 
 const RESERVED_NAMES = ['_mouse_', '_stage_', '_edge_', '_myself_', '_random_'];
 
@@ -211,7 +211,6 @@ class VirtualMachine extends EventEmitter {
 
         this.extensionManager = new ExtensionManager(this);
         this.securityManager = this.extensionManager.securityManager;
-        this.SandboxRunner = SandboxRunner;
         this.runtime.extensionManager = this.extensionManager;
 
         // Load core extensions
@@ -230,6 +229,7 @@ class VirtualMachine extends EventEmitter {
         this.exports = {
             Sprite,
             Patcher,
+            SandboxRunner,
             RenderedTarget,
             JSZip,
             Variable,
