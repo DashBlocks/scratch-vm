@@ -122,7 +122,7 @@ class TypesSerializeManager {
             const [gen, wrapper] = actions[0];
             if (isGenerator(gen)) {
                 // If gen is a generator, then make iteration of generator.
-                resultOfNext = gen.next(value);
+                const resultOfNext = gen.next(value);
                 if (resultOfNext.done) {
                     // Generator is done, wrap serialized value and go to previous action.
                     value = wrapper(resultOfNext.value);
@@ -182,7 +182,7 @@ class TypesSerializeManager {
             const gen = actions[0];
             if (isGenerator(gen)) {
                 // If gen is a generator, then make iteration of generator.
-                resultOfNext = gen.next(value);
+                const resultOfNext = gen.next(value);
                 if (resultOfNext.done) {
                     // Generator is done, go to previous action.
                     value = resultOfNext.value;
