@@ -1,3 +1,8 @@
+/*
+ * Some of blocks clearly inspired to AmpMod's blocks from Arrays category
+ * codeberg.org/ampmod/ampmod/src/branch/develop/packages/vm/src/blocks/ampmod_arrays.ts
+ */
+
 const Cast = require('../util/cast');
 const ExtendedJSON = require('@turbowarp/json');
 
