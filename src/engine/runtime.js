@@ -351,18 +351,18 @@ class Runtime extends EventEmitter {
          * @type {Boolean}
          */
         this._paused = false;
-        this.on(Runtime.PROJECT_SET_PAUSED, paused => {
+        this.on(Runtime.SET_RUNTIME_PAUSED, paused => {
             this._paused = paused;
             if (paused) {
-                this.emit(Runtime.PROJECT_PAUSED);
+                this.emit(Runtime.RUNTIME_PAUSED);
             } else {
-                this.emit(Runtime.PROJECT_RESUMED);
+                this.emit(Runtime.RUNTIME_UNPAUSED);
             }
         });
-        this.on(Runtime.PROJECT_PAUSED, () => {
+        this.on(Runtime.RUNTIME_PAUSED, () => {
             this._paused = true;
         });
-        this.on(Runtime.PROJECT_RESUMED, () => {
+        this.on(Runtime.RUNTIME_UNPAUSED, () => {
             this._paused = false;
         });
 
@@ -793,8 +793,8 @@ class Runtime extends EventEmitter {
      * Used by runtime that need to set paused state.
      * @const {string}
      */
-    static get PROJECT_SET_PAUSED () {
-        return 'PROJECT_SET_PAUSED';
+    static get SET_RUNTIME_PAUSED () {
+        return 'SET_RUNTIME_PAUSED';
     }
 
     /**
@@ -802,16 +802,16 @@ class Runtime extends EventEmitter {
      * Used by runtime that need to indicate paused state.
      * @const {string}
      */
-    static get PROJECT_PAUSED () {
-        return 'PROJECT_PAUSED';
+    static get RUNTIME_PAUSED () {
+        return 'RUNTIME_PAUSED';
     }
 
     /**
      * Event name for project being resumed by the user.
      * Used by runtime that need to indicate paused state.
      */
-    static get PROJECT_RESUMED () {
-        return 'PROJECT_RESUMED';
+    static get RUNTIME_UNPAUSED () {
+        return 'RUNTIME_UNPAUSED';
     }
 
     /**
@@ -2653,7 +2653,7 @@ class Runtime extends EventEmitter {
      * @param {boolean} paused Whether to pause or resume the project.
      */
     setPaused (paused) {
-        this.emit(Runtime.PROJECT_SET_PAUSED, paused);
+        this.emit(Runtime.SET_RUNTIME_PAUSED, paused);
     }
 
     /**
