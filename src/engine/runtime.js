@@ -347,6 +347,26 @@ class Runtime extends EventEmitter {
         this.turboMode = false;
 
         /**
+         * Whether the project is currently paused.
+         * @type {Boolean}
+         */
+        this._paused = false;
+        this.on(Runtime.PROJECT_SET_PAUSED, paused => {
+            this._paused = paused;
+            if (paused) {
+                this.emit(Runtime.PROJECT_PAUSED);
+            } else {
+                this.emit(Runtime.PROJECT_RESUMED);
+            }
+        });
+        this.on(Runtime.PROJECT_PAUSED, () => {
+            this._paused = true;
+        });
+        this.on(Runtime.PROJECT_RESUMED, () => {
+            this._paused = false;
+        });
+
+        /**
          * tw: Responsible for managing the VM's many timers.
          */
         this.frameLoop = new FrameLoop(this);
@@ -766,6 +786,32 @@ class Runtime extends EventEmitter {
      */
     static get STOP_FOR_TARGET () {
         return 'STOP_FOR_TARGET';
+    }
+
+    /**
+     * Event name for pausing/resuming project.
+     * Used by runtime that need to set paused state.
+     * @const {string}
+     */
+    static get PROJECT_SET_PAUSED () {
+        return 'PROJECT_SET_PAUSED';
+    }
+
+    /**
+     * Event name for project being paused by the user.
+     * Used by runtime that need to indicate paused state.
+     * @const {string}
+     */
+    static get PROJECT_PAUSED () {
+        return 'PROJECT_PAUSED';
+    }
+
+    /**
+     * Event name for project being resumed by the user.
+     * Used by runtime that need to indicate paused state.
+     */
+    static get PROJECT_RESUMED () {
+        return 'PROJECT_RESUMED';
     }
 
     /**
@@ -2600,6 +2646,22 @@ class Runtime extends EventEmitter {
         this.threadMap.clear();
 
         this.resetRunId();
+    }
+
+    /**
+     * Pause/resume all threads and running activities.
+     * @param {boolean} paused Whether to pause or resume the project.
+     */
+    setPaused (paused) {
+        this.emit(Runtime.PROJECT_SET_PAUSED, paused);
+    }
+
+    /**
+     * Get whether "everything" is currently paused.
+     * @return {boolean} True if the project is currently paused.
+     */
+    getPaused () {
+        return this._paused;
     }
 
     _renderInterpolatedPositions () {

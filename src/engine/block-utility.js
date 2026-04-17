@@ -132,6 +132,22 @@ class BlockUtility {
     }
 
     /**
+     * Pause/resume all threads and running activities.
+     * @param {boolean} paused Whether to pause or resume the project.
+     */
+    setPaused (paused) {
+        this.sequencer.runtime.setPaused(paused);
+    }
+
+    /**
+     * Get whether "everything" is currently paused.
+     * @return {boolean} True if the project is paused.
+     */
+    getPaused () {
+        return this.sequencer.runtime.getPaused();
+    }
+
+    /**
      * Stop threads other on this target other than the thread holding the
      * executed block.
      */
