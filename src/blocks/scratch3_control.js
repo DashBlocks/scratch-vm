@@ -169,15 +169,15 @@ class Scratch3ControlBlocks {
     }
 
     resume (args, util) {
-        util.setPaused(false);
+        this.runtime.setPaused(false);
     }
 
     pause (args, util) {
-        util.setPaused(true);
+        this.runtime.setPaused(true);
     }
 
     isPaused (args, util) {
-        return util.getPaused();
+        return this.runtime.getPaused();
     }
 
     stop (args, util) {

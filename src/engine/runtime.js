@@ -351,14 +351,6 @@ class Runtime extends EventEmitter {
          * @type {Boolean}
          */
         this._paused = false;
-        this.on(Runtime.SET_RUNTIME_PAUSED, paused => {
-            this._paused = paused;
-            if (paused) {
-                this.emit(Runtime.RUNTIME_PAUSED);
-            } else {
-                this.emit(Runtime.RUNTIME_UNPAUSED);
-            }
-        });
         this.on(Runtime.RUNTIME_PAUSED, () => {
             this._paused = true;
         });
@@ -793,8 +785,8 @@ class Runtime extends EventEmitter {
      * Used by runtime that need to set paused state.
      * @const {string}
      */
-    static get SET_RUNTIME_PAUSED () {
-        return 'SET_RUNTIME_PAUSED';
+    static get RUNTIME_SET_PAUSED () {
+        return 'RUNTIME_SET_PAUSED';
     }
 
     /**
@@ -2653,7 +2645,7 @@ class Runtime extends EventEmitter {
      * @param {boolean} paused Whether to pause or resume the project.
      */
     setPaused (paused) {
-        this.emit(Runtime.SET_RUNTIME_PAUSED, paused);
+        this.emit(Runtime.RUNTIME_SET_PAUSED, paused);
     }
 
     /**
