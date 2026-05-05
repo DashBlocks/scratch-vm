@@ -55,7 +55,7 @@ class TypesSerializeManager {
                         return result;
                     } else {
                         const result = {};
-                        for (let key of obj) {
+                        for (let key in obj) {
                             result[key] = yield obj[key];
                         }
                         return result;
@@ -70,7 +70,7 @@ class TypesSerializeManager {
                         return result;
                     } else {
                         const result = {};
-                        for (let key of serialized) {
+                        for (let key in serialized) {
                             result[key] = yield serialized[key];
                         }
                         return result;
