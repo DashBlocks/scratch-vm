@@ -1,5 +1,6 @@
 const Color = require('../util/color');
-const ExtendedJSON = require('@turbowarp/json');
+const NormalArray = require('../data-types/dash-normal-array');
+const NormalObject = require('../data-types/dash-normal-object');
 
 /**
  * @fileoverview
@@ -94,84 +95,98 @@ class Cast {
      */
     static toString (value) {
         // Convert custom types to string
-        if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
+        if (Cast.isCustomType(value)) {
             return String(value);
         }
         // Stringify JSON values
         if (typeof value === 'object') {
-            return ExtendedJSON.stringify(value);
+            return JSON.stringify(value);
         }
         // Coerce other values
         return String(value);
     }
 
     /**
-     * Scratch cast to array.
-     * @param {*} value Value to cast to array.
-     * @return {Array} The Scratch-casted array value.
+     * Scratch cast to NormalArray.
+     * @param {*} value Value to cast to NormalArray.
+     * @return {NormalArray} The Scratch-casted NormalArray value.
      */
     static toList (value) {
-        // Convert custom types to empty array
+        // Convert custom types to empty NormalArray
         if (Cast.isCustomType(value)) {
-            return [];
+            return new NormalArray();
         }
-        // Already an array?
+        // Already a NormalArray?
         if (Cast.isNormalArray(value)) {
             return value;
         }
         try {
             // Try to parse
-            const result = ExtendedJSON.parse(value);
-            return Array.isArray(result) ? result : [];
+            const result = JSON.parse(value, (key, value) => {
+                if (Array.isArray(value)) return new NormalArray(value);
+                if (typeof value === 'object' && value instanceof Object) return new NormalObject(Object.entries(value));
+                return value;
+            });
+            return Cast.isNormalArray(result) ? result : new NormalArray();
         } catch {
-            return [];
+            return new NormalArray();
         }
     }
 
     /**
-     * Scratch cast to object.
-     * @param {*} value Value to cast to object.
-     * @return {Object} The Scratch-casted object value.
+     * Scratch cast to NormalObject.
+     * @param {*} value Value to cast to NormalObject.
+     * @return {NormalObject} The Scratch-casted NormalObject value.
      */
     static toObject (value) {
-        // Convert custom types to empty object
+        // Convert custom types to empty NormalObject
         if (Cast.isCustomType(value)) {
-            return {};
+            return new NormalObject();
         }
-        // Already an object?
+        // Already a NormalObject?
         if (Cast.isNormalObject(value)) {
             return value;
         }
         try {
             // Try to parse
-            const result = ExtendedJSON.parse(value);
-            return typeof result === 'object' && result instanceof Object && !Array.isArray(result) ? result : {};
+            const result = JSON.parse(value, (key, value) => {
+                if (Array.isArray(value)) return new NormalArray(value);
+                if (typeof value === 'object' && value instanceof Object) return new NormalObject(Object.entries(value));
+                return value;
+            });
+            return typeof Cast.isNormalObject(result) ? result : new NormalObject();
         } catch {
-            return {};
+            return new NormalObject();
         }
     }
 
     /**
-     * Scratch cast to array or object.
-     * @param {*} value Value to cast to array or object.
+     * Scratch cast to NormalArray or NormalObject.
+     * @param {*} value Value to cast to NormalArray or NormalObject.
      * @param {boolean} arrayIfFail Whether it should return an array instead of an object when parsing fails or not.
-     * @return {(Array|Object)} The Scratch-casted array or object value.
+     * @return {(NormalArray|NormalObject)} The Scratch-casted NormalArray or NormalObject value.
      */
     static toJSON (value, arrayIfFail) {
-        // Convert custom types to empty array or object
+        // Convert custom types to empty NormalArray or NormalObject
         if (Cast.isCustomType(value)) {
-            return arrayIfFail ? [] : {};
+            return arrayIfFail ? new NormalArray() : new NormalObject();
         }
-        // Already an array or an object?
+        // Already a NormalArray or a NormalObject?
         if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
             return value;
         }
         try {
             // Try to parse
-            const result = ExtendedJSON.parse(value);
-            return typeof result === 'object' && result instanceof Object ? result : arrayIfFail ? [] : {};
+            const result = JSON.parse(value, (key, value) => {
+                if (Array.isArray(value)) return new NormalArray(value);
+                if (typeof value === 'object' && value instanceof Object) return new NormalObject(Object.entries(value));
+                return value;
+            });
+            return Cast.isNormalArray(value) || Cast.isNormalObject(value)
+                ? result
+                : arrayIfFail ? new NormalArray() : new NormalObject();
         } catch {
-            return arrayIfFail ? [] : {};
+            return arrayIfFail ? new NormalArray() : new NormalObject();
         }
     }
 
@@ -188,7 +203,7 @@ class Cast {
     /**
      * Cast any Scratch argument to an RGB color object to be used for the renderer.
      * @param {*} value Value to convert to RGB color object.
-     * @return {RGBOject} [r,g,b], values between 0-255.
+     * @return {RGBObject} [r,g,b], values between 0-255.
      */
     static toRgbColorObject (value) {
         let color;
@@ -274,26 +289,21 @@ class Cast {
     }
 
     /**
-     * Determine if a Scratch argument represents a normal (non-custom type) array.
+     * Determine if a Scratch argument represents a NormalArray (non-custom type).
      * @param {*} val Value to check.
-     * @return {boolean} True if argument is a normal array.
+     * @return {boolean} True if argument is a NormalArray.
      */
     static isNormalArray (val) {
-        return Array.isArray(val) && !Cast.isCustomType(val);
+        return val instanceof NormalArray && !Cast.isCustomType(val);
     }
 
     /**
-     * Determine if a Scratch argument represents a normal (non-custom type) object.
+     * Determine if a Scratch argument represents a NormalObject (non-custom type).
      * @param {*} val Value to check.
-     * @return {boolean} True if argument is a normal object.
+     * @return {boolean} True if argument is a NormalObject.
      */
     static isNormalObject (val) {
-        return (
-            typeof val === 'object' &&
-            val instanceof Object &&
-            !Array.isArray(val) &&
-            !Cast.isCustomType(val)
-        );
+        return val instanceof NormalObject && !Cast.isCustomType(val);
     }
 
     /**
