@@ -27,13 +27,73 @@ class NormalObject extends Map {
         if (Cast.isCustomType(value)) {
             // Convert custom types to empty NormalObject
             super();
-        } else if (value instanceof NormalObject) {
+        } else if (Cast.isNormalObject(value)) {
             // Already a NormalObject?
             super(value);
-        } else if (Cast.isNormalArray(value)) {
-            // Convert array with entries to NormalObject
+        } else if (Array.isArray(value)) {
+            // Convert any array with entries to NormalObject
             super(prepareEntryArray(value));
         }
+    }
+
+    toReporterContent () {
+        const content = document.createElement('span');
+        
+        if (this.size === 0) {
+            content.textContent = '{}';
+            return content;
+        }
+        
+        const maxShownItems = 70;
+        const more = this.size - maxShownItems;
+        let currentSpan = document.createElement('span');
+        content.append(currentSpan);
+        
+        this.entries().toArray().slice(0, maxShownItems).forEach(([key, value], i, array) => {
+            if (i === 0) {
+                currentSpan.textContent += '{';
+            }
+            currentSpan.textContent += `${JSON.stringify(key)}: `;
+        
+            if (Cast.isCustomType(value) || Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
+                if (typeof value.toReporterJSONItem === 'function') {
+                    content.append(value.toReporterJSONItem());
+                } else {
+                    const add = document.createElement('i');
+                    add.textContent = `*custom type*`;
+                    content.append(add);
+                }
+                currentSpan = document.createElement('span');
+                content.append(currentSpan);
+            } else {
+                currentSpan.textContent += JSON.stringify(value);
+            }
+        
+            if (i === array.length - 1) {
+                if (more > 0) {
+                    currentSpan.textContent += ', ';
+                    const add = document.createElement('i');
+                    add.textContent = `*${more} more items*`;
+                    content.append(add);
+                    currentSpan = document.createElement('span');
+                    content.append(currentSpan);
+                }
+                currentSpan.textContent += '}';
+            } else {
+                currentSpan.textContent += ', ';
+            }
+          });
+          return content;
+    }
+
+    toReporterJSONItem () {
+        const el = document.createElement('i');
+        el.textContent = `Object(${this.size})`;
+        return el;
+    }
+
+    toListEditor () {
+      return `Object(${this.size})`;
     }
 
     set (key, value) {
