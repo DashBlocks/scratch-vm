@@ -33,6 +33,9 @@ class NormalObject extends Map {
         } else if (Array.isArray(value)) {
             // Convert any array with entries to NormalObject
             super(prepareEntryArray(value));
+        } else {
+            // Otherwise, create empty NormalObject
+            super();
         }
     }
 
