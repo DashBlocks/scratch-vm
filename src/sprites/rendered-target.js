@@ -746,7 +746,7 @@ class RenderedTarget extends Target {
 
     /**
      * Return whether touching requested target.
-     * @param {string} requestedTarget Target for checking touching.
+     * @param {RenderedTarget} requestedTarget Target for checking touching.
      * @return {boolean} True if touching requested target.
      */
     isTouchingTarget (requestedTarget) {
