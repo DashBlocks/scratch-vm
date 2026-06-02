@@ -45,7 +45,8 @@ class Scratch3ControlBlocks {
             control_get_counter: this.getCounter,
             control_incr_counter: this.incrCounter,
             control_clear_counter: this.clearCounter,
-            control_all_at_once: this.allAtOnce
+            control_all_at_once: this.allAtOnce,
+            control_run_as: this.runAs
         };
     }
 
@@ -168,15 +169,15 @@ class Scratch3ControlBlocks {
         return condition ? args.THEN : args.ELSE;
     }
 
-    resume (args, util) {
+    resume () {
         this.runtime.setPaused(false);
     }
 
-    pause (args, util) {
+    pause () {
         this.runtime.setPaused(true);
     }
 
-    isPaused (args, util) {
+    isPaused () {
         return this.runtime.getPaused();
     }
 
@@ -252,12 +253,32 @@ class Scratch3ControlBlocks {
     }
 
     allAtOnce (args, util) {
-        // Since the "all at once" block is implemented for compatiblity with
-        // Scratch 2.0 projects, it behaves the same way it did in 2.0, which
-        // is to simply run the contained script (like "if 1 = 1").
-        // (In early versions of Scratch 2.0, it would work the same way as
-        // "run without screen refresh" custom blocks do now, but this was
-        // removed before the release of 2.0.)
+        util.startBranch(1, false);
+        util.thread.peekStackFrame().warpMode = true;
+    }
+
+    runAs (args, util) {
+        const object = Cast.toString(args.OBJECT);
+
+        // Set runner target
+        let runnerTarget;
+        if (object === '_myself_') {
+            runnerTarget = util.target;
+        } else if (object === '_stage_') {
+            runnerTarget = this.runtime.getTargetForStage();
+        } else {
+            runnerTarget = this.runtime.getSpriteTargetByName(object);
+        }
+
+        // If runner target is not found, return
+        if (!runnerTarget) return;
+
+        // If the runner target is not identical to the current one,
+        // then spoofing is required
+        if (runnerTarget !== util.target) {
+            util.thread.peekStackFrame().spoofTarget = util.target;
+            util.thread.target = runnerTarget;
+        }
         util.startBranch(1, false);
     }
 }
