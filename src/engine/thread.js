@@ -70,6 +70,12 @@ class _StackFrame {
          * @type {object}
          */
         this.op = null;
+
+        /**
+         * Target spoofed by the another target in this level of the stack.
+         * @type {import('./target')}
+         */
+        this.spoofTarget = null;
     }
 
     /**
@@ -87,6 +93,7 @@ class _StackFrame {
         this.params = null;
         this.executionContext = null;
         this.op = null;
+        this.spoofTarget = null;
 
         return this;
     }
