@@ -124,6 +124,8 @@ const StackOpcode = {
     CONTROL_WHILE: 'control.while',
     CONTROL_FOR: 'control.for',
     CONTROL_REPEAT: 'control.repeat',
+    CONTROL_ALL_AT_ONCE: 'control.allAtOnce',
+    CONTROL_RUN_AS: 'control.runAs',
     CONTROL_RESUME: 'control.resume',
     CONTROL_PAUSE: 'control.pause',
     CONTROL_STOP_ALL: 'control.stopAll',
