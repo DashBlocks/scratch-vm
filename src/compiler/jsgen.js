@@ -779,14 +779,14 @@ class JSGenerator {
             this.isInHat = false;
             break;
 
-        case StachOpcode.CONTROL_ALL_AT_ONCE: {
+        case StackOpcode.CONTROL_ALL_AT_ONCE: {
             const oldWarp = this.isWarp;
             this.isWarp = true;
             this.descendStack(node.do, new Frame(false));
             this.isWarp = oldWarp;
             break;
         }
-        case StachOpcode.CONTROL_RUN_AS: {
+        case StackOpcode.CONTROL_RUN_AS: {
             const spoofTarget = this.localVariables.next();
             const runnerTarget = this.localVariables.next();
             this.source += `const ${spoofTarget} = target;\n`;
