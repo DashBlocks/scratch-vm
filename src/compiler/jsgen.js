@@ -779,6 +779,26 @@ class JSGenerator {
             this.isInHat = false;
             break;
 
+        case StachOpcode.CONTROL_ALL_AT_ONCE: {
+            const oldWarp = this.isWarp;
+            this.isWarp = true;
+            this.descendStack(node.do, new Frame(false));
+            this.isWarp = oldWarp;
+            break;
+        }
+        case StachOpcode.CONTROL_RUN_AS: {
+            const spoofTarget = this.localVariables.next();
+            const runnerTarget = this.localVariables.next();
+            this.source += `const ${spoofTarget} = target;\n`;
+            this.source += `const ${runnerTarget} = runtime.ext_scratch3_control._getTargetForRunAs(${this.descendInput(node.target)}, target);\n`;
+            this.source += 'if (${runnerTarget}) {\n';
+            this.source += `  const target = ${runnerTarget};\n`;
+            this.source += `  thread.target = ${runnerTarget};\n`;
+            this.descendStack(node.do, new Frame(false));
+            this.source += `  thread.target = ${spoofTarget};\n`;
+            this.source += '}\n';
+            break;
+        }
         case StackOpcode.CONTROL_CLONE_CREATE:
             this.source += `runtime.ext_scratch3_control._createClone(${this.descendInput(node.target)}, target);\n`;
             break;
