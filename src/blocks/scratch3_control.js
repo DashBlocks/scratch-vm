@@ -257,22 +257,23 @@ class Scratch3ControlBlocks {
         util.thread.peekStackFrame().warpMode = true;
     }
 
-    runAs (args, util) {
-        const object = Cast.toString(args.OBJECT);
-
-        // Set runner target
-        let runnerTarget;
-        if (object === '_myself_') {
-            runnerTarget = util.target;
-        } else if (object === '_stage_') {
-            runnerTarget = this.runtime.getTargetForStage();
+    _getTargetForRunAs (option, target) { // used by compiler
+        if (option === '_myself_') {
+            return target;
+        } else if (option === '_stage_') {
+            return this.runtime.getTargetForStage();
         } else {
-            runnerTarget = this.runtime.getSpriteTargetByName(object);
+            return this.runtime.getSpriteTargetByName(option);
         }
+    }
+
+    runAs (args, util) {
+        // Set runner target
+        const runnerTarget = this._getTargetForRunAs(Cast.toString(args.OBJECT), util.target);
 
         // If runner target is not found, return
         if (!runnerTarget) return;
-
+        
         // If the runner target is identical to the current one,
         // then just run branch without spoofing.
         if (runnerTarget === util.target) {
