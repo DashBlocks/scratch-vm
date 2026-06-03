@@ -944,11 +944,13 @@ class ScriptTreeGenerator {
 
         switch (block.opcode) {
         case 'control_all_at_once':
-            // In Scratch 3, this block behaves like "if 1 = 1"
-            return new IntermediateStackBlock(StackOpcode.CONTROL_IF_ELSE, {
-                condition: this.createConstantInput(true).toType(InputType.BOOLEAN),
-                whenTrue: this.descendSubstack(block, 'SUBSTACK'),
-                whenFalse: new IntermediateStack()
+            return new IntermediateStackBlock(StackOpcode.CONTROL_ALL_AT_ONCE, {
+                do: this.descendSubstack(block, 'SUBSTACK')
+            });
+        case 'control_run_as':
+            return new IntermediateStackBlock(StackOpcode.CONTROL_RUN_AS, {
+                target: this.descendInputOfBlock(block, 'OBJECT').toType(InputType.STRING),
+                do: this.descendSubstack(block, 'SUBSTACK')
             });
         case 'control_create_clone_of':
             return new IntermediateStackBlock(StackOpcode.CONTROL_CLONE_CREATE, {
