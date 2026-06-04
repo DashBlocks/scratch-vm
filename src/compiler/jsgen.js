@@ -791,7 +791,7 @@ class JSGenerator {
             const runnerTarget = this.localVariables.next();
             this.source += `const ${spoofTarget} = target;\n`;
             this.source += `const ${runnerTarget} = runtime.ext_scratch3_control._getTargetForRunAs(${this.descendInput(node.target)}, target);\n`;
-            this.source += 'if (${runnerTarget}) {\n';
+            this.source += `if (${runnerTarget}) {\n`;
             this.source += `  const target = ${runnerTarget};\n`;
             this.source += `  thread.target = ${runnerTarget};\n`;
             this.descendStack(node.do, new Frame(false));
