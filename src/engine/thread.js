@@ -73,7 +73,7 @@ class _StackFrame {
 
         /**
          * Target spoofed by the another target in this level of the stack.
-         * @type {?Target}
+         * @type {import('./target')}
          */
         this.spoofTarget = null;
     }
@@ -285,14 +285,6 @@ class Thread {
     }
 
     /**
-     * Get original target of this thread.
-     * @return {Target} Original target.
-     */
-    getOriginalTarget () {
-        return this.stackFrames.find((stackFrame) => stackFrame.spoofTarget) || this.target;
-    }
-
-    /**
      * Push stack and update stack frames appropriately.
      * @param {string} blockId Block ID to push to stack.
      */
@@ -331,7 +323,7 @@ class Thread {
     stopThisScript () {
         let blockID = this.peekStack();
         while (blockID !== null) {
-            const block = this.getOriginalTarget().blocks.getBlock(blockID);
+            const block = this.target.blocks.getBlock(blockID);
 
             // Reporter form of procedures_call
             if (this.peekStackFrame().waitingReporter) {
@@ -452,7 +444,7 @@ class Thread {
      * where execution proceeds from one block to the next.
      */
     goToNextBlock () {
-        const nextBlockId = this.getOriginalTarget().blocks.getNextBlock(this.peekStack());
+        const nextBlockId = this.target.blocks.getNextBlock(this.peekStack());
         this.reuseStackForNextBlock(nextBlockId);
     }
 
@@ -465,10 +457,9 @@ class Thread {
     isRecursiveCall (procedureCode) {
         let callCount = 5; // Max number of enclosing procedure calls to examine.
         const sp = this.stackFrames.length - 1;
-        const target = this.getOriginalTarget();
         for (let i = sp - 1; i >= 0; i--) {
-            const block = target.blocks.getBlock(this.stackFrames[i].op.id) ||
-                target.runtime.flyoutBlocks.getBlock(this.stackFrames[i].op.id);
+            const block = this.target.blocks.getBlock(this.stackFrames[i].op.id) ||
+                this.target.runtime.flyoutBlocks.getBlock(this.stackFrames[i].op.id);
             if (block.opcode === 'procedures_call' &&
                 block.mutation.proccode === procedureCode) {
                 return true;
@@ -496,10 +487,9 @@ class Thread {
         // cached versions of scripts breaking projects.
         const canCache = !this.stackClick;
 
-        const target = this.getOriginalTarget();
         const topBlock = this.topBlock;
         // Flyout blocks are stored in a special block container.
-        const blocks = this.blockContainer.getBlock(topBlock) ? this.blockContainer : target.runtime.flyoutBlocks;
+        const blocks = this.blockContainer.getBlock(topBlock) ? this.blockContainer : this.target.runtime.flyoutBlocks;
         const cachedResult = canCache && blocks.getCachedCompileResult(topBlock);
         // If there is a cached error, do not attempt to recompile.
         if (cachedResult && !cachedResult.success) {
@@ -516,11 +506,11 @@ class Thread {
                     blocks.cacheCompileResult(topBlock, result);
                 }
             } catch (error) {
-                log.error('cannot compile script', target.getName(), error);
+                log.error('cannot compile script', this.target.getName(), error);
                 if (canCache) {
                     blocks.cacheCompileError(topBlock, error);
                 }
-                this.target.runtime.emitCompileError(target, error);
+                this.target.runtime.emitCompileError(this.target, error);
                 return;
             }
         }
