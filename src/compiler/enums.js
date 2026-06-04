@@ -266,6 +266,7 @@ const InputOpcode = {
     JSON_ARRAY_DELETE: 'json.arrayDelete',
     JSON_ARRAY_REPLACE: 'json.arrayReplace',
     JSON_ARRAY_EXPANDABLE: 'json.arrayExpandable',
+    JSON_ARRAY_INCLUDES: 'json.arrayIncludes',
     JSON_OBJECT_EMPTY: 'json.objectEmpty',
     JSON_OBJECT_SPLIT: 'json.objectSplit',
     JSON_OBJECT_ITEM_OF: 'json.objectItemOf',

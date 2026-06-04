@@ -43,7 +43,8 @@ class DashJSONBlocks {
             json_object_contains_key: this.objectContainsKey,
             json_object_set: this.objectSet,
             json_object_delete: this.objectDelete,
-            json_object_entries: this.objectEntries
+            json_object_entries: this.objectEntries,
+            json_array_includes: this.arrayIncludes
         };
     }
 
@@ -278,6 +279,10 @@ class DashJSONBlocks {
             default:
                 return [];
         }
+    }
+    arrayIncludes (args) {
+        const array = Cast.toList(args.ARRAY);
+        return array.includes(args.VALUE)
     }
 }
 

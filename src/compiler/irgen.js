@@ -390,6 +390,8 @@ class ScriptTreeGenerator {
             }
             return new IntermediateInput(InputOpcode.JSON_ARRAY_EXPANDABLE, InputType.ARRAY, {inputs});
         }
+        case 'jon_array_includes':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_INCLUDES, InputType.ARRAY)
         case 'json_object_empty':
             return new IntermediateInput(InputOpcode.JSON_OBJECT_EMPTY, InputType.OBJECT);
         case 'json_object_split':

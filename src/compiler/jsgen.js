@@ -659,6 +659,12 @@ class JSGenerator {
             return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
         case InputOpcode.JSON_ARRAY_EXPANDABLE:
             return `[${node.inputs.map((input) => this.descendInput(input)).join(', ')}]`;
+        case InputOpcode.JSON_ARRAY_INCLUDES:
+            if (this.descendInput(node.ARRAY).includes(this.descendInput(node.VALUE))) {
+                return 'true'
+            } else {
+                return 'false'
+            }
         case InputOpcode.JSON_OBJECT_EMPTY:
             return '{}';
         case InputOpcode.JSON_OBJECT_SPLIT:
