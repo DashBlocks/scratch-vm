@@ -274,15 +274,12 @@ class Scratch3ControlBlocks {
         // If runner target is not found, return
         if (!runnerTarget) return;
         
-        // If the runner target is identical to the current one,
-        // then just run branch without spoofing.
-        if (runnerTarget === util.target) {
-            util.startBranch(1, false);
-        } else {
-            util.thread.peekStackFrame().spoofTarget = util.target;
-            util.startBranch(1, false);
-            util.thread.target = runnerTarget;
+        // If the runner target is not identical to the current one,
+        // then target substitute is required.
+        if (runnerTarget !== util.target) {
+            util.thread.peekStackFrame().substituteTarget = runnerTarget;
         }
+        util.startBranch(1, false);
     }
 }
 
