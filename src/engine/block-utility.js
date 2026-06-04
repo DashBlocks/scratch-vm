@@ -32,7 +32,7 @@ class BlockUtility {
      * @type {Target}
      */
     get target () {
-        return this.thread.target;
+        return this.thread.stackFrames.findLast((frame) => frame.substituteTarget) || this.thread.target;
     }
 
     /**
