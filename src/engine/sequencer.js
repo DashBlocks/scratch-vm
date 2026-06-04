@@ -261,9 +261,9 @@ class Sequencer {
                 isWarpMode = stackFrame.warpMode;
                 
                 if (stackFrame.spoofTarget) {
-                    // This level of the stack has spoofed target.
-                    thread.target = stackFrame.spoofTarget;
-                    stackFrame.spoofTarget = null;
+                    // This level of the stack substituting target.
+                    // Reset the substitute target.
+                    stackFrame.substituteTarget = null;
                 }
                 
                 if (stackFrame.isLoop) {
