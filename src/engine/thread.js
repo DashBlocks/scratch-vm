@@ -72,10 +72,10 @@ class _StackFrame {
         this.op = null;
 
         /**
-         * Target spoofed by the another target in this level of the stack.
-         * @type {import('./target')}
+         * Target that substitute another target.
+         * @type {?Target}
          */
-        this.spoofTarget = null;
+        this.substituteTarget = null;
     }
 
     /**
@@ -93,7 +93,7 @@ class _StackFrame {
         this.params = null;
         this.executionContext = null;
         this.op = null;
-        this.spoofTarget = null;
+        this.substituteTarget = null;
 
         return this;
     }
