@@ -674,7 +674,7 @@ class JSGenerator {
         case InputOpcode.JSON_OBJECT_CONTAINS_KEY:
             return `Object.keys(${this.descendInput(node.object)}).includes(${this.descendInput(node.key)})`;
         case InputOpcode.JSON_OBJECT_SET:
-            return `{...${this.descendInput(node.object)}, ${this.descendInput(node.key)}: ${this.descendInput(node.item)}}`;
+            return `{...${this.descendInput(node.object)}, [${this.descendInput(node.key)}]: ${this.descendInput(node.item)}}`;
         case InputOpcode.JSON_OBJECT_DELETE:
             return `runtime.ext_dash_json.objectDelete({OBJECT: ${this.descendInput(node.object)}, KEY: ${this.descendInput(node.key)}})`;
         case InputOpcode.JSON_OBJECT_ENTRIES:
