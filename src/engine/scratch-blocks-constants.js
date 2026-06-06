@@ -12,7 +12,7 @@ const ScratchBlocksConstants = {
     OUTPUT_SHAPE_HEXAGONAL: 1,
 
     /**
-     * ENUM for output shape: rounded (any/all values; strings,numbers).
+     * ENUM for output shape: rounded (any/all values; strings, numbers).
      * @const
      */
     OUTPUT_SHAPE_ROUND: 2,
@@ -27,7 +27,19 @@ const ScratchBlocksConstants = {
      * ENUM for output shape: plus (objects).
      * @const
      */
-    OUTPUT_SHAPE_PLUS: 4
+    OUTPUT_SHAPE_PLUS: 4,
+
+    /**
+     * ENUM for output shape: octagonal (Scratch targets).
+     * @const
+     */
+    OUTPUT_SHAPE_OCTAGONAL: 5,
+
+    /**
+     * ENUM for output shape: scrapped (Maps).
+     * @const
+     */
+    OUTPUT_SHAPE_SCRAPPED: 6
 };
 
 module.exports = ScratchBlocksConstants;
