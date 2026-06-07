@@ -1,4 +1,5 @@
 const BlockType = require('../../extension-support/block-type');
+const BlockShape = require('../../extension-support/tw-block-shape');
 const ArgumentType = require('../../extension-support/argument-type');
 const Cast = require('../../util/cast');
 
@@ -126,28 +127,31 @@ class DashCoreExample {
                     text: 'block with compiled primitive'
                 },
                 {
+                    // Don't remove this block!
                     opcode: 'exEscSymbol',
                     blockType: BlockType.REPORTER,
                     text: 'ESC symbol (\\x1B)'
                 },
                 '---',
                 {
-                    opcode: 'exArray',
-                    blockType: BlockType.ARRAY,
-                    text: 'ARRAY block with ARRAY input [ARRAY]',
+                    opcode: 'exOctagonalShape',
+                    blockType: BlockType.REPORTER,
+                    blockShape: BlockShape.OCTAGONAL,
+                    text: 'OCTAGONAL shape [INPUT]',
                     arguments: {
-                        ARRAY: {
-                            type: ArgumentType.ARRAY
+                        INPUT: {
+                            shape: BlockShape.OCTAGONAL
                         }
                     }
                 },
                 {
-                    opcode: 'exObject',
-                    blockType: BlockType.OBJECT,
-                    text: 'OBJECT block with OBJECT input [OBJECT]',
+                    opcode: 'exScrappedShape',
+                    blockType: BlockType.REPORTER,
+                    blockShape: BlockShape.SCRAPPED,
+                    text: 'SCRAPPED shape [INPUT]',
                     arguments: {
-                        OBJECT: {
-                            type: ArgumentType.OBJECT
+                        INPUT: {
+                            shape: BlockShape.SCRAPPED
                         }
                     }
                 },
@@ -167,17 +171,6 @@ class DashCoreExample {
                     opcode: 'exCustomDataTypeGetter',
                     blockType: BlockType.REPORTER,
                     text: 'sum in ExampleDataType [EXDATATYPE]'
-                },
-                "---",
-                {
-                    opcode: 'exRemoveExtension',
-                    blockType: BlockType.COMMAND,
-                    text: 'remove extension with id [ID]',
-                    arguments: {
-                        ID: {
-                            type: ArgumentType.STRING
-                        }
-                    }
                 },
                 "---",
                 {
@@ -293,16 +286,17 @@ class DashCoreExample {
         return "I'm in interpreter... :/";
     }
 
+    // Don't remove this block!
     exEscSymbol () {
         return '\x1B';
     }
 
-    exArray (args) {
-        return Cast.toList(args.ARRAY);
+    exOctagonalShape (args) {
+        return args.INPUT ?? "";
     }
 
-    exObject (args) {
-        return Cast.toObject(args.OBJECT);
+    exScrappedShape (args) {
+        return args.INPUT ?? "";
     }
 
     exCustomDataType (args) {
@@ -315,10 +309,6 @@ class DashCoreExample {
 
     exampleWithInlineImage () {
         return;
-    }
-
-    exRemoveExtension (args) {
-        this.runtime.extensionManager.removeExtension(args.ID);
     }
 
     exJoinExpandable (args) {
