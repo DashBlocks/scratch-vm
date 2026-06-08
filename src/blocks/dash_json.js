@@ -4,6 +4,7 @@
  */
 
 const Cast = require('../util/cast');
+const ExpandableBlocksUtil = require('../util/expandable-blocks-util');
 const ExtendedJSON = require('@turbowarp/json');
 
 class DashJSONBlocks {
@@ -156,8 +157,9 @@ class DashJSONBlocks {
 
     assign (args) {
         const main = Cast.toJSON(args.MAIN, true);
-        return Object.entries(args).reduce((acc, [argName, value]) =>
-            argName === 'mutation' || argName === 'MAIN' ? acc : Array.isArray(acc)
+        const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, "INPUT");
+        return inputs.reduce((acc, value) =>
+            Array.isArray(acc)
                 ? [...acc, ...Cast.toList(value)]
                 : {...acc, ...Cast.toJSON(value, true)}, main);
     }
@@ -212,7 +214,8 @@ class DashJSONBlocks {
     }
 
     arrayExpandable (args) {
-        return Object.entries(args).reduce((acc, [argName, value]) => argName === 'mutation' ? acc : [...acc, value], []);
+        const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, "INPUT");
+        return inputs;
     }
 
     objectEmpty () {
