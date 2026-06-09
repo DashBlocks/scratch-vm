@@ -157,7 +157,7 @@ class DashJSONBlocks {
 
     assign (args) {
         const main = Cast.toJSON(args.MAIN, true);
-        const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, "INPUT");
+        const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT');
         return inputs.reduce((acc, value) =>
             Array.isArray(acc)
                 ? [...acc, ...Cast.toList(value)]
@@ -214,7 +214,7 @@ class DashJSONBlocks {
     }
 
     arrayExpandable (args) {
-        const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, "INPUT");
+        const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT');
         return inputs;
     }
 
