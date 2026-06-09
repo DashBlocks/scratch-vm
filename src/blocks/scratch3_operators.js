@@ -1,4 +1,5 @@
 const Cast = require('../util/cast.js');
+const ExpandableBlocksUtil = require('../util/expandable-blocks-util');
 const MathUtil = require('../util/math-util.js');
 
 class Scratch3OperatorsBlocks {
@@ -68,38 +69,33 @@ class Scratch3OperatorsBlocks {
     }
 
     mathExpandable (args) {
+        const numbers = ExpandableBlocksUtil.getArgsStartedWith(args, 'NUM')
+            .map((value) => Cast.toNumber(value));
         const menuValues = Cast.toList(args.mutation.menuvalues);
-        let i = 0;
-        let numsAndOps = Object.entries(args).reduce((acc, [argName, value]) => {
-            if (argName === 'mutation') {
-                return acc;
-            } else {
-                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
-                i++;
-                return result;
-            }
-        }, []);
-        while (numsAndOps.includes('**')) {
-            const iOfOp = numsAndOps.indexOf('**');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) ** Cast.toNumber(numsAndOps[iOfOp + 1]));
+        
+        let idxOfOp;
+        while ((idxOfOp = menuValues.indexOf('**')) !== 1) {
+            numbers.splice(idxOfOp, 2, Cast.toNumber(numbers[idxOfOp] ** numbers[idxOfOp + 1]));
+            menuValues.splice(idxOfOp, 1);
         }
-        while (numsAndOps.includes('*')) {
-            const iOfOp = numsAndOps.indexOf('*');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) * Cast.toNumber(numsAndOps[iOfOp + 1]));
+        while ((idxOfOp = Math.min(menuValues.indexOf('*'), menuValues.indexOf('/'))) !== 1) {
+            numbers.splice(idxOfOp, 2, Cast.toNumber(
+                menuValues[idxOfOp] === '*'
+                    ? numbers[idxOfOp] * numbers[idxOfOp + 1]
+                    : numbers[idxOfOp] / numbers[idxOfOp + 1]
+            ));
+            menuValues.splice(idxOfOp, 1);
         }
-        while (numsAndOps.includes('/')) {
-            const iOfOp = numsAndOps.indexOf('/');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) / Cast.toNumber(numsAndOps[iOfOp + 1]));
+        while ((idxOfOp = Math.min(menuValues.indexOf('+'), menuValues.indexOf('-'))) !== 1) {
+            numbers.splice(idxOfOp, 2, Cast.toNumber(
+                menuValues[idxOfOp] === '+'
+                    ? numbers[idxOfOp] + numbers[idxOfOp + 1]
+                    : numbers[idxOfOp] - numbers[idxOfOp + 1]
+            ));
+            menuValues.splice(idxOfOp, 1);
         }
-        while (numsAndOps.includes('+')) {
-            const iOfOp = numsAndOps.indexOf('+');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) + Cast.toNumber(numsAndOps[iOfOp + 1]));
-        }
-        while (numsAndOps.includes('-')) {
-            const iOfOp = numsAndOps.indexOf('-');
-            numsAndOps.splice(iOfOp - 1, 3, Cast.toNumber(numsAndOps[iOfOp - 1]) - Cast.toNumber(numsAndOps[iOfOp + 1]));
-        }
-        return numsAndOps[0];
+        
+        return numbers[0];
     }
 
     lt (args) {
@@ -115,30 +111,17 @@ class Scratch3OperatorsBlocks {
     }
 
     numbersComparatorExpandable (args) {
+        const values = ExpandableBlocksUtil.getArgsStartedWith(args, 'STRING');
         const menuValues = Cast.toList(args.mutation.menuvalues);
-        let i = 0;
-        let numsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
-            if (argName === 'mutation') {
-                return acc;
-            } else {
-                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
-                i++;
-                return result;
-            }
-        }, []);
-        while (numsAndComps.includes('=')) {
-            const iOfOp = numsAndComps.indexOf('=');
-            numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) === 0);
+
+        for (let i = 0; i < menuValues.length; i++) {
+            if (
+                !(menuValues[i] === '==' && Cast.compare(values[i], values[i + 1]) === 0) &&
+                !(menuValues[i] === '>' && Cast.compare(values[i], values[i + 1]) > 0) &&
+                !(menuValues[i] === '<' && Cast.compare(values[i], values[i + 1]) < 0)
+            ) return false;
         }
-        while (numsAndComps.includes('>')) {
-            const iOfOp = numsAndComps.indexOf('>');
-            numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) > 0);
-        }
-        while (numsAndComps.includes('<')) {
-            const iOfOp = numsAndComps.indexOf('<');
-            numsAndComps.splice(iOfOp - 1, 3, Cast.compare(numsAndComps[iOfOp - 1], numsAndComps[iOfOp + 1]) < 0);
-        }
-        return numsAndComps[0];
+        return true;
     }
 
     and (args) {
@@ -154,30 +137,25 @@ class Scratch3OperatorsBlocks {
     }
 
     conditionsComparatorExpandable (args) {
+        const bools = ExpandableBlocksUtil.getArgsStartedWith(args, 'BOOL')
+            .map((value) => Cast.toBoolean(value));
         const menuValues = Cast.toList(args.mutation.menuvalues);
-        let i = 0;
-        let boolsAndComps = Object.entries(args).reduce((acc, [argName, value]) => {
-            if (argName === 'mutation') {
-                return acc;
-            } else {
-                const result = i > 0 ? [...acc, menuValues[i - 1], value] : [value];
-                i++;
-                return result;
-            }
-        }, []);
-        while (boolsAndComps.includes('=')) {
-            const iOfComp = boolsAndComps.indexOf('=');
-            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) === 0);
+
+        let idxOfOp;
+        while ((idxOfOp = menuValues.indexOf('&&')) !== 1) {
+            bools.splice(idxOfOp, 2, bools[idxOfOp] && bools[idxOfOp + 1]);
+            menuValues.splice(idxOfOp, 1);
         }
-        while (boolsAndComps.includes('&&')) {
-            const iOfComp = boolsAndComps.indexOf('&&');
-            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) && 0);
+        while ((idxOfOp = menuValues.indexOf('||')) !== 1) {
+            bools.splice(idxOfOp, 2, bools[idxOfOp] || bools[idxOfOp + 1]);
+            menuValues.splice(idxOfOp, 1);
         }
-        while (boolsAndComps.includes('||')) {
-            const iOfComp = boolsAndComps.indexOf('||');
-            boolsAndComps.splice(iOfComp - 1, 3, Cast.compare(boolsAndComps[iOfComp - 1], boolsAndComps[iOfComp + 1]) || 0);
+        while ((idxOfOp = menuValues.indexOf('==')) !== 1) {
+            bools.splice(idxOfOp, 2, Cast.compare(bools[idxOfOp], bools[idxOfOp + 1]) === 0);
+            menuValues.splice(idxOfOp, 1);
         }
-        return boolsAndComps[0];
+        
+        return bools[0];
     }
 
     random (args) {
@@ -201,7 +179,8 @@ class Scratch3OperatorsBlocks {
     }
 
     joinExpandable (args) {
-        return Object.entries(args).reduce((acc, [argName, value]) => acc + (argName === 'mutation' ? '' : Cast.toString(value)), '');
+        return ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT')
+            .map((value) => Cast.toString(value)).join('');
     }
 
     newline () {
