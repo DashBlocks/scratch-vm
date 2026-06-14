@@ -605,17 +605,17 @@ class ScriptTreeGenerator {
         case 'operator_numbers_comparator_expandable': {
             const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
-            let i = 0;
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    if (i > 0) inputs.push(menuValues[i - 1]);
-                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.STRING));
-                    i++;
+                    inputs.push(this.descendInputOfBlock(block, input.name));
                 }
             }
-            return new IntermediateInput(InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {inputs});
+            return new IntermediateInput(InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {
+                menuValues,
+                inputs
+            });
         }
         case 'operator_or':
             return new IntermediateInput(InputOpcode.OP_OR, InputType.BOOLEAN, {
