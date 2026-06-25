@@ -1,6 +1,6 @@
 ## DashBlocks/scratch-vm
 
-@TurboWarp/scratch-vm modified for use in [Dash](https://dashblocks.github.io/)
+@TurboWarp/scratch-vm modified for use in [Dash](https://dashblocks.org/)
 
 ## Setup
 
