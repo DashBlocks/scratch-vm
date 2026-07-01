@@ -615,7 +615,7 @@ class JSGenerator {
                 return `Object.keys(${this.descendInput(value)}).length`;
             }
             const valueVar = this.localVariables.next();
-            return `(Array.isArray(${valueVar}) ? ${valueVar}.length : Object.keys(${valueVar}).length)(${this.descendInput(value)})`;
+            return `((${valueVar}) => Array.isArray(${valueVar}) ? ${valueVar}.length : Object.keys(${valueVar}).length)(${this.descendInput(value)})`;
         }
         case InputOpcode.JSON_GET_BY_PATH:
             return `runtime.ext_dash_json.getByPath({PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
@@ -670,7 +670,7 @@ class JSGenerator {
         case InputOpcode.JSON_OBJECT_ITEM_OF: {
             const value = this.localVariables.next();
             const key = this.localVariables.next();
-            return `(!Object.keys(${value}).includes(${key}) ? "" : ${value}[${key}])(${this.descendInput(node.value)}, ${this.descendInput(node.key)})`;
+            return `((${value}, ${key}) => !Object.keys(${value}).includes(${key}) ? "" : ${value}[${key}])(${this.descendInput(node.value)}, ${this.descendInput(node.key)})`;
         }
         case InputOpcode.JSON_OBJECT_CONTAINS_KEY:
             return `Object.keys(${this.descendInput(node.object)}).includes(${this.descendInput(node.key)})`;
