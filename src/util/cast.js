@@ -100,7 +100,11 @@ class Cast {
         }
         // Stringify JSON values
         if (typeof value === 'object') {
-            return JSON.stringify(value);
+            return JSON.stringify(value, (key, value) => {
+                if (Cast.isCustomType(value)) return String(value);
+                if (Cast.isNormalObject(value)) return Object.fromEntries(value.entries().toArray());
+                return value;
+            });
         }
         // Coerce other values
         return String(value);
