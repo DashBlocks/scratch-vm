@@ -794,14 +794,15 @@ class JSGenerator {
             break;
         }
         case StackOpcode.CONTROL_RUN_AS: {
-            // TODO: Not finished. Finish write of this.
-            const spoofTarget = this.localVariables.next();
-            const runnerTarget = this.localVariables.next();
-            this.source += `const ${spoofTarget} = target;\n`;
-            this.source += `const ${runnerTarget} = runtime.ext_scratch3_control._getTargetForRunAs(${this.descendInput(node.target)}, target);\n`;
-            this.source += `if (${runnerTarget}) {\n`;
-            this.source += `  const target = ${runnerTarget};\n`;
+            const oldTarget = this.localVariables.next();
+            const substituteTarget = this.localVariables.next();
+            this.source += `const ${oldTarget} = target;\n`;
+            this.source += `const ${substituteTarget} = runtime.ext_scratch3_control._getTargetForRunAs(${this.descendInput(node.target)}, target);\n`;
+            this.source += `if (${substituteTarget}) {\n`;
+            this.source += `  const target = ${substituteTarget};\n`;
+            this.source += `  thread.compatibilitySubstituteTarget = ${substituteTarget};\n`;
             this.descendStack(node.do, new Frame(false));
+            this.source += `  thread.compatibilitySubstituteTarget = thread.target === ${oldTarget} ? null : ${oldTarget};\n`;
             this.source += '}\n';
             break;
         }
