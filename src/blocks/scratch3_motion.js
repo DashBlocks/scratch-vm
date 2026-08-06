@@ -1,6 +1,7 @@
 const Cast = require('../util/cast');
 const MathUtil = require('../util/math-util');
 const Timer = require('../util/timer');
+const NormalArray = require('../data-types/dash-normal-array');
 
 class Scratch3MotionBlocks {
     constructor (runtime) {
@@ -294,7 +295,7 @@ class Scratch3MotionBlocks {
     }
 
     getXY (args, util) {
-        return [this.limitPrecision(util.target.x), this.limitPrecision(util.target.y)];
+        return new NormalArray([this.limitPrecision(util.target.x), this.limitPrecision(util.target.y)]);
     }
 
     getDirection (args, util) {
