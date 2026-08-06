@@ -10,6 +10,12 @@ class Scratch3MotionBlocks {
          * @type {Runtime}
          */
         this.runtime = runtime;
+
+        /**
+         * The stored NormalArray with target position.
+         * @type {NormalArray}
+         */
+        this._cachedPositionList = new NormalArray();
     }
 
     /**
@@ -295,7 +301,11 @@ class Scratch3MotionBlocks {
     }
 
     getXY (args, util) {
-        return new NormalArray([this.limitPrecision(util.target.x), this.limitPrecision(util.target.y)]);
+        const x = this.limitPrecision(util.target.x);
+        const y = this.limitPrecision(util.target.y);
+        if (x === this._cachedPositionList[0] && y === this._cachedPositionList[1])
+            return this._cachedPositionList;
+        return (this._cachedPositionList = new NormalArray([x, y]));
     }
 
     getDirection (args, util) {
