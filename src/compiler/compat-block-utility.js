@@ -7,6 +7,10 @@ class CompatibilityLayerBlockUtility extends BlockUtility {
         this._startedBranch = null;
     }
 
+    get target () {
+        return this.thread?.compatibilitySubstituteTarget || this.thread.target
+    }
+
     get stackFrame () {
         return this.thread?.compatibilityStackFrame;
     }

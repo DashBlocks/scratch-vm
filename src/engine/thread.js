@@ -70,6 +70,12 @@ class _StackFrame {
          * @type {object}
          */
         this.op = null;
+
+        /**
+         * Target that substitute another target.
+         * @type {?Target}
+         */
+        this.substituteTarget = null;
     }
 
     /**
@@ -87,6 +93,7 @@ class _StackFrame {
         this.params = null;
         this.executionContext = null;
         this.op = null;
+        this.substituteTarget = null;
 
         return this;
     }
@@ -216,6 +223,10 @@ class Thread {
         this.procedures = null;
         this.executableHat = false;
         this.compatibilityStackFrame = null;
+        /**
+         * @type {?Target}
+         */
+        this.compatibilitySubstituteTarget = null;
     }
 
     /**

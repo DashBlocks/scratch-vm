@@ -274,16 +274,22 @@ class ExtensionManager {
                 if (!res.ok) {
                     extensionURL = extensionURL.replace(
                         'https://extensions.turbowarp.org/',
-                        'https://dashblocks.github.io/tw-extensions/'
+                        'https://dashblocks.org/tw-extensions/'
                     );
                 }
             } catch (_) {
                 extensionURL = extensionURL.replace(
                     'https://extensions.turbowarp.org/',
-                    'https://dashblocks.github.io/tw-extensions/'
+                    'https://dashblocks.org/tw-extensions/'
                 );
             }
         }
+
+        if (extensionURL.startsWith('https://dashblocks.github.io/'))
+            extensionURL = extensionURL.replace(
+                'https://dashblocks.github.io/',
+                'https://dashblocks.org/'
+            );
 
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);

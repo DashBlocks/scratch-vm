@@ -390,6 +390,8 @@ class ScriptTreeGenerator {
             }
             return new IntermediateInput(InputOpcode.JSON_ARRAY_EXPANDABLE, InputType.ARRAY, {inputs});
         }
+        case 'jon_array_includes':
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_INCLUDES, InputType.ARRAY)
         case 'json_object_empty':
             return new IntermediateInput(InputOpcode.JSON_OBJECT_EMPTY, InputType.OBJECT);
         case 'json_object_split':
@@ -603,17 +605,17 @@ class ScriptTreeGenerator {
         case 'operator_numbers_comparator_expandable': {
             const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
-            let i = 0;
             for (const input of Object.values(block.inputs)) {
                 if (input.block == null) {
                     delete block.inputs[input.name];
                 } else {
-                    if (i > 0) inputs.push(menuValues[i - 1]);
-                    inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.STRING));
-                    i++;
+                    inputs.push(this.descendInputOfBlock(block, input.name));
                 }
             }
-            return new IntermediateInput(InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {inputs});
+            return new IntermediateInput(InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE, InputType.BOOLEAN, {
+                menuValues,
+                inputs
+            });
         }
         case 'operator_or':
             return new IntermediateInput(InputOpcode.OP_OR, InputType.BOOLEAN, {
@@ -944,11 +946,13 @@ class ScriptTreeGenerator {
 
         switch (block.opcode) {
         case 'control_all_at_once':
-            // In Scratch 3, this block behaves like "if 1 = 1"
-            return new IntermediateStackBlock(StackOpcode.CONTROL_IF_ELSE, {
-                condition: this.createConstantInput(true).toType(InputType.BOOLEAN),
-                whenTrue: this.descendSubstack(block, 'SUBSTACK'),
-                whenFalse: new IntermediateStack()
+            return new IntermediateStackBlock(StackOpcode.CONTROL_ALL_AT_ONCE, {
+                do: this.descendSubstack(block, 'SUBSTACK')
+            });
+        case 'control_run_as':
+            return new IntermediateStackBlock(StackOpcode.CONTROL_RUN_AS, {
+                target: this.descendInputOfBlock(block, 'OBJECT').toType(InputType.STRING),
+                do: this.descendSubstack(block, 'SUBSTACK')
             });
         case 'control_create_clone_of':
             return new IntermediateStackBlock(StackOpcode.CONTROL_CLONE_CREATE, {

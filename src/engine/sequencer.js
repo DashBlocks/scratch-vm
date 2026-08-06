@@ -259,7 +259,13 @@ class Sequencer {
 
                 const stackFrame = thread.peekStackFrame();
                 isWarpMode = stackFrame.warpMode;
-
+                
+                if (stackFrame.spoofTarget) {
+                    // This level of the stack substituting target.
+                    // Reset the substitute target.
+                    stackFrame.substituteTarget = null;
+                }
+                
                 if (stackFrame.isLoop) {
                     // The current level of the stack is marked as a loop.
                     // Return to yield for the frame/tick in general.

@@ -339,8 +339,8 @@ class JSGenerator {
             return `(${this.descendInput(node.string)}.toLowerCase().indexOf(${this.descendInput(node.contains)}.toLowerCase()) !== -1)`;
         case InputOpcode.OP_CONDITIONS_COMPARATOR_EXPANDABLE: {
             const value = `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === '=' ? '==' : sanitize(input)).join(' ')})`;
-            if (value === '()') return '(true)';
+                i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
+            if (value === '()') return 'true';
             return value;
         }
         case InputOpcode.OP_COS:
@@ -426,16 +426,16 @@ class JSGenerator {
         case InputOpcode.OP_MATH: {
             const value = `(${node.inputs.map((input, i) =>
                 i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
-            if (value === '()') return '(0)';
+            if (value === '()') return '0';
             return value;
         }
         case InputOpcode.OP_NOT:
             return `!${this.descendInput(node.operand)}`;
         case InputOpcode.OP_NUMBERS_COMPARATOR_EXPANDABLE: {
-            const value = `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input) === '=' ? '==' : sanitize(input)).join(' ')})`;
-            if (value === '()') return '(false)';
-            return value;
+            const valueVars = node.inputs.map(this.localVariables.next);
+            const values = node.inputs.map(this.descendInput);
+            const conditions = node.menuValues.map((op, i) => `${valueVars[i]} ${sanitize(op)} ${valueVars[i + 1]}`);
+            return `((${valueVars.join(',')}) => ${conditions.join('&&')})(${values.join(',')})`;
         }
         case InputOpcode.OP_OR:
             return `(${this.descendInput(node.left)} || ${this.descendInput(node.right)})`;
@@ -596,13 +596,15 @@ class JSGenerator {
 
         case InputOpcode.JSON_CONTAINS: {
             const json = node.json;
+            const value = node.value;
             if (json.isAlwaysType(InputType.ARRAY)) {
-                return `${this.descendInput(json)}.includes(${this.descendInput(node.value)})`;
+                return `${this.descendInput(json)}.includes(${this.descendInput(value)})`;
             }
             if (json.isAlwaysType(InputType.OBJECT)) {
-                return `Object.values(${this.descendInput(json)}).includes(${this.descendInput(node.value)})`;
+                return `Object.values(${this.descendInput(json)}).includes(${this.descendInput(value)})`;
             }
-            return `(Array.isArray(${this.descendInput(json)}) ? ${this.descendInput(json)}.includes(${this.descendInput(node.value)}) : Object.values(${this.descendInput(json)}).includes(${this.descendInput(node.value)}))`;
+            const jsonVar = this.localVariables.next();
+            return `((${jsonVar}) => Array.isArray(${jsonVar}) ? ${jsonVar}.includes(${this.descendInput(value)}) : Object.values(${jsonVar}).includes(${this.descendInput(value)}))(${this.descendInput(json)})`;
         }
         case InputOpcode.JSON_LENGTH: {
             const value = node.value;
@@ -612,7 +614,8 @@ class JSGenerator {
             if (value.isAlwaysType(InputType.OBJECT)) {
                 return `Object.keys(${this.descendInput(value)}).length`;
             }
-            return `(Array.isArray(${this.descendInput(value)}) ? ${this.descendInput(value)}.length : Object.keys(${this.descendInput(value)}).length)`;
+            const valueVar = this.localVariables.next();
+            return `((${valueVar}) => Array.isArray(${valueVar}) ? ${valueVar}.length : Object.keys(${valueVar}).length)(${this.descendInput(value)})`;
         }
         case InputOpcode.JSON_GET_BY_PATH:
             return `runtime.ext_dash_json.getByPath({PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
@@ -623,12 +626,13 @@ class JSGenerator {
         case InputOpcode.JSON_ASSIGN: {
             const main = node.main;
             if (main.isAlwaysType(InputType.ARRAY)) {
-                return `[...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input.toType(InputType.ARRAY))}`).join(', ')}]`;
+                return `[...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input.toType(InputType.ARRAY))}`).join(',')}]`;
             }
             if (main.isAlwaysType(InputType.OBJECT)) {
-                return `{...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
+                return `{...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(',')}}`;
             }
-            return `Array.isArray(${this.descendInput(main)}) ? [...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input.toType(InputType.ARRAY))}`).join(', ')}] : {...${this.descendInput(main)}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(', ')}}`;
+            const mainVar = this.localVariables.next();
+            return `((${mainVar}) => Array.isArray(${mainVar}) ? [...${mainVar}, ${node.inputs.map((input) => `...${this.descendInput(input.toType(InputType.ARRAY))}`).join(',')}] : {...${mainVar}, ${node.inputs.map((input) => `...${this.descendInput(input)}`).join(',')}})(${this.descendInput(main)})`;
         }
         case InputOpcode.JSON_ARRAY_EMPTY:
             return '[]';
@@ -658,17 +662,20 @@ class JSGenerator {
         case InputOpcode.JSON_ARRAY_REPLACE:
             return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
         case InputOpcode.JSON_ARRAY_EXPANDABLE:
-            return `[${node.inputs.map((input) => this.descendInput(input)).join(', ')}]`;
+            return `[${node.inputs.map((input) => this.descendInput(input)).join(',')}]`;
         case InputOpcode.JSON_OBJECT_EMPTY:
             return '{}';
         case InputOpcode.JSON_OBJECT_SPLIT:
             return `runtime.ext_dash_json.objectSplit({TEXT: ${this.descendInput(node.text)}, KEYDELIM: ${this.descendInput(node.keydelim)}, PAIRDELIM: ${this.descendInput(node.pairdelim)}})`;
-        case InputOpcode.JSON_OBJECT_ITEM_OF:
-            return `(!Object.keys(${this.descendInput(node.value)}).includes(${this.descendInput(node.key)}) ? "" : ${this.descendInput(node.value)}[${this.descendInput(node.key)}])`;
+        case InputOpcode.JSON_OBJECT_ITEM_OF: {
+            const value = this.localVariables.next();
+            const key = this.localVariables.next();
+            return `((${value}, ${key}) => !Object.keys(${value}).includes(${key}) ? "" : ${value}[${key}])(${this.descendInput(node.value)}, ${this.descendInput(node.key)})`;
+        }
         case InputOpcode.JSON_OBJECT_CONTAINS_KEY:
             return `Object.keys(${this.descendInput(node.object)}).includes(${this.descendInput(node.key)})`;
         case InputOpcode.JSON_OBJECT_SET:
-            return `{...${this.descendInput(node.object)}, ${this.descendInput(node.key)}: ${this.descendInput(node.item)}}`;
+            return `{...${this.descendInput(node.object)}, [${this.descendInput(node.key)}]: ${this.descendInput(node.item)}}`;
         case InputOpcode.JSON_OBJECT_DELETE:
             return `runtime.ext_dash_json.objectDelete({OBJECT: ${this.descendInput(node.object)}, KEY: ${this.descendInput(node.key)}})`;
         case InputOpcode.JSON_OBJECT_ENTRIES:
@@ -779,6 +786,26 @@ class JSGenerator {
             this.isInHat = false;
             break;
 
+        case StackOpcode.CONTROL_ALL_AT_ONCE: {
+            const oldWarp = this.isWarp;
+            this.isWarp = true;
+            this.descendStack(node.do, new Frame(false));
+            this.isWarp = oldWarp;
+            break;
+        }
+        case StackOpcode.CONTROL_RUN_AS: {
+            const oldTarget = this.localVariables.next();
+            const substituteTarget = this.localVariables.next();
+            this.source += `const ${oldTarget} = target;\n`;
+            this.source += `const ${substituteTarget} = runtime.ext_scratch3_control._getTargetForRunAs(${this.descendInput(node.target)}, target);\n`;
+            this.source += `if (${substituteTarget}) {\n`;
+            this.source += `  const target = ${substituteTarget};\n`;
+            this.source += `  thread.compatibilitySubstituteTarget = ${substituteTarget};\n`;
+            this.descendStack(node.do, new Frame(false));
+            this.source += `  thread.compatibilitySubstituteTarget = thread.target === ${oldTarget} ? null : ${oldTarget};\n`;
+            this.source += '}\n';
+            break;
+        }
         case StackOpcode.CONTROL_CLONE_CREATE:
             this.source += `runtime.ext_scratch3_control._createClone(${this.descendInput(node.target)}, target);\n`;
             break;
