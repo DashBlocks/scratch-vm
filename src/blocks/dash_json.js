@@ -5,7 +5,8 @@
 
 const Cast = require('../util/cast');
 const ExpandableBlocksUtil = require('../util/expandable-blocks-util');
-const ExtendedJSON = require('@turbowarp/json');
+const NormalArray = require('../data-types/dash-normal-array');
+const NormalObject = require('../data-types/dash-normal-object');
 
 class DashJSONBlocks {
     constructor (runtime) {
@@ -44,13 +45,12 @@ class DashJSONBlocks {
             json_object_contains_key: this.objectContainsKey,
             json_object_set: this.objectSet,
             json_object_delete: this.objectDelete,
-            json_object_entries: this.objectEntries,
-            json_array_includes: this.arrayIncludes
+            json_object_entries: this.objectEntries
         };
     }
 
     arrayEmpty () {
-        return [];
+        return new NormalArray();
     }
 
     arrayItemOf (args) {
@@ -71,12 +71,12 @@ class DashJSONBlocks {
     contains (args) {
         const json = Cast.toJSON(args.JSON, true);
         const item = args.VALUE;
-        return Array.isArray(json) ? json.includes(item) : Object.values(json).includes(item);
+        return Array.isArray(json) ? json.includes(item) : json.values().toArray().includes(item);
     }
 
     length (args) {
         const json = Cast.toJSON(args.VALUE, true);
-        return Array.isArray(json) ? json.length : Object.keys(json).length;
+        return Array.isArray(json) ? json.length : json.size;
     }
 
     getByPath (args) {
@@ -85,20 +85,20 @@ class DashJSONBlocks {
         let pathExist = true;
         const result = path.reduce((acc, key) => {
             if (!pathExist) return;
-            if (Array.isArray(acc)) {
+            if (Cast.isNormalArray(acc)) {
                 key = Cast.toListIndex(key, acc.length, false);
                 if (key === Cast.LIST_INVALID) {
                     pathExist = false;
                     return;
                 }
                 return acc[key - 1];
-            } else if (typeof acc === 'object' && acc instanceof Object) {
+            } else if (Cast.isNormalObject(acc)) {
                 key = Cast.toString(key);
-                if (!(key in acc)) {
+                if (!acc.has(key)) {
                     pathExist = false;
                     return;
                 }
-                return acc[key];
+                return acc.get(key);
             } else {
                 pathExist = false;
                 return;
@@ -110,38 +110,38 @@ class DashJSONBlocks {
     setByPath (args) {
         const path = Cast.toList(args.PATH);
         const json = Cast.toJSON(args.VALUE, true);
-        let newJson = Array.isArray(json) ? [...json] : {...json};
+        let newJson = Array.isArray(json) ? new NormalArray(json) : new NormalObject(json);
         let pathExist = true;
         const result = path.reduce(([full, part], key, i) => {
             if (!pathExist) return;
-            if (Array.isArray(part)) {
+            if (Cast.isNormalArray(part)) {
                 key = Cast.toListIndex(key, part.length, false);
                 if (key === Cast.LIST_INVALID) {
                     pathExist = false;
                     return;
                 }
-                if (i < path.length - 1 && !(typeof part[key - 1] === 'object' && part[key - 1] instanceof Object)) {
+                if (i < path.length - 1 && !Cast.isNormalArray(part[key - 1]) && !Cast.isNormalObject(part[key - 1])) {
                     pathExist = false;
                     return;
                 }
                 part[key - 1] = i < path.length - 1
-                    ? Array.isArray(part[key - 1]) ? [...part[key - 1]] : {...part[key - 1]}
+                    ? Cast.isNormalArray(part[key - 1]) ? new NormalArray(part[key - 1]) : new NormalObject(part[key - 1])
                     : args.ITEM;
                 return [full, part[key - 1]];
-            } else if (typeof part === 'object' && part instanceof Object) {
+            } else if (Cast.isNormalObject(acc)) {
                 key = Cast.toString(key);
-                if (!(key in part)) {
+                if (!part.has(key)) {
                     pathExist = false;
                     return;
                 }
-                if (i < path.length - 1 && !(typeof part[key] === 'object' && part[key] instanceof Object)) {
+                if (i < path.length - 1 && !Cast.isNormalArray(part.get(key)) && !Cast.isNormalObject(part.get(key))) {
                     pathExist = false;
                     return;
                 }
-                part[key] = i < path.length - 1
-                    ? Array.isArray(part[key]) ? [...part[key]] : {...part[key]}
-                    : args.ITEM;
-                return [full, part[key]];
+                part.set(key, i < path.length - 1
+                    ? Cast.isNormalArray(part.get(key)) ? new NormalArray(part.get(key)) : new NormalObject(part.get(key))
+                    : args.ITEM);
+                return [full, part.get(key)];
             } else {
                 pathExist = false;
                 return;
@@ -152,7 +152,11 @@ class DashJSONBlocks {
 
     stringifySpacer (args) {
         const json = Cast.toJSON(args.VALUE, true);
-        return ExtendedJSON.stringify(json, null, args.SPACER);
+        return JSON.stringify(json, (key, value) => {
+            if (Cast.isCustomType(value)) return String(value);
+            if (Cast.isNormalObject(value)) return Object.fromEntries(value.entries().toArray());
+            return value;
+        }, args.SPACER);
     }
 
     assign (args) {
@@ -160,20 +164,21 @@ class DashJSONBlocks {
         const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT');
         return inputs.reduce((acc, value) =>
             Array.isArray(acc)
-                ? [...acc, ...Cast.toList(value)]
-                : {...acc, ...Cast.toJSON(value, true)}, main);
+                ? acc.concat(Cast.toList(value))
+                : Cast.toJSON(value, true).entries()
+                    .reduce((acc, [key, value]) => acc.set(key, value), new NormalObject(acc)), main);
     }
 
     arrayAddFront (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return [...array, item];
+        return array.concat([item]);
     }
 
     arrayAddBack (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return [item, ...array];
+        return [item].concat(array);
     }
 
     arrayInsertAt (args) {
@@ -189,14 +194,14 @@ class DashJSONBlocks {
     arraySplit (args) {
         const text = Cast.toString(args.TEXT);
         const delimiter = Cast.toString(args.DELIM);
-        return text.split(delimiter);
+        return new NormalArray(text.split(delimiter));
     }
 
     arrayDelete (args) {
         const array = Cast.toList(args.ARRAY);
         const index = Cast.toListIndex(args.INDEX, array.length, true);
         if (index === Cast.LIST_ALL) {
-            return [];
+            return new NormalArray();
         } else if (index === Cast.LIST_INVALID) {
             return array;
         }
@@ -210,16 +215,16 @@ class DashJSONBlocks {
         if (index === Cast.LIST_INVALID) {
             return array;
         }
-        return [...array.slice(0, index - 1), item, ...array.slice(index)];
+        return array.slice(0, index - 1).concat([item]).concat(array.slice(index));
     }
 
     arrayExpandable (args) {
         const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT');
-        return inputs;
+        return new NormalArray(inputs);
     }
 
     objectEmpty () {
-        return {};
+        return new NormalObject();
     }
 
     objectSplit (args) {
@@ -231,19 +236,18 @@ class DashJSONBlocks {
             if (!error) {
                 const splitted = pair.split(keyDelimiter);
                 if (splitted.length === 2) {
-                    acc[splitted[0]] = splitted[1];
-                    return acc;
+                    return acc.set(...splitted);
                 }
                 error = true;
             }
-        }, {});
-        return error ? {} : result;
+        }, new NormalObject());
+        return error ? new NormalObject() : result;
     }
 
     objectItemOf (args) {
         const object = Cast.toObject(args.VALUE);
         const key = Cast.toString(args.KEY);
-        if (!Object.keys(object).includes(key)) {
+        if (!object.has(key)) {
             return '';
         }
         return object[key];
@@ -252,40 +256,34 @@ class DashJSONBlocks {
     objectContainsKey (args) {
         const object = Cast.toObject(args.OBJECT);
         const key = Cast.toString(args.KEY);
-        return Object.keys(object).includes(key);
+        return object.has(key);
     }
 
     objectSet (args) {
         const object = Cast.toObject(args.OBJECT);
         const key = Cast.toString(args.KEY);
         const item = args.ITEM;
-        return {...object, [key]: item};
+        return new NormalObject(object).set(key, item);
     }
 
     objectDelete (args) {
         const object = Cast.toObject(args.OBJECT);
         const key = Cast.toString(args.KEY);
-        const clonedObject = {...object};
-        delete clonedObject[key];
-        return clonedObject;
+        return new NormalObject(object).delete(key);
     }
 
     objectEntries (args) {
         const object = Cast.toObject(args.OBJECT);
         switch (args.PROPERTY) {
             case 'entries':
-                return Object.entries(object);
+                return new NormalArray(object.entries().toArray());
             case 'keys':
-                return Object.keys(object);
+                return new NormalArray(object.keys().toArray());
             case 'values':
-                return Object.values(object);
+                return new NormalArray(object.values().toArray());
             default:
-                return [];
+                return new NormalArray();
         }
-    }
-    arrayIncludes (args) {
-        const array = Cast.toList(args.ARRAY);
-        return array.includes(args.VALUE)
     }
 }
 
