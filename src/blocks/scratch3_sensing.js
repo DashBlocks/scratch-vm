@@ -369,7 +369,7 @@ class Scratch3SensingBlocks {
             switch (args.PROPERTY) {
             case 'x position': return attrTarget.x;
             case 'y position': return attrTarget.y;
-            case 'position': return [attrTarget.x, attrTarget.y];
+            case 'position': return new NormalArray([attrTarget.x, attrTarget.y]);
             case 'direction': return attrTarget.direction;
             case 'visibility': return attrTarget.visible;
             case 'costume #': return attrTarget.currentCostume + 1;
