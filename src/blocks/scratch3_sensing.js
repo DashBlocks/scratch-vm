@@ -1,6 +1,7 @@
 const Cast = require('../util/cast');
 const Timer = require('../util/timer');
 const getMonitorIdForBlockWithArgs = require('../util/get-monitor-id');
+const NormalArray = require('../data-types/dash-normal-array');
 
 class Scratch3SensingBlocks {
     constructor (runtime) {
@@ -21,6 +22,12 @@ class Scratch3SensingBlocks {
          * @type {Timer}
          */
         this._timer = new Timer();
+
+        /**
+         * The stored NormalArray with mouse position.
+         * @type {NormalArray}
+         */
+        this._cachedMousePositionList = new NormalArray();
 
         /**
          * The stored microphone loudness measurement.
@@ -273,7 +280,11 @@ class Scratch3SensingBlocks {
     }
 
     getMouseXY (args, util) {
-        return [util.ioQuery('mouse', 'getScratchX'), util.ioQuery('mouse', 'getScratchY')];
+        const x = util.ioQuery('mouse', 'getScratchX');
+        const y = util.ioQuery('mouse', 'getScratchY');
+        if (x === this._cachedMousePositionList[0] && y === this._cachedMousePositionList[1])
+            return this._cachedMousePositionList;
+        return (this._cachedMousePositionList = new NormalArray([x, y]));
     }
 
     getMouseDown (args, util) {
