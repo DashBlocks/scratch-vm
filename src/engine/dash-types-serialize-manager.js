@@ -1,4 +1,6 @@
 const Cast = require('../util/cast');
+const NormalArray = require('../data-types/dash-normal-array');
+const NormalObject = require('../data-types/dash-normal-object');
 
 /**
  * @fileoverview
@@ -55,23 +57,23 @@ class TypesSerializeManager {
                         return result;
                     } else {
                         const result = {};
-                        for (let key in obj) {
-                            result[key] = yield obj[key];
+                        for (let [key, value] of obj) {
+                            result[key] = yield value;
                         }
                         return result;
                     }
                 },
                 deserialize: function* (serialized) {
                     if (Array.isArray(serialized)) {
-                        const result = [];
+                        const result = new NormalArray();
                         for (let item of serialized) {
                             result.push(yield item);
                         }
                         return result;
                     } else {
-                        const result = {};
+                        const result = new NormalObject();
                         for (let key in serialized) {
-                            result[key] = yield serialized[key];
+                            result.set(key, yield serialized[key]);
                         }
                         return result;
                     }
