@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const NormalArray = require('../data-types/dash-normal-array');
 
 class DashConsoleBlocks {
     constructor (runtime) {
@@ -81,7 +82,7 @@ class DashConsoleBlocks {
     getAttributeOf (args) {
         if (this.runtime.console) {
             switch (args.PROPERTY) {
-            case 'content': return this.runtime.console.props.lines;
+            case 'content': return new NormalArray(this.runtime.console.props.lines);
             case 'linescount': return this.runtime.console.state.linesCount;
             }
         }
