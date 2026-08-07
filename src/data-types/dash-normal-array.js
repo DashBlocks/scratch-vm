@@ -83,7 +83,7 @@ class NormalArray extends Array {
     }
 
     toListEditor () {
-      return `Array(${this.length})`;
+        return `Array(${this.length})`;
     }
 }
 
