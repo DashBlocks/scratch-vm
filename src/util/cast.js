@@ -35,6 +35,7 @@ const isNotActuallyZero = val => {
     return true;
 };
 
+let _Cast;
 try {
 class Cast {
     /**
@@ -363,8 +364,9 @@ class Cast {
         return index;
     }
 }
+_Cast = Cast;
 } catch (e) {
     log.warn(e);
 }
 
-module.exports = Cast;
+module.exports = _Cast;
