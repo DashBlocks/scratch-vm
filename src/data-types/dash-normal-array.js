@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const log = require('../util/log');
 
 /**
  * @fileoverview
@@ -10,6 +11,7 @@ class NormalArray extends Array {
      * @constructor
      */
     constructor (value) {
+        log.log(Cast, Cast.isCustomType);
         if (Cast.isCustomType(value)) {
             // Convert custom types to empty NormalArray
             super();
