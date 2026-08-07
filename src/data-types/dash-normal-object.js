@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const log = require('../util/log');
 
 /**
  * @fileoverview
@@ -24,6 +25,7 @@ class NormalObject extends Map {
      * @constructor
      */
     constructor (value) {
+        log.log(Cast, Cast.isCustomType);
         if (Cast.isCustomType(value)) {
             // Convert custom types to empty NormalObject
             super();
