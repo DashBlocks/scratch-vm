@@ -1,4 +1,4 @@
-let Cast;
+const Cast = require('../util/cast');
 
 /**
  * @fileoverview
@@ -10,7 +10,6 @@ class NormalArray extends Array {
      * @constructor
      */
     constructor (value) {
-        if (!Cast) Cast = require('../util/cast');
         if (Cast.isCustomType?.(value)) {
             // Convert custom types to empty NormalArray
             super();
