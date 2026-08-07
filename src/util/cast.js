@@ -1,6 +1,5 @@
 const Color = require('./color');
-const NormalArray = require('../data-types/dash-normal-array');
-const NormalObject = require('../data-types/dash-normal-object');
+let NormalArray, NormalObject;
 
 /**
  * @fileoverview
@@ -298,6 +297,10 @@ class Cast {
      * @return {boolean} True if argument is a NormalArray.
      */
     static isNormalArray (val) {
+        if (!NormalArray && !NormalObject) {
+            NormalArray = require('../data-types/dash-normal-array');
+            NormalObject = require('../data-types/dash-normal-object');
+        }
         return val instanceof NormalArray && !Cast.isCustomType(val);
     }
 
@@ -307,6 +310,10 @@ class Cast {
      * @return {boolean} True if argument is a NormalObject.
      */
     static isNormalObject (val) {
+        if (!NormalArray && !NormalObject) {
+            NormalArray = require('../data-types/dash-normal-array');
+            NormalObject = require('../data-types/dash-normal-object');
+        }
         return val instanceof NormalObject && !Cast.isCustomType(val);
     }
 
