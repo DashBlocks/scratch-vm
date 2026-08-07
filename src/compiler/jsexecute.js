@@ -10,6 +10,8 @@
 const globalState = {
     Timer: require('../util/timer'),
     Cast: require('../util/cast'),
+    NormalArray: require('../data-types/dash-normal-array'),
+    NormalObject: require('../data-types/dash-normal-object'),
     log: require('../util/log'),
     blockUtility: require('./compat-block-utility'),
     /** @type{import("../engine/thread")?} */
