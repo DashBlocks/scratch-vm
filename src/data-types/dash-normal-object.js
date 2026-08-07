@@ -96,7 +96,7 @@ class NormalObject extends Map {
     }
 
     toListEditor () {
-      return `Object(${this.size})`;
+        return `Object(${this.size})`;
     }
 
     set (key, value) {
@@ -109,6 +109,23 @@ class NormalObject extends Map {
 
     getOrInsert (key, value) {
         return super.getOrInsert(Cast.toString(key), value);
+    }
+
+    assign (source) {
+        if (source instanceof NormalObject) {
+            for (const [key, value] of source.entries()) {
+                super.set(Cast.toString(key), value);
+            }
+        } else if (Array.isArray(source)) {
+            for (let i = 0; i < source.length; i++) {
+                super.set(String(i), source[i]);
+            }
+        } else if (typeof source === 'object' && source instanceof Object) {
+            for (const key in source) {
+                super.set(key, source[key]);
+            }
+        }
+        return this;
     }
 }
 
