@@ -12,6 +12,8 @@ const centralDispatch = require('./dispatch/central-dispatch');
 const ExtensionManager = require('./extension-support/extension-manager');
 const log = require('./util/log');
 const MathUtil = require('./util/math-util');
+const NormalArray = require('./data-types/dash-normal-array');
+const NormalObject = require('./data-types/dash-normal-object');
 const Patcher = require('./util/patcher');
 const Runtime = require('./engine/runtime');
 const RenderedTarget = require('./sprites/rendered-target');
@@ -236,6 +238,8 @@ class VirtualMachine extends EventEmitter {
          * Export some internal classes for extensions.
          */
         this.exports = {
+            NormalArray,
+            NormalObject,
             Sprite,
             Patcher,
             SandboxRunner,
