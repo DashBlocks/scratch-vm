@@ -1,4 +1,5 @@
-const Color = require('../util/color');
+const Color = require('./color');
+const log = require('./log');
 const NormalArray = require('../data-types/dash-normal-array');
 const NormalObject = require('../data-types/dash-normal-object');
 
@@ -34,6 +35,7 @@ const isNotActuallyZero = val => {
     return true;
 };
 
+try {
 class Cast {
     /**
      * Scratch cast to number.
@@ -360,6 +362,9 @@ class Cast {
         }
         return index;
     }
+}
+} catch (e) {
+    log.warn(e);
 }
 
 module.exports = Cast;
