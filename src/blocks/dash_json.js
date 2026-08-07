@@ -163,14 +163,9 @@ class DashJSONBlocks {
         const main = Cast.toJSON(args.MAIN, true);
         const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT');
         if (Array.isArray(main)) {
-            return inputs.reduce((acc, value) => acc.concat(Cast.toList(value)), main);
+            return main.concat(...inputs.map((value) => Cast.toList(value)));
         } else {
-            return inputs.reduce((acc, value) => {
-                value = Cast.toJSON(value, true);
-                return Array.isArray(value)
-                    ? value.reduce((acc, value, i) => acc.set(i, value), acc)
-                    : value.entries().reduce((acc, [key, value]) => acc.set(key, value), acc)
-            }, new NormalObject(main));
+            return inputs.reduce((acc, value) => acc.assign(Cast.toJSON(value, true)), new NormalObject(main));
         }
     }
 
