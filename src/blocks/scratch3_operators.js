@@ -1,6 +1,8 @@
 const Cast = require('../util/cast.js');
 const ExpandableBlocksUtil = require('../util/expandable-blocks-util');
 const MathUtil = require('../util/math-util.js');
+const NormalArray = require('../data-types/dash-normal-array');
+const NormalObject = require('../data-types/dash-normal-object');
 
 class Scratch3OperatorsBlocks {
     constructor (runtime) {
@@ -224,7 +226,7 @@ class Scratch3OperatorsBlocks {
         if (value === null) return 'null';
         if (Cast.isNormalArray(value)) return 'array';
         if (Cast.isCustomType(value)) {
-            return {customType: true, typeId: value.customId};
+            return new NormalObject().set("customType", true).set("typeId", value.customId);
         }
         return typeof value;
     }
@@ -306,7 +308,7 @@ class Scratch3OperatorsBlocks {
     numsInRange (args) {
         const from = Cast.toNumber(args.FROM);
         const to = Cast.toNumber(args.TO);
-        const nums = [];
+        const nums = new NormalArray();
         if (from > to) {
             return nums;
         }
