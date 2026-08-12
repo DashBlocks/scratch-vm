@@ -1,6 +1,8 @@
 const Cast = require('../util/cast');
 const {InputOpcode, InputType} = require('./enums.js');
 const log = require('../util/log');
+const NormalArray = require('../data-types/dash-normal-array');
+const NormalObject = require('../data-types/dash-normal-object');
 
 /**
  * @fileoverview Common intermediates shared amongst parts of the compiler.
@@ -218,10 +220,10 @@ class IntermediateInput {
             case InputOpcode.CAST_JSON: {
                 this.inputs.value = Cast.toJSON(this.inputs.value, true);
                 if (castOpcode === InputOpcode.CAST_ARRAY && !Array.isArray(this.inputs.value)) {
-                    this.inputs.value = [];
+                    this.inputs.value = new NormalArray();
                 }
                 if (castOpcode === InputOpcode.CAST_OBJECT && Array.isArray(this.inputs.value)) {
-                    this.inputs.value = {};
+                    this.inputs.value = new NormalObject();
                 }
                 this.type = IntermediateInput.getJSONInputType(this.inputs.value);
                 break;

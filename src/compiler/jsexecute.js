@@ -10,6 +10,8 @@
 const globalState = {
     Timer: require('../util/timer'),
     Cast: require('../util/cast'),
+    NormalArray: require('../data-types/dash-normal-array'),
+    NormalObject: require('../data-types/dash-normal-object'),
     log: require('../util/log'),
     blockUtility: require('./compat-block-utility'),
     /** @type{import("../engine/thread")?} */
@@ -257,11 +259,15 @@ runtimeFunctions.toBoolean = `const toBoolean = value => {
  * @returns {string} The value cast to a string
  */
 runtimeFunctions.toString = `const toString = value => {
-    if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
-        return String(value);
+    if (globalState.Cast.isCustomType(value)) {
+        return '' + value;
     }
     if (typeof value === 'object') {
-        return JSON.stringify(value);
+        return JSON.stringify(value, (key, value) => {
+            if (globalState.Cast.isCustomType(value)) return '' + value;
+            if (globalState.Cast.isNormalObject(value)) return Object.fromEntries(value.entries().toArray());
+            return value;
+        });
     }
     return '' + value;
 }`;
@@ -273,17 +279,21 @@ runtimeFunctions.toString = `const toString = value => {
  * @returns {Array} The value cast to an array
  */
 runtimeFunctions.toArray = `const toArray = value => {
-    if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
-        return [];
+    if (globalState.Cast.isCustomType(value)) {
+        return new globalState.NormalArray();
     }
     if (Array.isArray(value)) {
         return value;
     }
     try {
-        const result = JSON.parse(value);
-        return Array.isArray(result) ? result : [];
+        const result = JSON.parse(value, (key, value) => {
+            if (Array.isArray(value)) return new globalState.NormalArray(value);
+            if (typeof value === 'object' && value instanceof Object) return new globalState.NormalObject(Object.entries(value));
+            return value;
+        });
+        return Array.isArray(result) ? result : new globalState.NormalArray();
     } catch {
-        return [];
+        return new globalState.NormalArray();
     }
 }`;
 
@@ -294,15 +304,19 @@ runtimeFunctions.toArray = `const toArray = value => {
  * @returns {Object} The value cast to an object
  */
 runtimeFunctions.toObject = `const toObject = value => {
-    if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
-        return {};
+    if (globalState.Cast.isCustomType(value)) {
+        return new globalState.NormalObject();
     }
-    if (typeof value === 'object' && value instanceof Object && !Array.isArray(value)) {
+    if (globalState.Cast.isNormalObject(value)) {
         return value;
     }
     try {
-        const result = JSON.parse(value);
-        return typeof result === 'object' && result instanceof Object && !Array.isArray(result) ? result : {};
+        const result = JSON.parse(value, (key, value) => {
+            if (Array.isArray(value)) return new globalState.NormalArray(value);
+            if (typeof value === 'object' && value instanceof Object) return new globalState.NormalObject(Object.entries(value));
+            return value;
+        });
+        return globalState.Cast.isNormalObject(value) ? result : new globalState.NormalObject();
     } catch {
         return {};
     }
@@ -315,17 +329,21 @@ runtimeFunctions.toObject = `const toObject = value => {
  * @returns {(Array|Object)} The value cast to an array or an object
  */
 runtimeFunctions.toJSON = `const toJSON = value => {
-    if (value?.constructor?.prototype !== Object.prototype && typeof value?.customId === 'string') {
-        return [];
+    if (globalState.Cast.isCustomType(value)) {
+        return new globalState.NormalArray();
     }
     if (typeof value === 'object' && value instanceof Object) {
         return value;
     }
     try {
-        const result = JSON.parse(value);
-        return typeof result === 'object' && result instanceof Object ? result : [];
+        const result = JSON.parse(value, (key, value) => {
+            if (Array.isArray(value)) return new globalState.NormalArray(value);
+            if (typeof value === 'object' && value instanceof Object) return new globalState.NormalObject(Object.entries(value));
+            return value;
+        });
+        return typeof result === 'object' && result instanceof Object ? result : new globalState.NormalArray();
     } catch {
-        return [];
+        return new globalState.NormalArray();
     }
 }`;
 

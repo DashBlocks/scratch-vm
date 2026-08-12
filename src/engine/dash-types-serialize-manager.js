@@ -1,4 +1,6 @@
 const Cast = require('../util/cast');
+const NormalArray = require('../data-types/dash-normal-array');
+const NormalObject = require('../data-types/dash-normal-object');
 
 /**
  * @fileoverview
@@ -9,7 +11,8 @@ const Cast = require('../util/cast');
 const isValueSafeForJSON = value => (
     typeof value === 'number' ||
     typeof value === 'string' ||
-    typeof value === 'boolean'
+    typeof value === 'boolean' ||
+    value === null
 );
 
 const isGenerator = obj => (
@@ -55,23 +58,23 @@ class TypesSerializeManager {
                         return result;
                     } else {
                         const result = {};
-                        for (let key in obj) {
-                            result[key] = yield obj[key];
+                        for (let [key, value] of obj) {
+                            result[key] = yield value;
                         }
                         return result;
                     }
                 },
                 deserialize: function* (serialized) {
                     if (Array.isArray(serialized)) {
-                        const result = [];
+                        const result = new NormalArray();
                         for (let item of serialized) {
                             result.push(yield item);
                         }
                         return result;
                     } else {
-                        const result = {};
+                        const result = new NormalObject();
                         for (let key in serialized) {
-                            result[key] = yield serialized[key];
+                            result.set(key, yield serialized[key]);
                         }
                         return result;
                     }
@@ -91,7 +94,7 @@ class TypesSerializeManager {
             //   serialization of the value is required.
             if (!go2Prev) {
                 if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
-                    // If value is an Array/Object, then make action with json_json serializer.
+                    // If value is an NormalArray/NormalObject, then make action with json_json serializer.
                     actions.unshift([
                         this._serializers.json_json.serialize(value),
                         fn4serializedWrapper(value)
@@ -105,7 +108,7 @@ class TypesSerializeManager {
                         fn4serializedWrapper(value)
                     ]);
                 } else if (!isValueSafeForJSON(value)) {
-                    // If value is non-safe for JSON, then convert it to string and go to previous action.
+                    // If value is unsafe for JSON, then convert it to string and go to previous action.
                     value = String(value);
                     go2Prev = true;
                     continue;
@@ -161,7 +164,7 @@ class TypesSerializeManager {
                 } else if ('customType' in value) {
                     if (!value.customType) {
                         // If customType prop in serialized wrapper is false -
-                        // serialized value belongs to the Object, make action with json_json deserializer.
+                        // serialized value belongs to the NormalObject, make action with json_json deserializer.
                         actions.unshift(this._serializers.json_json.deserialize(value.serialized, target));
                     } else if (value.typeId in this._serializers) {
                         // Otherwise, if serialized value belongs to the custom type and
