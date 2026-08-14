@@ -55,7 +55,12 @@ class RenderedTarget extends Target {
             pixelate: 0,
             mosaic: 0,
             brightness: 0,
-            ghost: 0
+            ghost: 0,
+            red: 0,
+            green: 0,
+            blue: 0,
+            horizontal_shear: 0,
+            vertical_shear: 0
         };
 
         /**
