@@ -230,12 +230,14 @@ class JSGenerator {
                 return `[${node.value[0]},${node.value[1]},${node.value[2]}]`;
             } else if (block.isAlwaysType(InputType.ARRAY)) {
                 if (!Array.isArray(node.value)) throw new Error(`JS: '${block.type}' type constant was not an array.`);
-                return JSON.stringify(node.value);
+                return `(new globalState.NormalArray(${JSON.stringify(node.value)}))`;
             } else if (block.isAlwaysType(InputType.OBJECT)) {
                 if (!(typeof node.value === 'object' && node.value instanceof Object && !Array.isArray(node.value))) {
                     throw new Error(`JS: '${block.type}' type constant was not an object.`);
                 }
-                return JSON.stringify(node.value);
+                const strValue = JSON.stringify(node.value);
+                if (strValue === "{}") return "(new globalState.NormalObject())";
+                return `(new globalState.NormalObject(Object.entires(${JSON.stringify(node.value)})))`;
             } else if (block.isSometimesType(InputType.STRING)) {
                 return `"${sanitize(node.value.toString())}"`;
             } throw new Error(`JS: Unknown constant input type '${block.type}'.`);
