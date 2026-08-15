@@ -269,7 +269,9 @@ class DashJSONBlocks {
     objectDelete (args) {
         const object = Cast.toObject(args.OBJECT);
         const key = Cast.toString(args.KEY);
-        return new NormalObject(object).delete(key);
+        const objClone = new NormalObject(object);
+        objClone.delete(key);
+        return objClone;
     }
 
     objectEntries (args) {
