@@ -94,6 +94,14 @@ class Scratch3LooksBlocks {
     }
 
     /**
+     * Limit for red effect (also for green and blue effects)
+     * @const {object}
+     */
+    static get EFFECT_RED_LIMIT (){
+        return {min: -100, max: Infinity};
+    }
+
+    /**
      * @param {Target} target - collect bubble state for this target. Probably, but not necessarily, a RenderedTarget.
      * @returns {BubbleState} the mutable bubble state associated with that target. This will be created if necessary.
      * @private
@@ -548,6 +556,13 @@ class Scratch3LooksBlocks {
             clampedValue = MathUtil.clamp(value,
                 Scratch3LooksBlocks.EFFECT_BRIGHTNESS_LIMIT.min,
                 Scratch3LooksBlocks.EFFECT_BRIGHTNESS_LIMIT.max);
+            break;
+        case 'red':
+        case 'green':
+        case 'blue':
+            clampedValue = MathUtil.clamp(value,
+                Scratch3LooksBlocks.EFFECT_RED_LIMIT.min,
+                Scratch3LooksBlocks.EFFECT_RED_LIMIT.max);
             break;
         }
         return clampedValue;
