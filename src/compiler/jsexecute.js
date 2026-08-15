@@ -318,7 +318,7 @@ runtimeFunctions.toObject = `const toObject = value => {
         });
         return globalState.Cast.isNormalObject(value) ? result : new globalState.NormalObject();
     } catch {
-        return {};
+        return new globalState.NormalObject();
     }
 }`;
 
