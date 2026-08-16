@@ -680,7 +680,7 @@ class JSGenerator {
             return `(new globalState.NormalObject(${this.descendInput(node.object)}).set(${this.descendInput(node.key)}, ${this.descendInput(node.item)}))`;
         case InputOpcode.JSON_OBJECT_DELETE:
             const value = this.localVariables.next();
-            return `((const ${value} = new globalState.NormalObject(${this.descendInput(node.object)})).delete(${this.descendInput(node.key)}), ${value})`;
+            return `((${value}) => (${value}.delete(${this.descendInput(node.key)}), ${value}))(new globalState.NormalObject(${this.descendInput(node.object)}))`;
         case InputOpcode.JSON_OBJECT_ENTRIES:
             return `${this.descendInput(node.object)}["${sanitize(node.property)}"]().toArray()`;
 
