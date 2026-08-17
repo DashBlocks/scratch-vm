@@ -93,18 +93,18 @@ class TypesSerializeManager {
             // * The first iteration of this loop is in progress and
             //   serialization of the value is required.
             if (!go2Prev) {
-                if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
-                    // If value is an NormalArray/NormalObject, then make action with json_json serializer.
-                    actions.unshift([
-                        this._serializers.json_json.serialize(value),
-                        fn4serializedWrapper(value)
-                    ]);
-                } else if (Cast.isCustomType(value)) {
+                if (Cast.isCustomType(value)) {
                     // If value is a custom type, then check for a serializer and make action with serializer of this type.
                     if (!(value.customId in this._serializers))
                         throw new Error(`Unknown serializer of custom type with id: ${value.customId}`);
                     actions.unshift([
                         this._serializers[value.customId].serialize(value),
+                        fn4serializedWrapper(value)
+                    ]);
+                } else if (Array.isArray(value) || Cast.isNormalObject(value)) {
+                    // If value is an Array/NormalArray/NormalObject, then make action with json_json serializer.
+                    actions.unshift([
+                        this._serializers.json_json.serialize(value),
                         fn4serializedWrapper(value)
                     ]);
                 } else if (!isValueSafeForJSON(value)) {
