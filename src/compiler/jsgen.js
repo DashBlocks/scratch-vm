@@ -607,7 +607,6 @@ class JSGenerator {
             }
             const call = this.createFunctionCall(
                 {jsonVar: this.descendInput(json), valueVar: this.descendInput(value)},
-                false,
                 ({jsonVar, valueVar}) => `Array.isArray(${jsonVar}) ? ${jsonVar}.includes(${valueVar}) : ${jsonVar}.values().toArray().includes(${valueVar})`
             );
             return `(${call})`;
@@ -622,7 +621,6 @@ class JSGenerator {
             }
             const call = this.createFunctionCall(
                 {valueVar: this.descendInput(value)},
-                false,
                 ({valueVar}) => `${valueVar}[Array.isArray(${valueVar}) ? "length" : "size"]`
             );
             return `(${call})`;
@@ -643,8 +641,8 @@ class JSGenerator {
             }
             const call = this.createFunctionCall(
                 {mainVar: this.descendInput(main)},
-                node.inputs.some((input) => input.yields),
-                ({valueVar}) => `Array.isArray(${mainVar}) ? ${mainVar}.concat(${node.inputs.map((input) => this.descendInput(input.toType(InputType.ARRAY))).join(',')}) : new globalState.NormalObject(${mainVar})${node.inputs.map((input) => `.assign(${this.descendInput(input)})`).join('')}`
+                ({valueVar}) => `Array.isArray(${mainVar}) ? ${mainVar}.concat(${node.inputs.map((input) => this.descendInput(input.toType(InputType.ARRAY))).join(',')}) : new globalState.NormalObject(${mainVar})${node.inputs.map((input) => `.assign(${this.descendInput(input)})`).join('')}`,
+                false
             );
             return `(${call})`;
         }
@@ -684,7 +682,6 @@ class JSGenerator {
         case InputOpcode.JSON_OBJECT_ITEM_OF: {
             const call = this.createFunctionCall(
                 {value: this.descendInput(node.value), key: this.descendInput(node.key)},
-                false,
                 ({value, key}) => `!${value}.has(${key}) ? "" : ${value}.get(${key})`
             );
             return `(${call})`;
@@ -696,8 +693,8 @@ class JSGenerator {
         case InputOpcode.JSON_OBJECT_DELETE: {
             const call = this.createFunctionCall(
                 {value: `new globalState.NormalObject(${this.descendInput(node.object)})`},
-                node.key.yields,
-                ({value}) => `(${value}.delete(${this.descendInput(node.key)}), ${value})`
+                ({value}) => `(${value}.delete(${this.descendInput(node.key)}), ${value})`,
+                false
             );
             return `(${call})`;
         }
@@ -1436,15 +1433,15 @@ class JSGenerator {
 
     /**
      * @param {Record<string, string>} valuesJS Record of string JS values.
-     * @param {boolean} yields Does the yield caused inside a function
      * @param {Function} func Function for JS to pass inside.
+     * @param {boolean} [neverYields] Is yield never caused inside a function
      * @returns {string} The JS of the call.
      */
-    createFunctionCall (valuesJS, yields, func) {
+    createFunctionCall (valuesJS, func, neverYields = true) {
         const funcProps = {};
         let result = '';
 
-        if (yields) {
+        if (this.script.yields && !neverYields) {
             result += 'yield* (function*';
         } else {
             result += '(function';
@@ -1466,10 +1463,6 @@ class JSGenerator {
         result += '(';
         result += Object.values(valuesJS).join(',');
         result += ')';
-        
-        if (yields) {
-            this.yielded();
-        }
 
         return result;
     }
