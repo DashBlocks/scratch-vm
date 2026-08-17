@@ -1415,6 +1415,46 @@ class JSGenerator {
     }
 
     /**
+     * @param {Record<string, string>} valuesJS Record of string JS values.
+     * @param {boolean} yields Does the yield caused inside a function
+     * @param {Function} func Function for JS to pass inside.
+     * @returns {string} The JS of the call.
+     */
+    createFunctionCall (valuesJS, yields, func) {
+        const funcProps = {};
+        let result = '';
+
+        if (yields) {
+            result += 'yield* (function*';
+        } else {
+            result += '(function';
+        }
+        result += ' (';
+        if (Object.keys(valuesJS).length) {
+            const props = [];
+            for (const name of Object.keys(valuesJS)) {
+                const variable = this.localVariables.next();
+                props.push(variable);
+                funcProps[name] = variable;
+            }
+            result += props.join(',');
+        }
+        result += ') {return ';
+        result += func(funcProps);
+        result += ';})';
+
+        result += '(';
+        result += Object.values(valuesJS).join(',');
+        result += ')';
+        
+        if (yields) {
+            this.yielded();
+        }
+
+        return result;
+    }
+
+    /**
      * Generate the JS to pass into eval() based on the current state of the compiler.
      * @returns {string} JS to pass into eval()
      */
