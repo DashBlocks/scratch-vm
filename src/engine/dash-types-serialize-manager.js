@@ -21,7 +21,13 @@ const isGenerator = obj => (
 );
 
 const fn4serializedWrapper = value => serialized => {
-    if (Cast.isNormalArray(value)) {
+    if (Cast.isCustomType(value)) {
+        return {
+            customType: true,
+            typeId: value.customId,
+            serialized
+        };
+    } else if (Array.isArray(value)) {
         return serialized;
     } else if (Cast.isNormalObject(value)) {
         return {
@@ -29,11 +35,7 @@ const fn4serializedWrapper = value => serialized => {
             serialized
         };
     } else {
-        return {
-            customType: true,
-            typeId: value.customId,
-            serialized
-        };
+        return String(value);
     }
 }
 
@@ -47,7 +49,7 @@ class TypesSerializeManager {
          * @type {Record<string, {serialize: Function, deserialize: Function}>}
          */
         this._serializers = {
-            // Not actual a serializer of custom type, but it needed for serializing/deserializing Object/Array.
+            // Not actual a serializer of custom type, but it needed for serializing/deserializing Array/NormalArray/NormalObject.
             json_json: {
                 serialize: function* (obj) {
                     if (Array.isArray(obj)) {
@@ -85,14 +87,14 @@ class TypesSerializeManager {
 
     serialize (value) {
         const actions = [];
-        let go2Prev = false;
+        let goToPrevAction = false;
         do {
-            // If go2Prev is false, then:
+            // If goToPrevAction is false, then:
             // * The iteration of the current action continues and the value
             //   from the previous iteration must be serialized.
             // * The first iteration of this loop is in progress and
             //   serialization of the value is required.
-            if (!go2Prev) {
+            if (!goToPrevAction) {
                 if (Cast.isCustomType(value)) {
                     // If value is a custom type, then check for a serializer and make action with serializer of this type.
                     if (!(value.customId in this._serializers))
@@ -110,34 +112,34 @@ class TypesSerializeManager {
                 } else if (!isValueSafeForJSON(value)) {
                     // If value is unsafe for JSON, then convert it to string and go to previous action.
                     value = String(value);
-                    go2Prev = true;
+                    goToPrevAction = true;
                     continue;
                 } else {
                     // Is a safe value for JSON, just go to previous action.
-                    go2Prev = true;
+                    goToPrevAction = true;
                     continue;
                 }
             }
-            // Reset go2Prev to false.
-            go2Prev = false;
+            // Reset goToPrevAction to false.
+            goToPrevAction = false;
 
             // Get generator/value and wrapper for serialized value of the current action.
-            const [gen, wrapper] = actions[0];
-            if (isGenerator(gen)) {
-                // If gen is a generator, then make iteration of generator.
-                const resultOfNext = gen.next(value);
-                if (resultOfNext.done) {
+            const [genOrVal, wrapper] = actions[0];
+            if (isGenerator(genOrVal)) {
+                // If genOrVal is a generator, then make iteration of generator.
+                const iterResult = genOrVal.next(value);
+                if (iterResult.done) {
                     // Generator is done, wrap serialized value and go to previous action.
-                    value = wrapper(resultOfNext.value);
-                    go2Prev = true;
+                    value = wrapper(iterResult.value);
+                    goToPrevAction = true;
                     actions.splice(0, 1);
                 } else {
-                    value = resultOfNext.value;
+                    value = iterResult.value;
                 }
             } else {
-                // gen is a serialized value, wrap it and go to previous action.
-                value = wrapper(gen);
-                go2Prev = true;
+                // genOrVal is a serialized value, wrap it and go to previous action.
+                value = wrapper(genOrVal);
+                goToPrevAction = true;
                 actions.splice(0, 1);
             }
         } while (actions.length > 0)
@@ -146,17 +148,17 @@ class TypesSerializeManager {
 
     deserialize (value, target) {
         const actions = [];
-        let go2Prev = false;
+        let goToPrevAction = false;
         do {
-            // If go2Prev is false, then:
+            // If goToPrevAction is false, then:
             // * The iteration of the current action continues and the value
             //   from the previous iteration must be deserialized.
             // * The first iteration of this loop is in progress and
             //   deserialization of the value is required.
-            if (!go2Prev) {
+            if (!goToPrevAction) {
                 if (!(typeof value === "object" && value instanceof Object)) {
                     // If value is a string, number or boolean, just go to previous action.
-                    go2Prev = true;
+                    goToPrevAction = true;
                     continue;
                 } else if (Array.isArray(value)) {
                     // If value is an Array, then make action with json_json deserializer.
@@ -178,26 +180,26 @@ class TypesSerializeManager {
                     actions.unshift(this._serializers.json_json.deserialize(value, target));
                 }
             }
-            // Reset go2Prev to false.
-            go2Prev = false;
+            // Reset goToPrevAction to false.
+            goToPrevAction = false;
 
             // Get generator/value of the current action.
-            const gen = actions[0];
-            if (isGenerator(gen)) {
-                // If gen is a generator, then make iteration of generator.
-                const resultOfNext = gen.next(value);
-                if (resultOfNext.done) {
+            const genOrVal = actions[0];
+            if (isGenerator(genOrVal)) {
+                // If genOrVal is a generator, then make iteration of generator.
+                const iterResult = genOrVal.next(value);
+                if (iterResult.done) {
                     // Generator is done, go to previous action.
-                    value = resultOfNext.value;
-                    go2Prev = true;
+                    value = iterResult.value;
+                    goToPrevAction = true;
                     actions.splice(0, 1);
                 } else {
-                    value = resultOfNext.value;
+                    value = iterResult.value;
                 }
             } else {
-                // gen is a deserialized value, just go to previous action.
-                value = gen;
-                go2Prev = true;
+                // genOrVal is a deserialized value, just go to previous action.
+                value = genOrVal;
+                goToPrevAction = true;
                 actions.splice(0, 1);
             }
         } while (actions.length > 0)
