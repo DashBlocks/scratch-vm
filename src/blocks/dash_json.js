@@ -282,7 +282,7 @@ class DashJSONBlocks {
             case 'keys':
                 return new NormalArray(object.keys().toArray());
             case 'values':
-                return new NormalArray(object.values().toArray());
+                return new NormalArray(object.values().toArray().map((value) => new NormalArray(value)));
             default:
                 return new NormalArray();
         }
