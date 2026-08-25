@@ -699,9 +699,9 @@ class JSGenerator {
             return `(${call})`;
         }
         case InputOpcode.JSON_OBJECT_ENTRIES: {
-            if (node.property === 'values') {
+            if (node.property === 'entries') {
                 const value = this.localVariables.next();
-                return `new globalState.NormalArray(${this.descendInput(node.object)}.values().toArray().map((${value}) => new globalState.NormalArray(${value})))`;
+                return `new globalState.NormalArray(${this.descendInput(node.object)}.entries().toArray().map((${value}) => new globalState.NormalArray(${value})))`;
             } else {
                 return `new globalState.NormalArray(${this.descendInput(node.object)}["${sanitize(node.property)}"]().toArray())`;
             }
