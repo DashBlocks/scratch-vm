@@ -698,8 +698,14 @@ class JSGenerator {
             );
             return `(${call})`;
         }
-        case InputOpcode.JSON_OBJECT_ENTRIES:
-            return `${this.descendInput(node.object)}["${sanitize(node.property)}"]().toArray()`;
+        case InputOpcode.JSON_OBJECT_ENTRIES: {
+            if (node.property === 'values') {
+                const value = this.localVariables.next();
+                return `new globalState.NormalArray(${this.descendInput(node.object)}.values().toArray().map((${value}) => new globalState.NormalArray(${value})))`;
+            } else {
+                return `new globalState.NormalArray(${this.descendInput(node.object)}["${sanitize(node.property)}"]().toArray())`;
+            }
+        }
 
         case InputOpcode.CONSOLE_OF_CONTENT:
             return `(${CONSOLE} ? new globalState.NormalArray(${CONSOLE}.props.lines) : 0)`;
