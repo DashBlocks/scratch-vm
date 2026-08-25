@@ -278,11 +278,11 @@ class DashJSONBlocks {
         const object = Cast.toObject(args.OBJECT);
         switch (args.PROPERTY) {
             case 'entries':
-                return new NormalArray(object.entries().toArray());
+                return new NormalArray(object.entries().toArray().map((value) => new NormalArray(value)));
             case 'keys':
                 return new NormalArray(object.keys().toArray());
             case 'values':
-                return new NormalArray(object.values().toArray().map((value) => new NormalArray(value)));
+                return new NormalArray(object.values().toArray());
             default:
                 return new NormalArray();
         }
