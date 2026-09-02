@@ -85,8 +85,8 @@ class NormalObject extends Map {
             } else {
                 currentSpan.textContent += ', ';
             }
-          });
-          return content;
+        });
+        return content;
     }
 
     toReporterJSONItem () {
