@@ -72,8 +72,8 @@ class NormalArray extends Array {
             } else {
                 currentSpan.textContent += ', ';
             }
-          });
-          return content;
+        });
+        return content;
     }
 
     toReporterJSONItem () {
