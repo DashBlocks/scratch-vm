@@ -3,6 +3,7 @@ const BlocksExecuteCache = require('./blocks-execute-cache');
 const log = require('../util/log');
 const Thread = require('./thread');
 const cast = require('../util/cast');
+const DashError = require('../data-types/dash-error');
 
 /**
  * Single BlockUtility instance reused by execute for every pritimive ran.
@@ -111,6 +112,28 @@ const handleReport = function (resolvedValue, sequencer, thread, blockCached, la
     }
 };
 
+/**
+ * Handle any thrown value from the primitive, either directly thrown
+ * or after a promise rejects.
+ * @param {*} thrownValue Value eventually thrown from the primitive.
+ * @param {!Sequencer} sequencer Sequencer stepping the thread for the ran
+ * primitive.
+ * @param {!Thread} thread Thread containing the primitive.
+ */
+const handleThrow = function (thrownValue, sequencer, thread) {
+    if (typeof thrownValue === 'string' || thrownValue instanceof DashError) {
+        // @todo Add the ability to catch thrown string value or DashError
+        // inside the 'try/catch' block.
+    }
+    
+    // Uncaught thrown value: report the value visually at the top of
+    // the thread stack if necessary and stop the thread.
+    if (thread.stackClick) {
+        sequencer.runtime.visualReport(thread.target, thread.topBlock, thrownValue, {isUncaught: true});
+    }
+    sequencer.retireThread(thread);
+};
+
 const handlePromiseResolution = (resolvedValue, sequencer, thread, blockCached, lastOperation) => {
     handleReport(resolvedValue, sequencer, thread, blockCached, lastOperation);
     // If it's a command block or a top level reporter in a stackClick.
@@ -150,8 +173,13 @@ const handlePromise = (primitiveReportedValue, sequencer, thread, blockCached, l
         handlePromiseResolution(resolvedValue, sequencer, thread, blockCached, lastOperation);
     }, rejectionReason => {
         // Promise rejected: the primitive had some error.
-        log.warn('Primitive rejected promise: ', rejectionReason);
-        handlePromiseResolution(`${rejectionReason}`, sequencer, thread, blockCached, lastOperation);
+        // For compatibility, handle as thrown the DashError values only.
+        if (rejectionReason instanceof DashError) {
+            handleThrow(rejectionReason, sequencer, thread);
+        } else {
+            log.warn('Primitive rejected promise: ', rejectionReason);
+            handlePromiseResolution(`${rejectionReason}`, sequencer, thread, blockCached, lastOperation);
+        }
     });
 };
 
@@ -527,7 +555,12 @@ const execute = function (sequencer, thread) {
 
         // Inputs are set during previous steps in the loop.
 
-        const primitiveReportedValue = blockFunction(argValues, blockUtility);
+        let primitiveReortedValue;
+        try {
+            primitiveReportedValue = blockFunction(argValues, blockUtility);
+        } catch (thrownValue) {
+            handleThrow(thrownValue, sequencer, thread);
+        }
 
         const primitiveIsPromise = isPromise(primitiveReportedValue);
         if (primitiveIsPromise || currentStackFrame.waitingReporter) {
