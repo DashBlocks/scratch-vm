@@ -555,7 +555,7 @@ const execute = function (sequencer, thread) {
 
         // Inputs are set during previous steps in the loop.
 
-        let primitiveReortedValue;
+        let primitiveReportedValue;
         try {
             primitiveReportedValue = blockFunction(argValues, blockUtility);
         } catch (thrownValue) {
