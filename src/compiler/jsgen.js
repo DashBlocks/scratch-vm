@@ -1508,9 +1508,16 @@ class JSGenerator {
         }
         script += ') {\n';
 
+        script += 'try {\n';
+        
         script += this.source;
 
-        script += '}; })';
+        const thrownValue = this.localVariables.next();
+        script += `} catch (${thrownValue}) {\n`;
+
+        this.source += `runtime.visualReport(target, "${sanitize(this.script.topBlockId)}", ${thrownValue}, {isUncaught: true});\n`;
+
+        script += '}}; })';
 
         return script;
     }
