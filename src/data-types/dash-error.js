@@ -13,9 +13,7 @@ class DashError extends Error {
     }
 
     toReporterContent () {
-        return document.createTextNode(typeof this.message === 'string' && this.message
-            ? `${this.name}: ${this.message}`
-            : this.name);
+        return document.createTextNode(`${this}`);
     }
 
     toReporterJSONItem () {
