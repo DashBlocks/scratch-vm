@@ -7,6 +7,7 @@ const Patcher = require('../util/patcher');
 const SandboxRunner = require('../util/sandboxed-javascript-runner');
 const NormalArray = require('../data-types/dash-normal-array');
 const NormalObject = require('../data-types/dash-normal-object');
+const DashError = require('../data-types/dash-error');
 const external = require('./tw-external');
 
 const Scratch = {
@@ -17,6 +18,7 @@ const Scratch = {
     Cast,
     NormalArray,
     NormalObject,
+    DashError,
     Patcher,
     SandboxRunner,
     external
