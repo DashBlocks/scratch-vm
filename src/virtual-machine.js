@@ -14,6 +14,7 @@ const log = require('./util/log');
 const MathUtil = require('./util/math-util');
 const NormalArray = require('./data-types/dash-normal-array');
 const NormalObject = require('./data-types/dash-normal-object');
+const DashError = require('./data-types/dash-error');
 const Patcher = require('./util/patcher');
 const Runtime = require('./engine/runtime');
 const RenderedTarget = require('./sprites/rendered-target');
@@ -240,6 +241,7 @@ class VirtualMachine extends EventEmitter {
         this.exports = {
             NormalArray,
             NormalObject,
+            DashError,
             Sprite,
             Patcher,
             SandboxRunner,
