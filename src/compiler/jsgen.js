@@ -1515,7 +1515,12 @@ class JSGenerator {
         const thrownValue = this.localVariables.next();
         script += `} catch (${thrownValue}) {\n`;
 
-        this.source += `runtime.visualReport(target, "${sanitize(this.script.topBlockId)}", ${thrownValue}, {isUncaught: true});\n`;
+        script += `runtime.visualReport(target, "${sanitize(this.script.topBlockId)}", ${thrownValue}, {isUncaught: true});\n`;
+        if (this.isProcedure) {
+            script += 'retire(); yield;\n';
+        } else {
+            script += 'retire(); return;\n';
+        }
 
         script += '}}; })';
 
