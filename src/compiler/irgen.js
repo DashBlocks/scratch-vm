@@ -1643,7 +1643,7 @@ class ScriptTreeGenerator {
         }
 
         // Create it locally...
-        const newVariable = new Variable(id, name, type, false);
+        const newVariable = Variable.create(id, name, type, false);
 
         // Intentionally not using newVariable.id so that this matches vanilla Scratch quirks regarding
         // handling of null variable IDs.
@@ -1655,7 +1655,7 @@ class ScriptTreeGenerator {
             // sprite.clones has all instances of this sprite including the original and all clones
             for (const clone of target.sprite.clones) {
                 if (!Object.prototype.hasOwnProperty.call(clone.variables, id)) {
-                    clone.variables[String(id)] = new Variable(id, name, type, false);
+                    clone.variables[String(id)] = Variable.createSibling(newVariable, id, name, type, false);
                 }
             }
         }
@@ -1885,7 +1885,7 @@ class IRGenerator {
         /** @type {Object.<string, IntermediateScript>} */
         this.procedures = {};
 
-        this.analyzedProcedures = [];
+        this.analyzedProcedures = new Set();
     }
 
     static _extensionIRInfo = {};
@@ -1934,12 +1934,11 @@ class IRGenerator {
             const procedureData = this.procedures[procedureCode];
 
             // Analyze newly found procedures.
-            if (!this.analyzedProcedures.includes(procedureCode)) {
-                this.analyzedProcedures.push(procedureCode);
+            if (!this.analyzedProcedures.has(procedureCode)) {
+                this.analyzedProcedures.add(procedureCode);
                 if (this.analyzeScript(procedureData)) {
                     madeChanges = true;
                 }
-                this.analyzedProcedures.pop();
             }
 
             // If a procedure used by a script may yield, the script itself may yield.
@@ -1982,7 +1981,10 @@ class IRGenerator {
         }
 
         // Analyze scripts until no changes are made.
-        while (this.analyzeScript(entry));
+        while (this.analyzeScript(entry)) {
+            // Reset so all procedures get re-examined each pass.
+            this.analyzedProcedures = new Set();
+        }
 
         return new IntermediateRepresentation(entry, this.procedures);
     }
