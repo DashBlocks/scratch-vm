@@ -1997,6 +1997,7 @@ class VirtualMachine extends EventEmitter {
             const variable = target.lookupVariableById(variableId);
             if (variable) {
                 variable.value = value;
+                this.runtime.emitProjectChanged();
 
                 if (variable.isCloud) {
                     this.runtime.ioDevices.cloud.requestUpdateVariable(variable.name, variable.value);
