@@ -194,7 +194,7 @@ const serializeFields = function (fields) {
  * array if the block is one of the primitive types described above or an object,
  * if not.
  */
-const serializeBlock = function (block) {
+const serializeFullBlock = function (block) {
     const serializedPrimitive = serializePrimitiveBlock(block);
     if (serializedPrimitive) return serializedPrimitive;
     // If serializedPrimitive is null, proceed with serializing a non-primitive block
@@ -249,7 +249,7 @@ const serializeBlock = function (block) {
  * }
  * Note: this function modifies the given blocks object in place
  * @param {object} block The block with inputs to compress
- * @param {objec} blocks The object containing all the blocks currently getting serialized
+ * @param {object} blocks The object containing all the blocks currently getting serialized
  * @return {object} The serialized block with compressed inputs
  */
 const compressInputTree = function (block, blocks) {
@@ -339,12 +339,17 @@ const getExtensionURLsToSave = (extensionIDs, runtime) => {
  * compressed primitives and the list of all extension IDs present
  * in the serialized blocks.
  */
-const serializeBlocks = function (blocks) {
+const serializeBlock = function (block) {
+    return serializePrimitiveBlock(block) || serializeFullBlock(block);
+};
+const serializeBlocks = function (blocks, preserveBlockIds = false) {
     const obj = Object.create(null);
     const extensionIDs = new Set();
     for (const blockID in blocks) {
         if (!Object.prototype.hasOwnProperty.call(blocks, blockID)) continue;
-        obj[blockID] = serializeBlock(blocks[blockID], blocks);
+        obj[blockID] = preserveBlockIds ?
+            serializeFullBlock(blocks[blockID]) :
+            serializeBlock(blocks[blockID]);
         const extensionID = getExtensionIdForOpcode(blocks[blockID].opcode);
         if (extensionID) {
             extensionIDs.add(extensionID);
@@ -566,7 +571,7 @@ const serializeComments = function (comments) {
  * @param {Set} extensions A set of extensions to add extension IDs to
  * @return {object} A serialized representation of the given target.
  */
-const serializeTarget = function (runtime, target, extensions) {
+const serializeTarget = function (runtime, target, extensions, preserveBlockIds) {
     const obj = Object.create(null);
     let targetExtensions = [];
     obj.isStage = target.isStage;
@@ -575,7 +580,7 @@ const serializeTarget = function (runtime, target, extensions) {
     obj.variables = vars.variables;
     obj.lists = vars.lists;
     obj.broadcasts = vars.broadcasts;
-    [obj.blocks, targetExtensions] = serializeBlocks(target.blocks);
+    [obj.blocks, targetExtensions] = serializeBlocks(target.blocks, preserveBlockIds);
     obj.comments = serializeComments(target.comments);
 
     // TODO remove this check/patch when (#1901) is fixed
@@ -692,7 +697,10 @@ const serializeMonitors = function (monitors, runtime, extensions) {
  * @param {string=} targetId Optional target id if serializing only a single target
  * @return {object} Serialized runtime instance.
  */
-const serialize = function (runtime, targetId, {allowOptimization = true} = {}) {
+const serialize = function (runtime, targetId, {
+    allowOptimization = true,
+    preserveBlockIds = false
+} = {}) {
     // Fetch targets
     const obj = Object.create(null);
     // Create extension set to hold extension ids found while serializing targets
@@ -714,17 +722,18 @@ const serialize = function (runtime, targetId, {allowOptimization = true} = {}) 
         });
     }
 
-    const serializedTargets = flattenedOriginalTargets.map(t => serializeTarget(runtime, t, extensions))
-        .map((serialized, index) => {
-            // can't serialize extensionStorage until the list of used extensions is fully known
-            const target = originalTargetsToSerialize[index];
-            serialized.collaborationId = target.collaborationId;
-            const targetExtensionStorage = serializeExtensionStorage(target.extensionStorage, extensions);
-            if (targetExtensionStorage) {
-                serialized.extensionStorage = targetExtensionStorage;
-            }
-            return serialized;
-        });
+    const serializedTargets =
+        flattenedOriginalTargets.map(t => serializeTarget(runtime, t, extensions, preserveBlockIds))
+            .map((serialized, index) => {
+                // can't serialize extensionStorage until the list of used extensions is fully known
+                const target = originalTargetsToSerialize[index];
+                serialized.collaborationId = target.collaborationId;
+                const targetExtensionStorage = serializeExtensionStorage(target.extensionStorage, extensions);
+                if (targetExtensionStorage) {
+                    serialized.extensionStorage = targetExtensionStorage;
+                }
+                return serialized;
+            });
 
     const fonts = runtime.fontManager.serializeJSON();
 

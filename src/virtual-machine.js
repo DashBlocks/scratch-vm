@@ -751,6 +751,33 @@ class VirtualMachine extends EventEmitter {
         return StringUtil.stringify(sb3.serialize(this.runtime, optTargetId, serializationOptions));
     }
 
+    getCollaborationState () {
+        return JSON.parse(this.toJSON(null, {
+            allowOptimization: false,
+            preserveBlockIds: true
+        }));
+    }
+
+    async applyCollaborationState (project, zip) {
+        const selected = this.editingTarget && this.editingTarget.collaborationId;
+        const next = JSON.parse(JSON.stringify(project));
+        next.projectVersion = 3;
+        await this.deserializeProject(next, zip);
+        const target = this.runtime.targets.find(item => item.isOriginal &&
+            item.collaborationId === selected);
+        if (target) this.setEditingTarget(target.id);
+    }
+
+    canEditCollaboration () {
+        return !this.dashCollaboration || this.dashCollaboration.canEdit();
+    }
+
+    assertCollaborationWritable () {
+        if (!this.canEditCollaboration()) {
+            throw new Error('Collaboration is read-only');
+        }
+    }
+
     // TODO do we still need this function? Keeping it here so as not to introduce
     // a breaking change.
     /**
@@ -898,6 +925,8 @@ class VirtualMachine extends EventEmitter {
      * @return {!Promise} Promise that resolves after targets are installed.
      */
     addSprite (input) {
+        this.assertCollaborationWritable();
+
         const errorPrefix = 'Sprite Upload Error:';
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
           !ArrayBuffer.isView(input)) {
@@ -988,6 +1017,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {?Promise} - a promise that resolves when the costume has been added
      */
     addCostume (md5ext, costumeObject, optTargetId, optVersion) {
+        this.assertCollaborationWritable();
+
         const target = optTargetId ? this.runtime.getTargetById(optTargetId) :
             this.editingTarget;
         if (target) {
@@ -1088,6 +1119,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {?Promise} - a promise that resolves when the sound has been decoded and added
      */
     addSound (soundObject, optTargetId) {
+        this.assertCollaborationWritable();
+
         const target = optTargetId ? this.runtime.getTargetById(optTargetId) :
             this.editingTarget;
         if (target) {
@@ -1361,6 +1394,8 @@ class VirtualMachine extends EventEmitter {
      * @param {string} newName New name of the sprite.
      */
     renameSprite (targetId, newName) {
+        this.assertCollaborationWritable();
+
         const target = this.runtime.getTargetById(targetId);
         if (target) {
             if (!target.isSprite()) {
@@ -1399,6 +1434,8 @@ class VirtualMachine extends EventEmitter {
      * @return {Function} Returns a function to restore the sprite that was deleted
      */
     deleteSprite (targetId) {
+        this.assertCollaborationWritable();
+
         const target = this.runtime.getTargetById(targetId);
 
         if (target) {
@@ -1445,6 +1482,8 @@ class VirtualMachine extends EventEmitter {
      *     been added to the runtime.
      */
     duplicateSprite (targetId) {
+        this.assertCollaborationWritable();
+
         const target = this.runtime.getTargetById(targetId);
         if (!target) {
             throw new Error('No target with the provided id.');
@@ -1532,6 +1571,8 @@ class VirtualMachine extends EventEmitter {
      * @param {!Blockly.Event} e Any Blockly event.
      */
     blockListener (e) {
+        if (!this.canEditCollaboration()) return;
+
         if (this.editingTarget) {
             this.editingTarget.blocks.blocklyListen(e);
         }
@@ -1562,6 +1603,8 @@ class VirtualMachine extends EventEmitter {
      * @param {!Blockly.Event} e Any Blockly event.
      */
     variableListener (e) {
+        if (!this.canEditCollaboration()) return;
+
         // Filter events by type, since blocks only needs to listen to these
         // var events.
         if (['var_create', 'var_rename', 'var_delete'].indexOf(e.type) !== -1) {
@@ -1619,6 +1662,8 @@ class VirtualMachine extends EventEmitter {
      * @return {!Promise} Promise that resolves when the extensions and blocks have been added.
      */
     shareBlocksToTarget (blocks, targetId, optFromTargetId) {
+        this.assertCollaborationWritable();
+
         const sb3 = require('./serialization/sb3');
 
         const {blocks: copiedBlocks, extensionURLs} = sb3.deserializeStandaloneBlocks(blocks);
@@ -1655,6 +1700,8 @@ class VirtualMachine extends EventEmitter {
      * @return {Promise} Promise that resolves when the new costume has been loaded.
      */
     shareCostumeToTarget (costumeIndex, targetId) {
+        this.assertCollaborationWritable();
+
         const originalCostume = this.editingTarget.getCostumes()[costumeIndex];
         const clone = Object.assign({}, originalCostume);
         const md5ext = `${clone.assetId}.${clone.dataFormat}`;
@@ -1676,6 +1723,8 @@ class VirtualMachine extends EventEmitter {
      * @return {Promise} Promise that resolves when the new sound has been loaded.
      */
     shareSoundToTarget (soundIndex, targetId) {
+        this.assertCollaborationWritable();
+
         const originalSound = this.editingTarget.getSounds()[soundIndex];
         const clone = Object.assign({}, originalSound);
         const target = this.runtime.getTargetById(targetId);
@@ -1815,6 +1864,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {boolean} Whether a target was reordered.
      */
     reorderTarget (targetIndex, newIndex) {
+        this.assertCollaborationWritable();
+
         let targets = this.runtime.targets;
         targetIndex = MathUtil.clamp(targetIndex, 0, targets.length - 1);
         newIndex = MathUtil.clamp(newIndex, 0, targets.length - 1);
@@ -1897,6 +1948,8 @@ class VirtualMachine extends EventEmitter {
      * @param {object} data An object with sprite info data to set.
      */
     postSpriteInfo (data) {
+        this.assertCollaborationWritable();
+
         if (this._dragTarget) {
             this._dragTarget.postSpriteInfo(data);
         } else {
