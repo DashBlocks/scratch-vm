@@ -720,6 +720,7 @@ const serialize = function (runtime, targetId, {allowOptimization = true} = {}) 
         .map((serialized, index) => {
             // can't serialize extensionStorage until the list of used extensions is fully known
             const target = originalTargetsToSerialize[index];
+            serialized.collaborationId = target.collaborationId;
             const targetExtensionStorage = serializeExtensionStorage(target.extensionStorage, extensions);
             if (targetExtensionStorage) {
                 serialized.extensionStorage = targetExtensionStorage;
@@ -1225,10 +1226,12 @@ const parseScratchObject = function (object, runtime, extensions, zip, assets) {
     }
     // Costumes from JSON.
     const {costumePromises} = assets;
-    // Sounds from JSON
+    // Sounds from JSON.
     const {soundBank, soundPromises} = assets;
     // Create the first clone, and load its run-state from JSON.
     const target = sprite.createClone(object.isStage ? StageLayering.BACKGROUND_LAYER : StageLayering.SPRITE_LAYER);
+    // Load collaboration ID from JSON.
+    target.collaborationId = object.collaborationId;
     // Load target properties from JSON.
     if (Object.prototype.hasOwnProperty.call(object, 'tempo')) {
         target.tempo = object.tempo;
@@ -1579,8 +1582,16 @@ const deserialize = async function (json, runtime, zip, isSingleSprite) {
     // then sort by the layer order property before parsing the targets
     // so that their corresponding render drawables can be created in
     // their layer order (e.g. back to front)
+    const collaborationIds = new Set();
     const targetObjects = ((isSingleSprite ? [json] : json.targets) || [])
-        .map((t, i) => Object.assign(t, {targetPaneOrder: i}))
+        .map((t, i) => {
+            if (isSingleSprite || typeof t.collaborationId !== 'string' ||
+                !/^[\x21-\x7e]{1,128}$/.test(t.collaborationId) || collaborationIds.has(t.collaborationId)) {
+                t.collaborationId = uid();
+            }
+            collaborationIds.add(t.collaborationId);
+            return Object.assign(t, {targetPaneOrder: i});
+        })
         .sort((a, b) => a.layerOrder - b.layerOrder);
 
     const monitorObjects = json.monitors || [];

@@ -39,6 +39,10 @@ class Target extends EventEmitter {
          */
         this.id = uid();
         /**
+         * A unique ID for live-collaboration.
+         */
+        this.collaborationId = uid();
+        /**
          * Blocks run as code for this target.
          * @type {!Blocks}
          */
