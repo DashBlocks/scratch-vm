@@ -1173,6 +1173,8 @@ class VirtualMachine extends EventEmitter {
      * @param {ArrayBuffer} soundEncoding - the new (wav) encoded sound to be stored
      */
     updateSoundBuffer (soundIndex, newBuffer, soundEncoding) {
+        this.assertCollaborationWritable();
+
         const sound = this.editingTarget.sprite.sounds[soundIndex];
         if (sound && sound.broken) delete sound.broken;
         const id = sound ? sound.soundId : null;
