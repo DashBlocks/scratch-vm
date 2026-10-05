@@ -1059,6 +1059,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {?Promise} - a promise that resolves when the costume has been decoded and added
      */
     duplicateCostume (costumeIndex) {
+        this.assertCollaborationWritable();
+
         const originalCostume = this.editingTarget.getCostumes()[costumeIndex];
         const clone = Object.assign({}, originalCostume);
         const md5ext = `${clone.assetId}.${clone.dataFormat}`;
@@ -1075,6 +1077,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {?Promise} - a promise that resolves when the sound has been decoded and added
      */
     duplicateSound (soundIndex) {
+        this.assertCollaborationWritable();
+
         const originalSound = this.editingTarget.getSounds()[soundIndex];
         const clone = Object.assign({}, originalSound);
         return loadSound(clone, this.runtime, this.editingTarget.sprite.soundBank).then(() => {
@@ -1089,6 +1093,8 @@ class VirtualMachine extends EventEmitter {
      * @param {string} newName - the desired new name of the costume (will be modified if already in use).
      */
     renameCostume (costumeIndex, newName) {
+        this.assertCollaborationWritable();
+
         this.editingTarget.renameCostume(costumeIndex, newName);
         this.emitTargetsUpdate();
     }
@@ -1100,6 +1106,8 @@ class VirtualMachine extends EventEmitter {
      * if no costume was deleted.
      */
     deleteCostume (costumeIndex) {
+        this.assertCollaborationWritable();
+
         const deletedCostume = this.editingTarget.deleteCostume(costumeIndex);
         if (deletedCostume) {
             const target = this.editingTarget;
@@ -1139,6 +1147,8 @@ class VirtualMachine extends EventEmitter {
      * @param {string} newName - the desired new name of the sound (will be modified if already in use).
      */
     renameSound (soundIndex, newName) {
+        this.assertCollaborationWritable();
+
         this.editingTarget.renameSound(soundIndex, newName);
         this.emitTargetsUpdate();
     }
@@ -1205,6 +1215,8 @@ class VirtualMachine extends EventEmitter {
      * or null, if no sound was deleted.
      */
     deleteSound (soundIndex) {
+        this.assertCollaborationWritable();
+
         const target = this.editingTarget;
         const deletedSound = this.editingTarget.deleteSound(soundIndex);
         if (deletedSound) {
@@ -1380,6 +1392,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {?Promise} - a promise that resolves when the backdrop has been added
      */
     addBackdrop (md5ext, backdropObject) {
+        this.assertCollaborationWritable();
+
         return loadCostume(md5ext, backdropObject, this.runtime).then(() => {
             const stage = this.runtime.getTargetForStage();
             stage.addCostume(backdropObject);
@@ -1886,6 +1900,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {boolean} Whether a costume was reordered.
      */
     reorderCostume (targetId, costumeIndex, newIndex) {
+        this.assertCollaborationWritable();
+
         const target = this.runtime.getTargetById(targetId);
         if (target) {
             const reorderSuccessful = target.reorderCostume(costumeIndex, newIndex);
@@ -1905,6 +1921,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {boolean} Whether a sound was reordered.
      */
     reorderSound (targetId, soundIndex, newIndex) {
+        this.assertCollaborationWritable();
+
         const target = this.runtime.getTargetById(targetId);
         if (target) {
             const reorderSuccessful = target.reorderSound(soundIndex, newIndex);
@@ -1970,6 +1988,8 @@ class VirtualMachine extends EventEmitter {
      * @returns {boolean} whether the target and variable were found and updated.
      */
     setVariableValue (targetId, variableId, value) {
+        this.assertCollaborationWritable();
+
         const target = this.runtime.getTargetById(targetId);
         if (target) {
             const variable = target.lookupVariableById(variableId);
