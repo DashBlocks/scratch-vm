@@ -195,9 +195,6 @@ const serializeFields = function (fields) {
  * if not.
  */
 const serializeFullBlock = function (block) {
-    const serializedPrimitive = serializePrimitiveBlock(block);
-    if (serializedPrimitive) return serializedPrimitive;
-    // If serializedPrimitive is null, proceed with serializing a non-primitive block
     const obj = Object.create(null);
     obj.opcode = block.opcode;
     // NOTE: this is extremely important to serialize even if null;
@@ -355,6 +352,7 @@ const serializeBlocks = function (blocks, preserveBlockIds = false) {
             extensionIDs.add(extensionID);
         }
     }
+    if (preserveBlockIds) return [obj, Array.from(extensionIDs)];
     // once we have completed a first pass, do a second pass on block inputs
     for (const blockID in obj) {
         // don't need to do the hasOwnProperty check here since we
