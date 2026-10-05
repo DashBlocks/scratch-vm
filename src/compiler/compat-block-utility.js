@@ -8,7 +8,7 @@ class CompatibilityLayerBlockUtility extends BlockUtility {
     }
 
     get target () {
-        return this.thread?.compatibilitySubstituteTarget || this.thread.target
+        return this.thread?.compatibilitySubstituteTarget || this.thread.target;
     }
 
     get stackFrame () {

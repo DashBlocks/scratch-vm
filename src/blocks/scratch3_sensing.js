@@ -197,16 +197,19 @@ class Scratch3SensingBlocks {
     }
 
     alert (args) {
+        // eslint-disable-next-line no-alert
         return alert(args.MESSAGE);
     }
 
     prompt (args) {
+        // eslint-disable-next-line no-alert
         const answer = prompt(args.MESSAGE, args.VALUE);
         if (!answer) return '';
         return answer;
     }
 
     confirm (args) {
+        // eslint-disable-next-line no-alert
         return confirm(args.MESSAGE);
     }
 
@@ -282,8 +285,9 @@ class Scratch3SensingBlocks {
     getMouseXY (args, util) {
         const x = util.ioQuery('mouse', 'getScratchX');
         const y = util.ioQuery('mouse', 'getScratchY');
-        if (x === this._cachedMousePositionList[0] && y === this._cachedMousePositionList[1])
+        if (x === this._cachedMousePositionList[0] && y === this._cachedMousePositionList[1]) {
             return this._cachedMousePositionList;
+        }
         return (this._cachedMousePositionList = new NormalArray([x, y]));
     }
 

@@ -23,7 +23,6 @@ const ScratchLinkWebSocket = require('../util/scratch-link-websocket');
 const FontManager = require('./tw-font-manager');
 const fetchWithTimeout = require('../util/fetch-with-timeout');
 const platform = require('./tw-platform.js');
-const safeStringify = require('../util/tw-safe-stringify.js');
 const MonitorState = require('./tw-monitor-state.js');
 
 // Virtual I/O devices.
@@ -1198,7 +1197,7 @@ class Runtime extends EventEmitter {
      * @param {string} extensionId - the ID of the extension to remove
      * @private
      */
-    _removeExtensionPrimitive(extensionId) {
+    _removeExtensionPrimitive (extensionId) {
         const extIdx = this._blockInfo.findIndex(ext => ext.id === extensionId);
         const info = this._blockInfo[extIdx];
         this._blockInfo.splice(extIdx, 1);
@@ -1601,7 +1600,7 @@ class Runtime extends EventEmitter {
             if (
                 !blockInfo.disableMonitor &&
                 context.inputList.length === 0 &&
-                !Object.values(blockInfo.arguments || {}).some((arg) =>
+                !Object.values(blockInfo.arguments || {}).some(arg =>
                     [ArgumentType.BUTTON_EXPANDABLE_ADD, ArgumentType.BUTTON_EXPANDABLE_REMOVE].includes(arg.type))
             ) {
                 blockJSON.checkboxInFlyout = true;

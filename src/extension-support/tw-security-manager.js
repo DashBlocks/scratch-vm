@@ -170,7 +170,10 @@ class SecurityManager {
      * @returns {Promise<boolean>|boolean}
      */
     shouldUseLocal (referenceName) {
-        return Promise.resolve(!confirm(`It seems that the extension ${referenceName} has been updated, use the up-to-date code?`))
+        // eslint-disable-next-line no-alert
+        return Promise.resolve(!confirm(
+            `It seems that the extension ${referenceName} has been updated, use the up-to-date code?`
+        ));
     }
 }
 

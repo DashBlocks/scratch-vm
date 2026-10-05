@@ -72,7 +72,7 @@ class Scratch3EventBlocks {
         return util.target.isTouchingObject(args.TOUCHINGOBJECTMENU);
     }
 
-    when (args, util) {
+    when (args) {
         const condition = Cast.toBoolean(args.CONDITION);
         return condition;
     }
@@ -89,7 +89,7 @@ class Scratch3EventBlocks {
         return false;
     }
 
-    async open (args) {
+    open (args) {
         let parsed;
         try {
             parsed = new URL(args.OPEN_LINK, location.href);
@@ -101,33 +101,30 @@ class Scratch3EventBlocks {
         // eslint-disable-next-line no-script-url
         if (parsed.protocol === 'javascript:') return;
         switch (args.OPEN_OPTION) {
-            case 'new tab': {
-                return new Promise(async resolve => {
-                    if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
-                        // Use noreferrer to prevent new tab from accessing `window.opener`
-                        window.open(parsed.href, '_blank', 'noreferrer');
-                    }
-                    resolve();
-                });
-            }
-            case 'this tab': {
-                return new Promise(async resolve => {
-                    if (await this.runtime.extensionManager.vm.securityManager.canRedirect(parsed.href)) {
-                        // Use noreferrer to prevent new tab from accessing `window.opener`
-                        window.open(parsed.href, '_self', 'noreferrer');
-                    }
-                    resolve();
-                });
-            }
-            case 'new window': {
-                return new Promise(async resolve => {
-                    if (await this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href)) {
-                        // Use noreferrer to prevent new tab from accessing `window.opener`
-                        window.open(parsed.href, '_blank', 'noreferrer,menubar=no');
-                    }
-                    resolve();
-                });
-            }
+        case 'new tab': {
+            return this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href).then(canOpen => {
+                if (canOpen) {
+                    // Use noreferrer to prevent new tab from accessing `window.opener`
+                    window.open(parsed.href, '_blank', 'noreferrer');
+                }
+            });
+        }
+        case 'this tab': {
+            return this.runtime.extensionManager.vm.securityManager.canRedirect(parsed.href).then(canRedirect => {
+                if (canRedirect) {
+                    // Use noreferrer to prevent new tab from accessing `window.opener`
+                    window.open(parsed.href, '_self', 'noreferrer');
+                }
+            });
+        }
+        case 'new window': {
+            return this.runtime.extensionManager.vm.securityManager.canOpenWindow(parsed.href).then(canOpen => {
+                if (canOpen) {
+                    // Use noreferrer to prevent new tab from accessing `window.opener`
+                    window.open(parsed.href, '_blank', 'noreferrer,menubar=no');
+                }
+            });
+        }
         }
     }
 

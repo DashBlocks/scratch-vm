@@ -17,30 +17,30 @@ class ExampleDataType {
     }
 
     toMonitorContent () {
-        let el = document.createElement('span');
+        const el = document.createElement('span');
         el.textContent = this.value;
-        el.style.color = "#abffab";
+        el.style.color = '#abffab';
         return el;
     }
 
     toReporterContent () {
-        let el = document.createElement('span');
+        const el = document.createElement('span');
         el.textContent = `${this.value} (${this.value2})`;
-        el.style.color = "#0088ff";
+        el.style.color = '#0088ff';
         return el;
     }
 
     toReporterJSONItem () {
-        let el = document.createElement('span');
+        const el = document.createElement('span');
         el.textContent = this.value;
-        el.style.color = "#0088ff";
+        el.style.color = '#0088ff';
         return el;
     }
 
     toListItem () {
-        let el = document.createElement('span');
+        const el = document.createElement('span');
         el.textContent = this.value;
-        el.style.color = "#abffab";
+        el.style.color = '#abffab';
         return el;
     }
 
@@ -95,11 +95,13 @@ class DashCoreExample {
     getInfo () {
         return {
             id: 'coreExample',
-            name: 'Dash Core Example', // This string does not need to be translated as this extension is only used as an example.
+            // This example extension name is intentionally not translated.
+            name: 'Dash Core Example',
             blocks: [
                 {
                     blockType: BlockType.XML,
-                    xml: "<sep gap='6'/><label text='Warning: Don&apos;t use these blocks'/><sep gap='-12'/><label text='in real projects!'/><sep gap='24'/>",
+                    xml: "<sep gap='6'/><label text='Warning: Don&apos;t use these blocks'/>" +
+                        "<sep gap='-12'/><label text='in real projects!'/><sep gap='24'/>"
                 },
                 {
                     func: 'MAKE_A_VARIABLE',
@@ -173,7 +175,7 @@ class DashCoreExample {
                     blockType: BlockType.REPORTER,
                     text: 'sum in ExampleDataType [EXDATATYPE]'
                 },
-                "---",
+                '---',
                 {
                     opcode: 'exJoinExpandable',
                     blockType: BlockType.REPORTER,
@@ -188,7 +190,10 @@ class DashCoreExample {
                     },
                     hideFromPalette: true,
                     afterJsonInit: function (ScratchBlocks) {
-                        this.messageList = ['script ', 'block ', 'comment ', 'sprite ', 'costume ', 'backdrop ', 'sound ', 'font ', 'extension '];
+                        this.messageList = [
+                            'script ', 'block ', 'comment ', 'sprite ', 'costume ',
+                            'backdrop ', 'sound ', 'font ', 'extension '
+                        ];
                         this.inputs = 0;
                         
                         // if (!ScratchBlocks) return;
@@ -199,7 +204,7 @@ class DashCoreExample {
                             return container;
                         };
                         this.domToMutation = function (xmlElement) {
-                            const inputCount = Number(xmlElement.getAttribute("inputcount"));
+                            const inputCount = Number(xmlElement.getAttribute('inputcount'));
                             if (this.inputList.length > 1) {
                                 // This was a control Z action
                                 if (this.inputs_ > inputCount) {
@@ -226,7 +231,7 @@ class DashCoreExample {
                                 const number = this.inputs_;
                                 const newInput = this.appendValueInput(`INPUT${number}`);
                                 const text = this.messageList[number - 1];
-                                this.fillInBlock(newInput.connection, "text", text ? text : "... ", "TEXT");
+                                this.fillInBlock(newInput.connection, 'text', text ? text : '... ', 'TEXT');
                             } else if (this.inputs_ > 1) {
                                 this.removeInput(`INPUT${this.inputs_}`);
                                 this.inputs_--;
@@ -258,7 +263,7 @@ class DashCoreExample {
                             </shadow>
                         </value>
                     </block>
-                    `,
+                    `
                 }
             ]
         };
@@ -293,11 +298,11 @@ class DashCoreExample {
     }
 
     exOctagonalShape (args) {
-        return args.INPUT ?? "";
+        return args.INPUT ?? '';
     }
 
     exScrappedShape (args) {
-        return args.INPUT ?? "";
+        return args.INPUT ?? '';
     }
 
     exCustomDataType (args) {
@@ -315,7 +320,8 @@ class DashCoreExample {
 
     exJoinExpandable (args) {
         return ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT')
-            .map((value) => Cast.toString(value)).join('');
+            .map(value => Cast.toString(value))
+            .join('');
     }
 }
 

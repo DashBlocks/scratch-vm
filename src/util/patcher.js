@@ -9,14 +9,16 @@ class Patcher extends ExtensibleFunction {
 
         super(function patcherFunc (...args) {
             const patchesIds = Object.getOwnPropertySymbols(patcherFunc.patches);
+            // eslint-disable-next-line no-invalid-this
             const bindedOgFunc = patcherFunc.ogFunc.bind(this);
 
             return patchesIds.reduce((accFunc, patchId) => (
-                patcherFunc.enabledPatches[patchId]
-                    ? function (...args) {
-                          return patcherFunc.patches[patchId].call(this, accFunc.bind(this), ...args);
-                      }
-                    : accFunc
+                patcherFunc.enabledPatches[patchId] ?
+                    function (...patchArgs) {
+                        // eslint-disable-next-line no-invalid-this
+                        return patcherFunc.patches[patchId].call(this, accFunc.bind(this), ...patchArgs);
+                    } :
+                    accFunc
             ), bindedOgFunc)(...args);
         });
 

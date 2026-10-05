@@ -495,9 +495,7 @@ const serializeSound = function (sound) {
 //
 // To avoid this, we'll serialize those values into serialized wrapper or
 // convert to strings before saving them.
-const makeSafeForJSON = (runtime, value) => {
-    return runtime.typesSerializeManager.serialize(value);
-};
+const makeSafeForJSON = (runtime, value) => runtime.typesSerializeManager.serialize(value);
 
 /**
  * Serialize the given variables object.

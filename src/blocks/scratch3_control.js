@@ -148,10 +148,10 @@ class Scratch3ControlBlocks {
     ifElseExpandable (args, util) {
         const branchCount = Cast.toNumber(args.mutation.branches);
         const hasElse = Cast.toBoolean(args.mutation['ends-in-else']);
-        let conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
+        const conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
 
         for (let i = 1; i <= conditionBranchCount; i++) {
-            const boolName = 'BOOL' + i;
+            const boolName = `BOOL${i}`;
             const condition = Cast.toBoolean(args[boolName]);
             if (condition) {
                 util.startBranch(i, false);
@@ -164,7 +164,7 @@ class Scratch3ControlBlocks {
         }
     }
 
-    ifThenElse (args, util) {
+    ifThenElse (args) {
         const condition = Cast.toBoolean(args.CONDITION);
         return condition ? args.THEN : args.ELSE;
     }
@@ -224,7 +224,7 @@ class Scratch3ControlBlocks {
             // Set variable for clone target.
             if (variableArg) {
                 const variable = newClone.lookupOrCreateVariable(
-                    args.VARIABLE.id, args.VARIABLE.name);
+                    variableArg.id, variableArg.name);
                 variable.value = variableValue;
             }
         }
@@ -262,9 +262,9 @@ class Scratch3ControlBlocks {
             return target;
         } else if (option === '_stage_') {
             return this.runtime.getTargetForStage();
-        } else {
-            return this.runtime.getSpriteTargetByName(option);
         }
+        return this.runtime.getSpriteTargetByName(option);
+        
     }
 
     runAs (args, util) {

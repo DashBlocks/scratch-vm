@@ -310,9 +310,9 @@ class Scratch3SoundBlocks {
         const {soundId} = sprite.sounds[index];
         if (sprite.soundBank) {
             return sprite.soundBank.soundPlayers[soundId].isPlaying;
-        } else {
-            return false;
         }
+        return false;
+        
     }
 
     setEffect (args, util) {

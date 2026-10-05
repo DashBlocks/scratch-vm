@@ -303,8 +303,9 @@ class Scratch3MotionBlocks {
     getXY (args, util) {
         const x = this.limitPrecision(util.target.x);
         const y = this.limitPrecision(util.target.y);
-        if (x === this._cachedPositionList[0] && y === this._cachedPositionList[1])
+        if (x === this._cachedPositionList[0] && y === this._cachedPositionList[1]) {
             return this._cachedPositionList;
+        }
         return (this._cachedPositionList = new NormalArray([x, y]));
     }
 

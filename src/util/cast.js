@@ -1,5 +1,5 @@
 const Color = require('./color');
-let NormalArray, NormalObject;
+let NormalArray; let NormalObject;
 
 /**
  * @fileoverview
@@ -102,11 +102,13 @@ class Cast {
             return String(value);
         }
         // Stringify JSON values
-        if (typeof value === 'object') {
-            return JSON.stringify(value, (key, value) => {
-                if (Cast.isCustomType(value)) return String(value);
-                if (Cast.isNormalObject(value)) return Object.fromEntries(value.entries().toArray());
-                return value;
+        if (Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
+            return JSON.stringify(value, (key, serializedValue) => {
+                if (Cast.isCustomType(serializedValue)) return String(serializedValue);
+                if (Cast.isNormalObject(serializedValue)) {
+                    return Object.fromEntries(serializedValue.entries().toArray());
+                }
+                return serializedValue;
             });
         }
         // Coerce other values
@@ -129,10 +131,12 @@ class Cast {
         }
         try {
             // Try to parse
-            const result = JSON.parse(value, (key, value) => {
-                if (Array.isArray(value)) return new NormalArray(value);
-                if (typeof value === 'object' && value instanceof Object) return new NormalObject(Object.entries(value));
-                return value;
+            const result = JSON.parse(value, (key, parsedValue) => {
+                if (Array.isArray(parsedValue)) return new NormalArray(parsedValue);
+                if (typeof parsedValue === 'object' && parsedValue instanceof Object) {
+                    return new NormalObject(Object.entries(parsedValue));
+                }
+                return parsedValue;
             });
             return Cast.isNormalArray(result) ? result : new NormalArray();
         } catch {
@@ -156,12 +160,14 @@ class Cast {
         }
         try {
             // Try to parse
-            const result = JSON.parse(value, (key, value) => {
-                if (Array.isArray(value)) return new NormalArray(value);
-                if (typeof value === 'object' && value instanceof Object) return new NormalObject(Object.entries(value));
-                return value;
+            const result = JSON.parse(value, (key, parsedValue) => {
+                if (Array.isArray(parsedValue)) return new NormalArray(parsedValue);
+                if (typeof parsedValue === 'object' && parsedValue instanceof Object) {
+                    return new NormalObject(Object.entries(parsedValue));
+                }
+                return parsedValue;
             });
-            return typeof Cast.isNormalObject(result) ? result : new NormalObject();
+            return Cast.isNormalObject(result) ? result : new NormalObject();
         } catch {
             return new NormalObject();
         }
@@ -184,14 +190,16 @@ class Cast {
         }
         try {
             // Try to parse
-            const result = JSON.parse(value, (key, value) => {
-                if (Array.isArray(value)) return new NormalArray(value);
-                if (typeof value === 'object' && value instanceof Object) return new NormalObject(Object.entries(value));
-                return value;
+            const result = JSON.parse(value, (key, parsedValue) => {
+                if (Array.isArray(parsedValue)) return new NormalArray(parsedValue);
+                if (typeof parsedValue === 'object' && parsedValue instanceof Object) {
+                    return new NormalObject(Object.entries(parsedValue));
+                }
+                return parsedValue;
             });
-            return Cast.isNormalArray(value) || Cast.isNormalObject(value)
-                ? result
-                : arrayIfFail ? new NormalArray() : new NormalObject();
+            return Cast.isNormalArray(result) || Cast.isNormalObject(result) ?
+                result :
+                arrayIfFail ? new NormalArray() : new NormalObject();
         } catch {
             return arrayIfFail ? new NormalArray() : new NormalObject();
         }

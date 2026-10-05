@@ -32,13 +32,17 @@ const defaultBuiltinExtensions = {
     tw: () => require('../extensions/tw')
 };
 
-// Compute SHA hash of a string (taken from StackOverflow)
-async function sha256 (source) {
+/**
+ * Compute the SHA hash of a string.
+ * @param {string} source Source text to hash.
+ * @returns {Promise<string>} Hex-encoded SHA-256 hash.
+ */
+const sha256 = async function (source) {
     const sourceBytes = new TextEncoder().encode(source);
-    const digest = await crypto.subtle.digest("SHA-256", sourceBytes);
+    const digest = await crypto.subtle.digest('SHA-256', sourceBytes);
     const resultBytes = [...new Uint8Array(digest)];
-    return resultBytes.map(x => x.toString(16).padStart(2, '0')).join("");
-}
+    return resultBytes.map(x => x.toString(16).padStart(2, '0')).join('');
+};
 
 /**
  * @typedef {object} ArgumentInfo - Information about an extension block argument
@@ -285,11 +289,12 @@ class ExtensionManager {
             }
         }
 
-        if (extensionURL.startsWith('https://dashblocks.github.io/'))
+        if (extensionURL.startsWith('https://dashblocks.github.io/')) {
             extensionURL = extensionURL.replace(
                 'https://dashblocks.github.io/',
                 'https://dashblocks.org/'
             );
+        }
 
         const sandboxMode = await this.securityManager.getSandboxMode(extensionURL);
         const rewritten = await this.securityManager.rewriteExtensionURL(extensionURL);
@@ -300,14 +305,17 @@ class ExtensionManager {
             reader.onload = async ({target: {result}}) => {
                 this.extensionsURLCodes[extensionURL] = result;
                 resolve(await sha256(result));
-            }
+            };
             reader.onerror = error => {
                 console.error('Couldn\'t read the contents of url', extensionURL, error);
-            }
+            };
             reader.readAsText(blob);
         });
         this.extensionsHashes[extensionURL] = newHash;
-        if (oldHash && oldHash !== newHash && this.securityManager.shouldUseLocal(extensionURL)) return Promise.reject('useLocal'); 
+        if (oldHash && oldHash !== newHash &&
+            await this.securityManager.shouldUseLocal(extensionURL)) {
+            throw new Error('useLocal');
+        }
 
         if (sandboxMode === 'unsandboxed') {
             const {load} = require('./tw-unsandboxed-extension-runner');
@@ -381,7 +389,7 @@ class ExtensionManager {
      * @returns {Promise} resolved once all the extensions have been reinitialized
      */
     refreshBlocks (optExtensionId) {
-        const refresh_service = service =>
+        const refreshService = service =>
             dispatch.call(service, 'getInfo')
                 .then(info => {
                     info = this._prepareExtensionInfo(service, info);
@@ -392,14 +400,14 @@ class ExtensionManager {
                 });
 
         if (!optExtensionId) {
-            const all_services = Array.from(this._loadedExtensions.values()).map(refresh_service);
-            return Promise.all(all_services);
+            const allServices = Array.from(this._loadedExtensions.values()).map(refreshService);
+            return Promise.all(allServices);
         }
         if (!this._loadedExtensions.has(optExtensionId)) {
             return Promise.reject(new Error(`Unknown extension: ${optExtensionId}`));
         }
 
-        return refresh_service(this._loadedExtensions.get(optExtensionId));
+        return refreshService(this._loadedExtensions.get(optExtensionId));
     }
 
     allocateWorker () {
@@ -721,8 +729,9 @@ class ExtensionManager {
         const serviceProvider = dispatch._getServiceProvider(serviceName);
         if (serviceProvider) {
             const {provider, isRemote} = serviceProvider;
-            if (isRemote || typeof provider.dispose === 'function') 
+            if (isRemote || typeof provider.dispose === 'function') {
                 dispatch.call(serviceName, 'dispose');
+            }
         }
         delete dispatch.services[serviceName];
         delete this.runtime[`ext_${id}`];
@@ -742,8 +751,9 @@ class ExtensionManager {
         const serviceProvider = dispatch._getServiceProvider(serviceName);
         if (serviceProvider) {
             const {provider, isRemote} = serviceProvider;
-            if (isRemote || typeof provider.dispose === 'function') 
+            if (isRemote || typeof provider.dispose === 'function') {
                 dispatch.call(serviceName, 'dispose');
+            }
         }
         delete dispatch.services[serviceName];
         delete this.runtime[`ext_${extensionId}`];
@@ -790,8 +800,9 @@ class ExtensionManager {
         const all = [...this._loadedExtensions.keys()];
         const used = this.findUsedExtensions();
         const unused = all.filter(ext => !used.includes(ext));
-        for (const toRemove of unused)
+        for (const toRemove of unused) {
             this.removeExtension(toRemove);
+        }
     }
 
     /**
@@ -800,8 +811,8 @@ class ExtensionManager {
      * @returns {string|undefined} - the URL of the extension, or undefined if not found
      */
     extensionURLFromId (extensionId) {
-        for (const [extensionId, serviceName] of this._loadedExtensions.entries()) {
-            if (extensionId !== extensionId) continue;
+        for (const [loadedExtensionId, serviceName] of this._loadedExtensions.entries()) {
+            if (loadedExtensionId !== extensionId) continue;
             // Service names for extension workers are in the format "extension.WORKER_ID.EXTENSION_ID"
             const workerId = +serviceName.split('.')[1];
             return this.workerURLs[workerId];

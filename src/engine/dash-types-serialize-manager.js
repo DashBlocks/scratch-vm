@@ -34,10 +34,10 @@ const fn4serializedWrapper = value => serialized => {
             customType: false,
             serialized
         };
-    } else {
-        return String(value);
     }
-}
+    return String(value);
+    
+};
 
 class TypesSerializeManager {
     /**
@@ -49,37 +49,37 @@ class TypesSerializeManager {
          * @type {Record<string, {serialize: Function, deserialize: Function}>}
          */
         this._serializers = {
-            // Not actual a serializer of custom type, but it needed for serializing/deserializing Array/NormalArray/NormalObject.
+            // This handles Array, NormalArray, and NormalObject serialization.
             json_json: {
                 serialize: function* (obj) {
                     if (Array.isArray(obj)) {
                         const result = [];
-                        for (let item of obj) {
+                        for (const item of obj) {
                             result.push(yield item);
                         }
                         return result;
-                    } else {
-                        const result = {};
-                        for (let [key, value] of obj) {
-                            result[key] = yield value;
-                        }
-                        return result;
                     }
+                    const result = {};
+                    for (const [key, value] of obj) {
+                        result[key] = yield value;
+                    }
+                    return result;
+                    
                 },
                 deserialize: function* (serialized) {
                     if (Array.isArray(serialized)) {
                         const result = new NormalArray();
-                        for (let item of serialized) {
+                        for (const item of serialized) {
                             result.push(yield item);
                         }
                         return result;
-                    } else {
-                        const result = new NormalObject();
-                        for (let key in serialized) {
-                            result.set(key, yield serialized[key]);
-                        }
-                        return result;
                     }
+                    const result = new NormalObject();
+                    for (const key in serialized) {
+                        result.set(key, yield serialized[key]);
+                    }
+                    return result;
+                    
                 }
             }
         };
@@ -96,9 +96,10 @@ class TypesSerializeManager {
             //   serialization of the value is required.
             if (!goToPrevAction) {
                 if (Cast.isCustomType(value)) {
-                    // If value is a custom type, then check for a serializer and make action with serializer of this type.
-                    if (!(value.customId in this._serializers))
+                    // Find a serializer for custom types.
+                    if (!(value.customId in this._serializers)) {
                         throw new Error(`Unknown serializer of custom type with id: ${value.customId}`);
+                    }
                     actions.unshift([
                         this._serializers[value.customId].serialize(value),
                         fn4serializedWrapper(value)
@@ -109,13 +110,13 @@ class TypesSerializeManager {
                         this._serializers.json_json.serialize(value),
                         fn4serializedWrapper(value)
                     ]);
-                } else if (!isValueSafeForJSON(value)) {
-                    // If value is unsafe for JSON, then convert it to string and go to previous action.
-                    value = String(value);
+                } else if (isValueSafeForJSON(value)) {
+                    // Is a safe value for JSON, just go to previous action.
                     goToPrevAction = true;
                     continue;
                 } else {
-                    // Is a safe value for JSON, just go to previous action.
+                    // Convert unsafe values to strings before continuing.
+                    value = String(value);
                     goToPrevAction = true;
                     continue;
                 }
@@ -142,7 +143,7 @@ class TypesSerializeManager {
                 goToPrevAction = true;
                 actions.splice(0, 1);
             }
-        } while (actions.length > 0)
+        } while (actions.length > 0);
         return value;
     }
 
@@ -156,7 +157,7 @@ class TypesSerializeManager {
             // * The first iteration of this loop is in progress and
             //   deserialization of the value is required.
             if (!goToPrevAction) {
-                if (!(typeof value === "object" && value instanceof Object)) {
+                if (!(typeof value === 'object' && value instanceof Object)) {
                     // If value is a string, number or boolean, just go to previous action.
                     goToPrevAction = true;
                     continue;
@@ -202,7 +203,7 @@ class TypesSerializeManager {
                 goToPrevAction = true;
                 actions.splice(0, 1);
             }
-        } while (actions.length > 0)
+        } while (actions.length > 0);
         return value;
     }
 

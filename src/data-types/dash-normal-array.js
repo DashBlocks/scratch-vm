@@ -15,11 +15,11 @@ class NormalArray extends Array {
             super();
         } else if (Array.isArray(value)) {
             // Convert any array to NormalArray
-            if (value.length !== 1) {
-                super(...value);
-            } else {
+            if (value.length === 1) {
                 super();
                 this[0] = value[0];
+            } else {
+                super(...value);
             }
         } else {
             // Otherwise, create empty NormalArray

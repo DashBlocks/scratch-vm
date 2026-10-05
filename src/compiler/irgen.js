@@ -324,9 +324,9 @@ class ScriptTreeGenerator {
         case 'json_assign': {
             const inputs = [];
             for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
+                if (input.block === null || typeof input.block === 'undefined') {
                     delete block.inputs[input.name];
-                } else if (input.name != 'MAIN') {
+                } else if (input.name !== 'MAIN') {
                     inputs.push(this.descendInputOfBlock(block, input.name));
                 }
             }
@@ -382,7 +382,7 @@ class ScriptTreeGenerator {
         case 'json_array_expandable': {
             const inputs = [];
             for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
+                if (input.block === null || typeof input.block === 'undefined') {
                     delete block.inputs[input.name];
                 } else {
                     inputs.push(this.descendInputOfBlock(block, input.name));
@@ -391,7 +391,7 @@ class ScriptTreeGenerator {
             return new IntermediateInput(InputOpcode.JSON_ARRAY_EXPANDABLE, InputType.ARRAY, {inputs});
         }
         case 'jon_array_includes':
-            return new IntermediateInput(InputOpcode.JSON_ARRAY_INCLUDES, InputType.ARRAY)
+            return new IntermediateInput(InputOpcode.JSON_ARRAY_INCLUDES, InputType.ARRAY);
         case 'json_object_empty':
             return new IntermediateInput(InputOpcode.JSON_OBJECT_EMPTY, InputType.OBJECT);
         case 'json_object_split':
@@ -497,7 +497,7 @@ class ScriptTreeGenerator {
             const inputs = [];
             let i = 0;
             for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
+                if (input.block === null || typeof input.block === 'undefined') {
                     delete block.inputs[input.name];
                 } else {
                     if (i > 0) inputs.push(menuValues[i - 1]);
@@ -530,7 +530,7 @@ class ScriptTreeGenerator {
         case 'operator_joinexpandable': {
             const inputs = [];
             for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
+                if (input.block === null || typeof input.block === 'undefined') {
                     delete block.inputs[input.name];
                 } else {
                     inputs.push(this.descendInputOfBlock(block, input.name).toType(InputType.STRING));
@@ -588,7 +588,7 @@ class ScriptTreeGenerator {
             const inputs = [];
             let i = 0;
             for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
+                if (input.block === null || typeof input.block === 'undefined') {
                     delete block.inputs[input.name];
                 } else {
                     if (i > 0) inputs.push(menuValues[i - 1]);
@@ -606,7 +606,7 @@ class ScriptTreeGenerator {
             const menuValues = Cast.toList(block.mutation.menuvalues);
             const inputs = [];
             for (const input of Object.values(block.inputs)) {
-                if (input.block == null) {
+                if (input.block === null || typeof input.block === 'undefined') {
                     delete block.inputs[input.name];
                 } else {
                     inputs.push(this.descendInputOfBlock(block, input.name));
@@ -887,14 +887,15 @@ class ScriptTreeGenerator {
                 if (blockInfo) {
                     const type = blockInfo.info.blockType;
                     if (
-                        type === BlockType.REPORTER ||type === BlockType.BOOLEAN ||
+                        type === BlockType.REPORTER || type === BlockType.BOOLEAN ||
                         type === BlockType.ARRAY || type === BlockType.OBJECT
                     ) {
                         const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                        // eslint-disable-next-line no-use-before-define
                         const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
                         if (!irFunc) return this.descendCompatLayerInput(block);
                         try {
-                            const [type, inputs, yields] = irFunc.call(this, block, {
+                            const [returnType, inputs, yields] = irFunc.call(this, block, {
                                 IntermediateInput,
                                 IntermediateStackBlock,
                                 IntermediateStack,
@@ -906,7 +907,7 @@ class ScriptTreeGenerator {
                             });
                             return new IntermediateInput(
                                 InputOpcode.COMPILED_EXT_PRIMITIVE,
-                                type in InputType ? type : InputType.ANY,
+                                returnType in InputType ? returnType : InputType.ANY,
                                 {category, opcode, inputs: inputs ?? {}},
                                 yields ?? false
                             );
@@ -987,7 +988,7 @@ class ScriptTreeGenerator {
             const branchCount = Cast.toNumber(block.mutation.branches);
             const hasElse = block.mutation['ends-in-else'] === 'true';
             const branches = [];
-            let conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
+            const conditionBranchCount = hasElse ? branchCount - 1 : branchCount;
             for (let i = 1; i <= conditionBranchCount; i++) {
                 const condition = this.descendInputOfBlock(block, `BOOL${i}`).toType(InputType.BOOLEAN);
                 const substack = this.descendSubstack(block, `SUBSTACK${i}`);
@@ -1367,6 +1368,7 @@ class ScriptTreeGenerator {
                     const type = blockInfo.info.blockType;
                     if (type === BlockType.COMMAND || type === BlockType.CONDITIONAL || type === BlockType.LOOP) {
                         const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                        // eslint-disable-next-line no-use-before-define
                         const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
                         if (!irFunc) return this.descendCompatLayerStack(block);
                         try {
@@ -1680,7 +1682,7 @@ class ScriptTreeGenerator {
         const inputs = {};
         const fields = {};
         for (const name of Object.keys(block.inputs)) {
-            if (block.inputs[name].block == null) {
+            if (block.inputs[name].block === null || typeof block.inputs[name].block === 'undefined') {
                 delete block.inputs[name];
             } else {
                 inputs[name] = this.descendInputOfBlock(block, name, true);
@@ -1707,7 +1709,8 @@ class ScriptTreeGenerator {
         const inputs = {};
         for (const name of Object.keys(block.inputs)) {
             if (!name.startsWith('SUBSTACK')) {
-                if (block.inputs[name].block == null) {
+                if (block.inputs[name].block === null ||
+                    typeof block.inputs[name].block === 'undefined') {
                     delete block.inputs[name];
                 } else {
                     inputs[name] = this.descendInputOfBlock(block, name, true);

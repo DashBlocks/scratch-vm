@@ -72,7 +72,7 @@ class Scratch3OperatorsBlocks {
 
     mathExpandable (args) {
         const numbers = ExpandableBlocksUtil.getArgsStartedWith(args, 'NUM')
-            .map((value) => Cast.toNumber(value));
+            .map(value => Cast.toNumber(value));
         const menuValues = Cast.toList(args.mutation.menuvalues);
         
         let idxOfOp;
@@ -82,17 +82,17 @@ class Scratch3OperatorsBlocks {
         }
         while ((idxOfOp = Math.min(menuValues.indexOf('*'), menuValues.indexOf('/'))) !== 1) {
             numbers.splice(idxOfOp, 2, Cast.toNumber(
-                menuValues[idxOfOp] === '*'
-                    ? numbers[idxOfOp] * numbers[idxOfOp + 1]
-                    : numbers[idxOfOp] / numbers[idxOfOp + 1]
+                menuValues[idxOfOp] === '*' ?
+                    numbers[idxOfOp] * numbers[idxOfOp + 1] :
+                    numbers[idxOfOp] / numbers[idxOfOp + 1]
             ));
             menuValues.splice(idxOfOp, 1);
         }
         while ((idxOfOp = Math.min(menuValues.indexOf('+'), menuValues.indexOf('-'))) !== 1) {
             numbers.splice(idxOfOp, 2, Cast.toNumber(
-                menuValues[idxOfOp] === '+'
-                    ? numbers[idxOfOp] + numbers[idxOfOp + 1]
-                    : numbers[idxOfOp] - numbers[idxOfOp + 1]
+                menuValues[idxOfOp] === '+' ?
+                    numbers[idxOfOp] + numbers[idxOfOp + 1] :
+                    numbers[idxOfOp] - numbers[idxOfOp + 1]
             ));
             menuValues.splice(idxOfOp, 1);
         }
@@ -140,7 +140,7 @@ class Scratch3OperatorsBlocks {
 
     conditionsComparatorExpandable (args) {
         const bools = ExpandableBlocksUtil.getArgsStartedWith(args, 'BOOL')
-            .map((value) => Cast.toBoolean(value));
+            .map(value => Cast.toBoolean(value));
         const menuValues = Cast.toList(args.mutation.menuvalues);
 
         let idxOfOp;
@@ -182,11 +182,12 @@ class Scratch3OperatorsBlocks {
 
     joinExpandable (args) {
         return ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT')
-            .map((value) => Cast.toString(value)).join('');
+            .map(value => Cast.toString(value))
+            .join('');
     }
 
     newline () {
-        return "\n";
+        return '\n';
     }
 
     letterOf (args) {
@@ -214,10 +215,10 @@ class Scratch3OperatorsBlocks {
         const value1 = Cast.toString(args.VALUE1);
         const value2 = Cast.toString(args.VALUE2);
         switch (args.TYPE) {
-            case 'starts':
-                return value1.startsWith(value2);
-            case 'ends':
-                return value1.endsWith(value2);
+        case 'starts':
+            return value1.startsWith(value2);
+        case 'ends':
+            return value1.endsWith(value2);
         }
     }
 
@@ -226,7 +227,8 @@ class Scratch3OperatorsBlocks {
         if (value === null) return 'null';
         if (Cast.isNormalArray(value)) return 'array';
         if (Cast.isCustomType(value)) {
-            return new NormalObject().set("customType", true).set("typeId", value.customId);
+            return new NormalObject().set('customType', true)
+                .set('typeId', value.customId);
         }
         return typeof value;
     }
@@ -234,40 +236,41 @@ class Scratch3OperatorsBlocks {
     isType (args) {
         const value = args.VALUE;
         switch (args.TYPE) {
-            case 'string': {
-                const number = Cast.toNumber(value);
-                const string = Cast.toString(value);
-                if (typeof value == 'string' && number == 0 && (value != '0' && value != '-0')) {
-                    if (Cast.isWhiteSpace(string)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            case 'number': {
-                if (typeof value == 'number') return true;
-                const number = Cast.toNumber(value);
-                if (number == 0 && (value != '0' && value != '-0')) {
+        case 'string': {
+            const number = Cast.toNumber(value);
+            const string = Cast.toString(value);
+            if (typeof value === 'string' && number === 0 && (value !== '0' && value !== '-0')) {
+                if (Cast.isWhiteSpace(string)) {
                     return false;
                 }
                 return true;
+                    
             }
-            case 'boolean': {
-                if (typeof value == 'boolean') return true;
-                const lowerCase = Cast.toString(value).toLowerCase()
-                if ((lowerCase == 'true' || lowerCase == 'false') || (lowerCase == '0' || lowerCase == '1')) return true;
+            return false;
+        }
+        case 'number': {
+            if (typeof value === 'number') return true;
+            const number = Cast.toNumber(value);
+            if (number === 0 && (value !== '0' && value !== '-0')) {
                 return false;
             }
-            case 'array':
-                return Cast.isNormalArray(value);
-            case 'object':
-                return Cast.isNormalObject(value);
-            case 'custom type':
-                return Cast.isCustomType(value);
-            default:
-                return false;
+            return true;
+        }
+        case 'boolean': {
+            if (typeof value === 'boolean') return true;
+            const lowerCase = Cast.toString(value).toLowerCase();
+            if ((lowerCase === 'true' || lowerCase === 'false') ||
+                (lowerCase === '0' || lowerCase === '1')) return true;
+            return false;
+        }
+        case 'array':
+            return Cast.isNormalArray(value);
+        case 'object':
+            return Cast.isNormalObject(value);
+        case 'custom type':
+            return Cast.isCustomType(value);
+        default:
+            return false;
         }
     }
     isString (args) {
@@ -280,28 +283,28 @@ class Scratch3OperatorsBlocks {
     cast (args) {
         const value = args.VALUE;
         switch (args.TYPE) {
-            case 'string':
-                return Cast.toString(value);
-            case 'number':
-                return Cast.toNumber(value);
-            case 'boolean':
-                return Cast.toBoolean(value);
-            case 'array':
-                return Cast.toList(value);
-            case 'object':
-                return Cast.toObject(value);
-            default:
-                return value;
+        case 'string':
+            return Cast.toString(value);
+        case 'number':
+            return Cast.toNumber(value);
+        case 'boolean':
+            return Cast.toBoolean(value);
+        case 'array':
+            return Cast.toList(value);
+        case 'object':
+            return Cast.toObject(value);
+        default:
+            return value;
         }
     }
 
     toCase (args) {
         const value = Cast.toString(args.VALUE);
         switch (args.CASE) {
-            case 'upper':
-                return value.toUpperCase();
-            case 'lower':
-                return value.toLowerCase();
+        case 'upper':
+            return value.toUpperCase();
+        case 'lower':
+            return value.toLowerCase();
         }
     }
 

@@ -34,18 +34,16 @@ const generateAllow = () => Object.entries(featurePolicy)
     .join('; ');
 
 const createFrame = () => {
-    const element = document.createElement("iframe");
+    const element = document.createElement('iframe');
     const frameId = generateQuadUid(); // This is how we differentiate iframe messages from other messages
     element.dataset.id = frameId;
-    element.style.display = "none";
+    element.style.display = 'none';
     element.setAttribute('aria-hidden', 'true');
     element.sandbox = 'allow-scripts allow-modals';
     element.allow = generateAllow();
     document.body.append(element);
     return element;
 };
-
-const origin = window.origin;
 
 /**
  * Handles messages from event
@@ -76,19 +74,19 @@ const messageHandler = (event, iframe, removeHandler) => new Promise(resolve => 
  * @param {string} code The code to execute
  * @returns {string} The code that can be placed into the eval in the iframe src
  */
-const prepareCodeForEval = (code) => {
+const prepareCodeForEval = code => {
     const escaped = JSON.stringify(code);
     // When the html encounters a closing script tag, it'll end the script
     // so just put a backslash before it and it should be fine
-    const scriptEscaped = escaped.replaceAll('<\/script>', '<\\/script>');
+    const scriptEscaped = escaped.replaceAll('</script>', '<\\/script>');
     return scriptEscaped;
-}
+};
 
 /**
  * Generates source of iframe
  * @param {string} code - The code to execute
  * @param {object} frame - The iframe to generate source in
- * @returns 
+ * @returns
  */
 const generateEvaluateSrc = (code, frame) => {
     const runnerCode = `
@@ -153,16 +151,16 @@ const generateEvaluateSrc = (code, frame) => {
         '</script>',
         '</body>',
         '</html>'
-    ].join("\n");
+    ].join('\n');
 
-    const blob = new Blob([html], { type: 'text/html;charset=UTF-8' });
+    const blob = new Blob([html], {type: 'text/html;charset=UTF-8'});
     const url = URL.createObjectURL(blob);
 
     return url;
 };
 
 class SandboxRunner {
-    static execute(code) {
+    static execute (code) {
         return new Promise(resolve => {
             const frame = createFrame();
             /**

@@ -5,19 +5,17 @@ const Cast = require('../util/cast');
  * NormalObject class that extends Map and used in projects instead of JS Object.
  */
 
-const prepareEntryArray = entryArray => {
-    return entryArray.reduce(
-        (acc, entry) => {
-            if (acc.error) return acc;
-            if (!Array.isArray(entry) || entry.length < 2) return {result: [], error: true};
-            return {
-                result: [...acc.result, [Cast.toString(entry[0]), entry[1]]],
-                error: false
-            };
-        },
-        {result: [], error: false}
-    ).result;
-};
+const prepareEntryArray = entryArray => entryArray.reduce(
+    (acc, entry) => {
+        if (acc.error) return acc;
+        if (!Array.isArray(entry) || entry.length < 2) return {result: [], error: true};
+        return {
+            result: [...acc.result, [Cast.toString(entry[0]), entry[1]]],
+            error: false
+        };
+    },
+    {result: [], error: false}
+).result;
 
 class NormalObject extends Map {
     /**
@@ -52,40 +50,42 @@ class NormalObject extends Map {
         let currentSpan = document.createElement('span');
         content.append(currentSpan);
         
-        this.entries().toArray().slice(0, maxShownItems).forEach(([key, value], i, array) => {
-            if (i === 0) {
-                currentSpan.textContent += '{';
-            }
-            currentSpan.textContent += `${JSON.stringify(key)}: `;
-        
-            if (Cast.isCustomType(value) || Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
-                if (typeof value.toReporterJSONItem === 'function') {
-                    content.append(value.toReporterJSONItem());
-                } else {
-                    const add = document.createElement('i');
-                    add.textContent = `*custom type*`;
-                    content.append(add);
+        this.entries().toArray()
+            .slice(0, maxShownItems)
+            .forEach(([key, value], i, array) => {
+                if (i === 0) {
+                    currentSpan.textContent += '{';
                 }
-                currentSpan = document.createElement('span');
-                content.append(currentSpan);
-            } else {
-                currentSpan.textContent += JSON.stringify(value);
-            }
+                currentSpan.textContent += `${JSON.stringify(key)}: `;
         
-            if (i === array.length - 1) {
-                if (more > 0) {
-                    currentSpan.textContent += ', ';
-                    const add = document.createElement('i');
-                    add.textContent = `*${more} more items*`;
-                    content.append(add);
+                if (Cast.isCustomType(value) || Cast.isNormalArray(value) || Cast.isNormalObject(value)) {
+                    if (typeof value.toReporterJSONItem === 'function') {
+                        content.append(value.toReporterJSONItem());
+                    } else {
+                        const add = document.createElement('i');
+                        add.textContent = `*custom type*`;
+                        content.append(add);
+                    }
                     currentSpan = document.createElement('span');
                     content.append(currentSpan);
+                } else {
+                    currentSpan.textContent += JSON.stringify(value);
                 }
-                currentSpan.textContent += '}';
-            } else {
-                currentSpan.textContent += ', ';
-            }
-        });
+        
+                if (i === array.length - 1) {
+                    if (more > 0) {
+                        currentSpan.textContent += ', ';
+                        const add = document.createElement('i');
+                        add.textContent = `*${more} more items*`;
+                        content.append(add);
+                        currentSpan = document.createElement('span');
+                        content.append(currentSpan);
+                    }
+                    currentSpan.textContent += '}';
+                } else {
+                    currentSpan.textContent += ', ';
+                }
+            });
         return content;
     }
 

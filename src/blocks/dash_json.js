@@ -71,7 +71,8 @@ class DashJSONBlocks {
     contains (args) {
         const json = Cast.toJSON(args.JSON, true);
         const item = args.VALUE;
-        return Array.isArray(json) ? json.includes(item) : json.values().toArray().includes(item);
+        return Array.isArray(json) ? json.includes(item) : json.values().toArray()
+            .includes(item);
     }
 
     length (args) {
@@ -84,25 +85,25 @@ class DashJSONBlocks {
         const json = Cast.toJSON(args.VALUE, true);
         let pathExist = true;
         const result = path.reduce((acc, key) => {
-            if (!pathExist) return;
+            if (!pathExist) return acc;
             if (Cast.isNormalArray(acc)) {
                 key = Cast.toListIndex(key, acc.length, false);
                 if (key === Cast.LIST_INVALID) {
                     pathExist = false;
-                    return;
+                    return acc;
                 }
                 return acc[key - 1];
             } else if (Cast.isNormalObject(acc)) {
                 key = Cast.toString(key);
                 if (!acc.has(key)) {
                     pathExist = false;
-                    return;
+                    return acc;
                 }
                 return acc.get(key);
-            } else {
-                pathExist = false;
-                return;
             }
+            pathExist = false;
+            return acc;
+            
         }, json);
         return pathExist ? result : '';
     }
@@ -110,42 +111,46 @@ class DashJSONBlocks {
     setByPath (args) {
         const path = Cast.toList(args.PATH);
         const json = Cast.toJSON(args.VALUE, true);
-        let newJson = Array.isArray(json) ? new NormalArray(json) : new NormalObject(json);
+        const newJson = Array.isArray(json) ? new NormalArray(json) : new NormalObject(json);
         let pathExist = true;
         const result = path.reduce(([full, part], key, i) => {
-            if (!pathExist) return;
+            if (!pathExist) return [full, part];
             if (Cast.isNormalArray(part)) {
                 key = Cast.toListIndex(key, part.length, false);
                 if (key === Cast.LIST_INVALID) {
                     pathExist = false;
-                    return;
+                    return [full, part];
                 }
-                if (i < path.length - 1 && !Cast.isNormalArray(part[key - 1]) && !Cast.isNormalObject(part[key - 1])) {
+                if (i < path.length - 1 && !Cast.isNormalArray(part[key - 1]) &&
+                    !Cast.isNormalObject(part[key - 1])) {
                     pathExist = false;
-                    return;
+                    return [full, part];
                 }
-                part[key - 1] = i < path.length - 1
-                    ? Cast.isNormalArray(part[key - 1]) ? new NormalArray(part[key - 1]) : new NormalObject(part[key - 1])
-                    : args.ITEM;
+                const child = part[key - 1];
+                part[key - 1] = i < path.length - 1 ?
+                    Cast.isNormalArray(child) ? new NormalArray(child) : new NormalObject(child) :
+                    args.ITEM;
                 return [full, part[key - 1]];
-            } else if (Cast.isNormalObject(acc)) {
+            } else if (Cast.isNormalObject(part)) {
                 key = Cast.toString(key);
                 if (!part.has(key)) {
                     pathExist = false;
-                    return;
+                    return [full, part];
                 }
-                if (i < path.length - 1 && !Cast.isNormalArray(part.get(key)) && !Cast.isNormalObject(part.get(key))) {
+                if (i < path.length - 1 && !Cast.isNormalArray(part.get(key)) &&
+                    !Cast.isNormalObject(part.get(key))) {
                     pathExist = false;
-                    return;
+                    return [full, part];
                 }
-                part.set(key, i < path.length - 1
-                    ? Cast.isNormalArray(part.get(key)) ? new NormalArray(part.get(key)) : new NormalObject(part.get(key))
-                    : args.ITEM);
+                const child = part.get(key);
+                part.set(key, i < path.length - 1 ?
+                    Cast.isNormalArray(child) ? new NormalArray(child) : new NormalObject(child) :
+                    args.ITEM);
                 return [full, part.get(key)];
-            } else {
-                pathExist = false;
-                return;
             }
+            pathExist = false;
+            return [full, part];
+            
         }, [newJson, newJson]);
         return pathExist ? result[0] : json;
     }
@@ -163,10 +168,10 @@ class DashJSONBlocks {
         const main = Cast.toJSON(args.MAIN, true);
         const inputs = ExpandableBlocksUtil.getArgsStartedWith(args, 'INPUT');
         if (Array.isArray(main)) {
-            return main.concat(...inputs.map((value) => Cast.toList(value)));
-        } else {
-            return inputs.reduce((acc, value) => acc.assign(Cast.toJSON(value, true)), new NormalObject(main));
+            return main.concat(...inputs.map(value => Cast.toList(value)));
         }
+        return inputs.reduce((acc, value) => acc.assign(Cast.toJSON(value, true)), new NormalObject(main));
+        
     }
 
     arrayAddFront (args) {
@@ -215,7 +220,8 @@ class DashJSONBlocks {
         if (index === Cast.LIST_INVALID) {
             return array;
         }
-        return array.slice(0, index - 1).concat([item]).concat(array.slice(index));
+        return array.slice(0, index - 1).concat([item])
+            .concat(array.slice(index));
     }
 
     arrayExpandable (args) {
@@ -240,6 +246,7 @@ class DashJSONBlocks {
                 }
                 error = true;
             }
+            return acc;
         }, new NormalObject());
         return error ? new NormalObject() : result;
     }
@@ -277,14 +284,15 @@ class DashJSONBlocks {
     objectEntries (args) {
         const object = Cast.toObject(args.OBJECT);
         switch (args.PROPERTY) {
-            case 'entries':
-                return new NormalArray(object.entries().toArray().map((value) => new NormalArray(value)));
-            case 'keys':
-                return new NormalArray(object.keys().toArray());
-            case 'values':
-                return new NormalArray(object.values().toArray());
-            default:
-                return new NormalArray();
+        case 'entries':
+            return new NormalArray(object.entries().toArray()
+                .map(value => new NormalArray(value)));
+        case 'keys':
+            return new NormalArray(object.keys().toArray());
+        case 'values':
+            return new NormalArray(object.values().toArray());
+        default:
+            return new NormalArray();
         }
     }
 }

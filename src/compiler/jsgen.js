@@ -236,7 +236,7 @@ class JSGenerator {
                     throw new Error(`JS: '${block.type}' type constant was not an object.`);
                 }
                 const strValue = JSON.stringify(node.value);
-                if (strValue === "{}") return "(new globalState.NormalObject())";
+                if (strValue === '{}') return '(new globalState.NormalObject())';
                 return `(new globalState.NormalObject(Object.entires(${JSON.stringify(node.value)})))`;
             } else if (block.isSometimesType(InputType.STRING)) {
                 return `"${sanitize(node.value.toString())}"`;
@@ -341,7 +341,7 @@ class JSGenerator {
             return `(${this.descendInput(node.string)}.toLowerCase().indexOf(${this.descendInput(node.contains)}.toLowerCase()) !== -1)`;
         case InputOpcode.OP_CONDITIONS_COMPARATOR_EXPANDABLE: {
             const value = `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
+                (i % 2 === 0 ? this.descendInput(input) : sanitize(input))).join(' ')})`;
             if (value === '()') return 'true';
             return value;
         }
@@ -393,7 +393,7 @@ class JSGenerator {
         case InputOpcode.OP_JOIN:
             return `(${this.descendInput(node.left)} + ${this.descendInput(node.right)})`;
         case InputOpcode.OP_JOIN_EXPANDABLE:
-            return `(${node.inputs.map((input) => this.descendInput(input)).join('+')})`;
+            return `(${node.inputs.map(input => this.descendInput(input)).join('+')})`;
         case InputOpcode.OP_LENGTH:
             return `${this.descendInput(node.string)}.length`;
         case InputOpcode.OP_LESS: {
@@ -427,7 +427,7 @@ class JSGenerator {
             return `(${this.descendInput(node.left)} * ${this.descendInput(node.right)})`;
         case InputOpcode.OP_MATH: {
             const value = `(${node.inputs.map((input, i) =>
-                i % 2 === 0 ? this.descendInput(input) : sanitize(input)).join(' ')})`;
+                (i % 2 === 0 ? this.descendInput(input) : sanitize(input))).join(' ')})`;
             if (value === '()') return '0';
             return value;
         }
@@ -634,14 +634,14 @@ class JSGenerator {
         case InputOpcode.JSON_ASSIGN: {
             const main = node.main;
             if (main.isAlwaysType(InputType.ARRAY)) {
-                return `${this.descendInput(main)}.concat(${node.inputs.map((input) => this.descendInput(input.toType(InputType.ARRAY))).join(',')})`;
+                return `${this.descendInput(main)}.concat(${node.inputs.map(input => this.descendInput(input.toType(InputType.ARRAY))).join(',')})`;
             }
             if (main.isAlwaysType(InputType.OBJECT)) {
-                return `(new globalState.NormalObject(${this.descendInput(main)})${node.inputs.map((input) => `.assign(${this.descendInput(input)})`).join('')})`;
+                return `(new globalState.NormalObject(${this.descendInput(main)})${node.inputs.map(input => `.assign(${this.descendInput(input)})`).join('')})`;
             }
             const call = this.createFunctionCall(
                 {mainVar: this.descendInput(main)},
-                ({valueVar}) => `Array.isArray(${mainVar}) ? ${mainVar}.concat(${node.inputs.map((input) => this.descendInput(input.toType(InputType.ARRAY))).join(',')}) : new globalState.NormalObject(${mainVar})${node.inputs.map((input) => `.assign(${this.descendInput(input)})`).join('')}`,
+                ({mainVar}) => `Array.isArray(${mainVar}) ? ${mainVar}.concat(${node.inputs.map(input => this.descendInput(input.toType(InputType.ARRAY))).join(',')}) : new globalState.NormalObject(${mainVar})${node.inputs.map(input => `.assign(${this.descendInput(input)})`).join('')}`,
                 false
             );
             return `(${call})`;
@@ -674,7 +674,7 @@ class JSGenerator {
         case InputOpcode.JSON_ARRAY_REPLACE:
             return `arrayReplace(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
         case InputOpcode.JSON_ARRAY_EXPANDABLE:
-            return `(new globalState.NormalArray([${node.inputs.map((input) => this.descendInput(input)).join(',')}]))`;
+            return `(new globalState.NormalArray([${node.inputs.map(input => this.descendInput(input)).join(',')}]))`;
         case InputOpcode.JSON_OBJECT_EMPTY:
             return '(new globalState.NormalObject())';
         case InputOpcode.JSON_OBJECT_SPLIT:
@@ -702,9 +702,9 @@ class JSGenerator {
             if (node.property === 'entries') {
                 const value = this.localVariables.next();
                 return `new globalState.NormalArray(${this.descendInput(node.object)}.entries().toArray().map((${value}) => new globalState.NormalArray(${value})))`;
-            } else {
-                return `new globalState.NormalArray(${this.descendInput(node.object)}["${sanitize(node.property)}"]().toArray())`;
             }
+            return `new globalState.NormalArray(${this.descendInput(node.object)}["${sanitize(node.property)}"]().toArray())`;
+            
         }
 
         case InputOpcode.CONSOLE_OF_CONTENT:
