@@ -1281,6 +1281,8 @@ class VirtualMachine extends EventEmitter {
      *     2 for double-resolution bitmaps
      */
     updateBitmap (costumeIndex, bitmap, rotationCenterX, rotationCenterY, bitmapResolution) {
+        this.assertCollaborationWritable();
+
         return this._updateBitmap(
             this.editingTarget.getCostumes()[costumeIndex],
             bitmap,
@@ -1291,6 +1293,8 @@ class VirtualMachine extends EventEmitter {
     }
 
     _updateBitmap (costume, bitmap, rotationCenterX, rotationCenterY, bitmapResolution) {
+        this.assertCollaborationWritable();
+
         if (!(costume && this.runtime && this.runtime.renderer)) return;
         if (costume && costume.broken) delete costume.broken;
 
@@ -1350,6 +1354,8 @@ class VirtualMachine extends EventEmitter {
      * @param {number} rotationCenterY y of point about which the costume rotates, relative to its upper left corner
      */
     updateSvg (costumeIndex, svg, rotationCenterX, rotationCenterY) {
+        this.assertCollaborationWritable();
+
         return this._updateSvg(
             this.editingTarget.getCostumes()[costumeIndex],
             svg,
@@ -1359,6 +1365,8 @@ class VirtualMachine extends EventEmitter {
     }
 
     _updateSvg (costume, svg, rotationCenterX, rotationCenterY) {
+        this.assertCollaborationWritable();
+
         if (costume && costume.broken) delete costume.broken;
         if (costume && this.runtime && this.runtime.renderer) {
             costume.rotationCenterX = rotationCenterX;
