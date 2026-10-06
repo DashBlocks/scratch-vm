@@ -886,7 +886,7 @@ class VirtualMachine extends EventEmitter {
                 this.runtime.addTarget(target);
                 (/** @type RenderedTarget */ target).updateAllDrawableProperties();
                 // Ensure unique sprite name
-                if (target.isSprite()) this.renameSprite(target.id, target.getName());
+                if (target.isSprite()) this._renameSprite(target.id, target.getName());
             });
             // Sort the executable targets by layerOrder.
             // Remove layerOrder property after use.
@@ -1419,7 +1419,10 @@ class VirtualMachine extends EventEmitter {
      */
     renameSprite (targetId, newName) {
         this.assertCollaborationWritable();
+        this._renameSprite(targetId, newName);
+    }
 
+    _renameSprite (targetId, newName) {
         const target = this.runtime.getTargetById(targetId);
         if (target) {
             if (!target.isSprite()) {
