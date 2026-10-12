@@ -443,6 +443,7 @@ const serializeStandaloneBlocks = (blocks, runtime) => {
 const serializeCostume = function (costume) {
     const obj = Object.create(null);
     obj.name = costume.name;
+    if (costume.collaborationId) obj.collaborationId = costume.collaborationId;
 
     const costumeToSerialize = costume.broken || costume;
 
@@ -472,6 +473,7 @@ const serializeCostume = function (costume) {
 const serializeSound = function (sound) {
     const obj = Object.create(null);
     obj.name = sound.name;
+    if (sound.collaborationId) obj.collaborationId = sound.collaborationId;
 
     const soundToSerialize = sound.broken || sound;
 
@@ -1085,6 +1087,7 @@ const parseScratchAssets = function (object, runtime, zip) {
             // a sprite
             asset: costumeSource.asset,
             assetId: costumeSource.assetId,
+            collaborationId: costumeSource.collaborationId,
             skinId: null,
             name: costumeSource.name,
             bitmapResolution: costumeSource.bitmapResolution,
@@ -1113,6 +1116,7 @@ const parseScratchAssets = function (object, runtime, zip) {
     assets.soundPromises = (object.sounds || []).map(soundSource => {
         const sound = {
             assetId: soundSource.assetId,
+            collaborationId: soundSource.collaborationId,
             format: soundSource.format,
             rate: soundSource.rate,
             sampleCount: soundSource.sampleCount,

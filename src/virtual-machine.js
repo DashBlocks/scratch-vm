@@ -752,20 +752,294 @@ class VirtualMachine extends EventEmitter {
     }
 
     getCollaborationState () {
-        return JSON.parse(this.toJSON(null, {
-            allowOptimization: false,
-            preserveBlockIds: true
-        }));
+        const uid = require('./util/uid');
+        for (const target of this.runtime.targets.filter(item => item.isOriginal)) {
+            for (const key of ['costumes', 'sounds']) {
+                const seen = new Set();
+                for (const asset of target.sprite[key]) {
+                    if (!asset.collaborationId || seen.has(asset.collaborationId)) asset.collaborationId = uid();
+                    seen.add(asset.collaborationId);
+                }
+            }
+        }
+        return JSON.parse(this.toJSON(null, {allowOptimization: false, preserveBlockIds: true}));
+    }
+
+    getCollaborationAssets () {
+        return [...serializeCostumes(this.runtime), ...serializeSounds(this.runtime)];
+    }
+
+    async prepareCollaborationState (project, zip) {
+        const sb3 = require('./serialization/sb3');
+        const {deserializeCostume, deserializeSound} = require('./serialization/deserialize-assets');
+        const copy = value => JSON.parse(JSON.stringify(value));
+        const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+        const before = this.getCollaborationState();
+        const oldRecords = new Map(before.targets.map(target => [target.collaborationId, target]));
+        const targets = new Map(this.runtime.targets.filter(target => target.isOriginal)
+            .map(target => [target.collaborationId, target]));
+        const plan = {project: copy(project), assets: new Map(), skins: [], banks: [], consumed: false};
+        try {
+            const ids = new Set(project.extensions || []);
+            for (const record of project.targets) {
+                for (const block of Object.values(record.blocks)) {
+                    const id = sb3.getExtensionIdForOpcode(block.opcode);
+                    if (id) ids.add(id);
+                }
+            }
+            await this._loadExtensions(ids, new Map(Object.entries(project.extensionURLs || {})));
+            for (const record of project.targets) {
+                const old = oldRecords.get(record.collaborationId);
+                const target = targets.get(record.collaborationId);
+                const assets = {};
+                if (!old || !equal(old.costumes, record.costumes)) {
+                    assets.costumes = [];
+                    for (const descriptor of record.costumes) {
+                        const index = old ? old.costumes.findIndex(item =>
+                            item.collaborationId === descriptor.collaborationId) : -1;
+                        const previous = index === -1 ? null : old.costumes[index];
+                        const withoutName = item => item && {...item, name: ''};
+                        if (previous && equal(withoutName(previous), withoutName(descriptor))) {
+                            assets.costumes.push({...target.sprite.costumes[index], name: descriptor.name});
+                        } else {
+                            const costume = {...copy(descriptor), md5: descriptor.md5ext, skinId: null};
+                            await deserializeCostume(costume, this.runtime, zip);
+                            await loadCostume(costume.md5, costume, this.runtime);
+                            if (costume.broken) throw new Error(`Could not decode costume: ${descriptor.name}`);
+                            assets.costumes.push(costume);
+                            if (costume.skinId !== null) plan.skins.push(costume.skinId);
+                        }
+                    }
+                }
+                if (!old || !equal(old.sounds, record.sounds)) {
+                    assets.soundBank = this.runtime.audioEngine ? this.runtime.audioEngine.createBank() : null;
+                    if (assets.soundBank) plan.banks.push(assets.soundBank);
+                    assets.sounds = [];
+                    for (const descriptor of record.sounds) {
+                        const sound = {...copy(descriptor), md5: descriptor.md5ext};
+                        await deserializeSound(sound, this.runtime, zip);
+                        await loadSound(sound, this.runtime, assets.soundBank);
+                        if (sound.broken) throw new Error(`Could not decode sound: ${descriptor.name}`);
+                        if (typeof descriptor.rate !== 'undefined') sound.rate = descriptor.rate;
+                        if (typeof descriptor.sampleCount !== 'undefined') sound.sampleCount = descriptor.sampleCount;
+                        assets.sounds.push(sound);
+                    }
+                }
+                plan.assets.set(record.collaborationId, assets);
+            }
+            return plan;
+        } catch (error) {
+            this.disposeCollaborationPlan(plan);
+            throw error;
+        }
+    }
+
+    disposeCollaborationPlan (plan) {
+        if (!plan || plan.consumed) return;
+        plan.consumed = true;
+        if (this.runtime.renderer) {
+            for (const skin of new Set(plan.skins)) this.runtime.renderer.destroySkin(skin);
+        }
+        for (const bank of plan.banks) bank.dispose();
+    }
+
+    applyPreparedCollaborationState (plan) {
+        if (!plan || plan.consumed) throw new Error('Invalid collaboration plan');
+        const Blocks = require('./engine/blocks');
+        const Comment = require('./engine/comment');
+        const StageLayering = require('./engine/stage-layering');
+        const sb3 = require('./serialization/sb3');
+        const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+        const copy = value => JSON.parse(JSON.stringify(value));
+        const before = this.getCollaborationState();
+        const oldRecords = new Map(before.targets.map(target => [target.collaborationId, target]));
+        const targets = new Map(this.runtime.targets.filter(target => target.isOriginal)
+            .map(target => [target.collaborationId, target]));
+        const selected = this.editingTarget && this.editingTarget.collaborationId;
+        const oldSkins = new Set(this.runtime.targets.flatMap(target =>
+            target.sprite.costumes.map(costume => costume.skinId)));
+        const wanted = new Set(plan.project.targets.map(target => target.collaborationId));
+        const changedBlocks = new Set();
+        const moves = [];
+        const changedComments = new Set();
+        let variablesChanged = false;
+        let targetsChanged = false;
+        let assetsChanged = false;
+        for (const [id, target] of targets) {
+            if (wanted.has(id)) continue;
+            if (target.isStage) throw new Error('Cannot remove the stage');
+            target.deleteMonitors();
+            for (const clone of [...target.sprite.clones]) this.runtime.disposeTarget(clone);
+            if (target.sprite.soundBank) target.sprite.soundBank.dispose();
+            targets.delete(id);
+            targetsChanged = true;
+        }
+        for (const record of plan.project.targets) {
+            const old = oldRecords.get(record.collaborationId);
+            let target = targets.get(record.collaborationId);
+            if (!target) {
+                const sprite = new Sprite(new Blocks(this.runtime), this.runtime);
+                target = sprite.createClone(record.isStage ?
+                    StageLayering.BACKGROUND_LAYER : StageLayering.SPRITE_LAYER);
+                target.isStage = record.isStage;
+                target.collaborationId = record.collaborationId;
+                this.runtime.addTarget(target);
+                targets.set(record.collaborationId, target);
+                targetsChanged = true;
+            }
+            const ids = new Set([...Object.keys(old ? old.blocks : {}), ...Object.keys(record.blocks)]);
+            const changed = [...ids].filter(id => !equal(old && old.blocks[id], record.blocks[id]));
+            if (changed.length) {
+                const decoded = sb3.deserializeBlocks(copy(record.blocks));
+                for (const id of changed) {
+                    if (decoded[id]) target.blocks._blocks[id] = decoded[id];
+                    else delete target.blocks._blocks[id];
+                    if (record.collaborationId === selected) {
+                        const previous = old && old.blocks[id];
+                        const next = record.blocks[id];
+                        if (previous && next && next.topLevel &&
+                            equal({...previous, x: 0, y: 0}, {...next, x: 0, y: 0})) {
+                            moves.push({id, x: next.x, y: next.y});
+                        } else changedBlocks.add(id);
+                    }
+                }
+                target.blocks._scripts = Object.keys(decoded).filter(id => decoded[id].topLevel);
+                target.blocks.resetCache();
+                if (changed.some(id => {
+                    const a = old && old.blocks[id];
+                    const b = record.blocks[id];
+                    return !a || !b || !equal({...a, x: 0, y: 0}, {...b, x: 0, y: 0});
+                })) {
+                    for (const clone of target.sprite.clones) this.runtime.stopForTarget(clone);
+                }
+            }
+            for (const [key, type] of [
+                ['variables', Variable.SCALAR_TYPE], ['lists', Variable.LIST_TYPE],
+                ['broadcasts', Variable.BROADCAST_MESSAGE_TYPE]
+            ]) {
+                const previous = (old && old[key]) || {};
+                const next = record[key] || {};
+                for (const id of new Set([...Object.keys(previous), ...Object.keys(next)])) {
+                    if (equal(previous[id], next[id])) continue;
+                    if (Object.prototype.hasOwnProperty.call(next, id)) {
+                        const item = next[id];
+                        const name = key === 'broadcasts' ? item : item[0];
+                        let variable = target.variables[id];
+                        if (!variable || variable.type !== type) {
+                            variable = Variable.create(id, name, type, false);
+                            target.variables[id] = variable;
+                        }
+                        variable.name = name;
+                        if (!previous[id] || key === 'broadcasts') {
+                            variable.value = key === 'broadcasts' ? name : copy(item[1]);
+                        }
+                    } else delete target.variables[id];
+                    if (target.isStage || record.collaborationId === selected) variablesChanged = true;
+                }
+            }
+            for (const id of new Set([...Object.keys((old && old.comments) || {}), ...Object.keys(record.comments)])) {
+                if (equal(old && old.comments[id], record.comments[id])) continue;
+                const item = record.comments[id];
+                if (item) {
+                    const comment = new Comment(id, item.text + (item.extraText || ''), item.x, item.y,
+                        item.width, item.height, item.minimized);
+                    comment.blockId = item.blockId || null;
+                    target.comments[id] = comment;
+                } else delete target.comments[id];
+                if (record.collaborationId === selected) {
+                    changedComments.add(id);
+                    if (item && item.blockId) changedBlocks.add(item.blockId);
+                    if (old && old.comments[id] && old.comments[id].blockId) {
+                        changedBlocks.add(old.comments[id].blockId);
+                    }
+                }
+            }
+            const assets = plan.assets.get(record.collaborationId);
+            if (assets.costumes) {
+                target.sprite.costumes = assets.costumes;
+                for (const clone of target.sprite.clones) {
+                    if (clone === target || !assets.costumes.length) continue;
+                    const oldCostume = old && old.costumes[clone.currentCostume];
+                    clone.currentCostume = Math.max(0, assets.costumes.findIndex(costume =>
+                        oldCostume && costume.collaborationId === oldCostume.collaborationId));
+                    clone.updateAllDrawableProperties();
+                }
+            }
+            if (assets.sounds) {
+                if (target.sprite.soundBank) target.sprite.soundBank.dispose();
+                target.sprite.soundBank = assets.soundBank;
+                target.sprite.sounds = assets.sounds;
+            }
+            let visualChanged = !old || Boolean(assets.costumes);
+            if (assets.costumes || assets.sounds) {
+                targetsChanged = true;
+                if (record.collaborationId === selected) assetsChanged = true;
+            }
+            for (const key of ['name', 'x', 'y', 'direction', 'size', 'visible', 'draggable', 'rotationStyle',
+                'currentCostume', 'tempo', 'volume', 'videoTransparency', 'videoState', 'textToSpeechLanguage']) {
+                if (old && equal(old[key], record[key])) continue;
+                if (typeof record[key] === 'undefined') continue;
+                if (key === 'name') target.sprite.name = record.name;
+                else target[key] = record[key];
+                visualChanged = true;
+                targetsChanged = true;
+            }
+            if (visualChanged) {
+                if (target.sprite.costumes.length) target.updateAllDrawableProperties();
+                this.runtime.requestRedraw();
+            }
+        }
+        const originals = plan.project.targets.map(record => targets.get(record.collaborationId));
+        const clones = this.runtime.targets.filter(target => !target.isOriginal);
+        const oldOrder = before.targets.map(target => target.collaborationId);
+        const nextOrder = plan.project.targets.map(target => target.collaborationId);
+        if (!equal(oldOrder, nextOrder)) targetsChanged = true;
+        this.runtime.targets = originals.concat(clones);
+        if (plan.project.targets.some(record => {
+            const old = oldRecords.get(record.collaborationId);
+            return !old || old.layerOrder !== record.layerOrder;
+        })) {
+            const layers = new Map(plan.project.targets.map(record =>
+                [record.collaborationId, record.layerOrder || 0]));
+            this.runtime.executableTargets.sort((a, b) =>
+                (layers.get(a.collaborationId) || 0) - (layers.get(b.collaborationId) || 0));
+            if (this.runtime.renderer) {
+                originals.filter(target => !target.isStage).sort((a, b) =>
+                    layers.get(a.collaborationId) - layers.get(b.collaborationId))
+                    .forEach((target, index) => {
+                        this.runtime.renderer.setDrawableOrder(target.drawableID, index, StageLayering.SPRITE_LAYER);
+                    });
+            }
+        }
+        if (this.runtime.renderer) {
+            const usedSkins = new Set(this.runtime.targets.flatMap(target =>
+                target.sprite.costumes.map(costume => costume.skinId)));
+            for (const skin of oldSkins) {
+                if (typeof skin === 'number' && !usedSkins.has(skin)) this.runtime.renderer.destroySkin(skin);
+            }
+        }
+        const chosen = targets.get(selected) || originals.find(target => !target.isStage) || originals[0];
+        const selectionChanged = this.editingTarget !== chosen;
+        this.editingTarget = chosen;
+        if (selectionChanged) this.runtime.setEditingTarget(chosen);
+        this.runtime.ioDevices.cloud.setStage(this.runtime.getTargetForStage());
+        plan.consumed = true;
+        if (targetsChanged || selectionChanged) this.emitTargetsUpdate(false);
+        if (assetsChanged) this.emit('DASH_COLLABORATION_ASSETS');
+        if (selectionChanged || changedBlocks.size || moves.length || changedComments.size || variablesChanged) {
+            this.emitWorkspaceUpdate(selectionChanged ? null : {
+                collaboration: true,
+                blockIds: [...changedBlocks],
+                commentIds: [...changedComments],
+                variablesChanged,
+                moves
+            });
+        }
     }
 
     async applyCollaborationState (project, zip) {
-        const selected = this.editingTarget && this.editingTarget.collaborationId;
-        const next = JSON.parse(JSON.stringify(project));
-        next.projectVersion = 3;
-        await this.deserializeProject(next, zip);
-        const target = this.runtime.targets.find(item => item.isOriginal &&
-            item.collaborationId === selected);
-        if (target) this.setEditingTarget(target.id);
+        const plan = await this.prepareCollaborationState(project, zip);
+        this.applyPreparedCollaborationState(plan);
     }
 
     canEditCollaboration () {
@@ -1321,28 +1595,36 @@ class VirtualMachine extends EventEmitter {
         );
 
         // @todo there should be a better way to get from ImageData to a decodable storage format
-        canvas.toBlob(blob => {
-            const reader = new FileReader();
-            reader.addEventListener('loadend', () => {
-                const storage = this.runtime.storage;
-                costume.dataFormat = storage.DataFormat.PNG;
-                costume.bitmapResolution = bitmapResolution;
-                costume.size = [bitmapWidth, bitmapHeight];
-                costume.asset = storage.createAsset(
-                    storage.AssetType.ImageBitmap,
-                    costume.dataFormat,
-                    Buffer.from(reader.result),
-                    null, // id
-                    true // generate md5
-                );
-                costume.assetId = costume.asset.assetId;
-                costume.md5 = `${costume.assetId}.${costume.dataFormat}`;
-                this.emitTargetsUpdate();
-            });
-            // Bitmaps with a zero width or height return null for their blob
-            if (blob){
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    reject(new Error('Could not encode costume bitmap'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.addEventListener('error', () => {
+                    reject(reader.error || new Error('Could not read costume bitmap'));
+                });
+                reader.addEventListener('load', () => {
+                    try {
+                        const storage = this.runtime.storage;
+                        costume.dataFormat = storage.DataFormat.PNG;
+                        costume.bitmapResolution = bitmapResolution;
+                        costume.size = [bitmapWidth, bitmapHeight];
+                        costume.asset = storage.createAsset(
+                            storage.AssetType.ImageBitmap, costume.dataFormat,
+                            Buffer.from(reader.result), null, true
+                        );
+                        costume.assetId = costume.asset.assetId;
+                        costume.md5 = `${costume.assetId}.${costume.dataFormat}`;
+                        this.emitTargetsUpdate();
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
                 reader.readAsArrayBuffer(blob);
-            }
+            });
         });
     }
 
@@ -1815,7 +2097,7 @@ class VirtualMachine extends EventEmitter {
      * Emit an Blockly/scratch-blocks compatible XML representation
      * of the current editing target's blocks.
      */
-    emitWorkspaceUpdate () {
+    emitWorkspaceUpdate (collaborationUpdate) {
         // Create a list of broadcast message Ids according to the stage variables
         const stageVariables = this.runtime.getTargetForStage().variables;
         let messageIds = [];
@@ -1841,7 +2123,7 @@ class VirtualMachine extends EventEmitter {
             }
         }
         // Anything left in messageIds is not referenced by a block, so delete it.
-        for (let i = 0; i < messageIds.length; i++) {
+        for (let i = 0; !this.dashCollaboration && i < messageIds.length; i++) {
             const id = messageIds[i];
             delete this.runtime.getTargetForStage().variables[id];
         }
@@ -1865,7 +2147,7 @@ class VirtualMachine extends EventEmitter {
                             ${this.editingTarget.blocks.toXML(this.editingTarget.comments)}
                         </xml>`;
 
-        this.emit('workspaceUpdate', {xml: xmlString});
+        this.emit('workspaceUpdate', {xml: xmlString, ...collaborationUpdate});
     }
 
     /**
