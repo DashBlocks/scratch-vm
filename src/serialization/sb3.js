@@ -352,7 +352,21 @@ const serializeBlocks = function (blocks, preserveBlockIds = false) {
             extensionIDs.add(extensionID);
         }
     }
-    if (preserveBlockIds) return [obj, Array.from(extensionIDs)];
+    if (preserveBlockIds) {
+        for (const [blockId, block] of Object.entries(obj)) {
+            for (const input of Object.values(block.inputs)) {
+                const shadowId = input[0] === INPUT_SAME_BLOCK_SHADOW ? input[1] :
+                    (input[0] === INPUT_DIFF_BLOCK_SHADOW ? input[2] : null);
+                const shadow = shadowId && obj[shadowId];
+                if (!shadow || !shadow.shadow) continue;
+                shadow.parent = blockId;
+                shadow.topLevel = false;
+                delete shadow.x;
+                delete shadow.y;
+            }
+        }
+        return [obj, Array.from(extensionIDs)];
+    }
     // once we have completed a first pass, do a second pass on block inputs
     for (const blockID in obj) {
         // don't need to do the hasOwnProperty check here since we
