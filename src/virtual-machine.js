@@ -762,7 +762,15 @@ class VirtualMachine extends EventEmitter {
                 }
             }
         }
-        return JSON.parse(this.toJSON(null, {allowOptimization: false, preserveBlockIds: true}));
+        const project = JSON.parse(this.toJSON(null, {allowOptimization: false, preserveBlockIds: true}));
+        const loaded = [...this.extensionManager._loadedExtensions.keys()]
+            .filter(id => !this._collaborationPreparedExtensions || !this._collaborationPreparedExtensions.has(id));
+        project.extensions = [...new Set([...project.extensions, ...loaded])];
+        const urls = this.extensionManager.getExtensionURLs();
+        project.extensionURLs = Object.fromEntries(project.extensions.filter(id => typeof urls[id] === 'string')
+            .map(id => [id, urls[id].replace('https://dashblocks.org/tw-extensions/',
+                'https://extensions.turbowarp.org/')]));
+        return project;
     }
 
     getCollaborationAssets () {
@@ -786,6 +794,10 @@ class VirtualMachine extends EventEmitter {
                     const id = sb3.getExtensionIdForOpcode(block.opcode);
                     if (id) ids.add(id);
                 }
+            }
+            if (!this._collaborationPreparedExtensions) this._collaborationPreparedExtensions = new Set();
+            for (const id of ids) {
+                if (!this.extensionManager.isExtensionLoaded(id)) this._collaborationPreparedExtensions.add(id);
             }
             await this._loadExtensions(ids, new Map(Object.entries(project.extensionURLs || {})));
             for (const record of project.targets) {
@@ -1018,6 +1030,17 @@ class VirtualMachine extends EventEmitter {
                 if (typeof skin === 'number' && !usedSkins.has(skin)) this.runtime.renderer.destroySkin(skin);
             }
         }
+        const extensionIds = new Set(plan.project.extensions || []);
+        for (const record of plan.project.targets) {
+            for (const block of Object.values(record.blocks)) {
+                const id = sb3.getExtensionIdForOpcode(block.opcode);
+                if (id) extensionIds.add(id);
+            }
+        }
+        for (const id of [...this.extensionManager._loadedExtensions.keys()]) {
+            if (!extensionIds.has(id)) this.extensionManager.removeExtension(id, true);
+        }
+        if (this._collaborationPreparedExtensions) this._collaborationPreparedExtensions.clear();
         const chosen = targets.get(selected) || originals.find(target => !target.isStage) || originals[0];
         const selectionChanged = this.editingTarget !== chosen;
         this.editingTarget = chosen;

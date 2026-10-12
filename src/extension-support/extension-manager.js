@@ -745,7 +745,8 @@ class ExtensionManager {
      * Remove an extension.
      * @param {string} extensionId - the ID of the extension
      */
-    removeExtension (extensionId) {
+    removeExtension (extensionId, preserveBlocks = false) {
+        if (!preserveBlocks) this.vm.assertCollaborationWritable();
         if (!this.isExtensionLoaded(extensionId)) return;
         const serviceName = this._loadedExtensions.get(extensionId);
         const serviceProvider = dispatch._getServiceProvider(serviceName);
@@ -761,8 +762,7 @@ class ExtensionManager {
         this._loadedExtensions.delete(extensionId);
         const workerId = +serviceName.split('.')[1];
         delete this.workerURLs[workerId];
-        dispatch.call('runtime', '_removeExtensionPrimitive', extensionId);
-        this.refreshBlocks();
+        this.runtime._removeExtensionPrimitive(extensionId, preserveBlocks);
     }
 
     /**

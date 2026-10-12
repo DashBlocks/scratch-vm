@@ -1197,21 +1197,71 @@ class Runtime extends EventEmitter {
      * @param {string} extensionId - the ID of the extension to remove
      * @private
      */
-    _removeExtensionPrimitive (extensionId) {
+    _removeExtensionPrimitive (extensionId, preserveBlocks = false) {
+        const prefix = `${extensionId}_`;
+        const belongs = block => block && block.opcode.startsWith(prefix);
         const extIdx = this._blockInfo.findIndex(ext => ext.id === extensionId);
-        const info = this._blockInfo[extIdx];
-        this._blockInfo.splice(extIdx, 1);
-        this.emit(Runtime.EXTENSION_REMOVED, extensionId);
-        // Cleanup blocks
-        for (const target of this.targets) {
-            for (const blockId in target.blocks._blocks) {
-                const {opcode} = target.blocks.getBlock(blockId);
-                if (info.blocks.find(block => block.json?.type === opcode)) {
-                    target.blocks.deleteBlock(blockId, true);
-                }
+        if (extIdx !== -1) this._blockInfo.splice(extIdx, 1);
+        for (const entries of [this._primitives, this._hats, this.monitorBlockInfo]) {
+            for (const opcode of Object.keys(entries)) {
+                if (opcode.startsWith(prefix)) delete entries[opcode];
             }
         }
-        this.emit(Runtime.BLOCKS_NEED_UPDATE);
+        for (const monitor of [...this.getMonitorState().valueSeq()]) {
+            if (belongs(monitor)) this.requestRemoveMonitor(monitor.id);
+        }
+        for (const block of Object.values(this.monitorBlocks._blocks)) {
+            if (belongs(block)) this.monitorBlocks.deleteBlock(block.id);
+        }
+        if (!preserveBlocks) {
+            for (const target of this.targets.filter(item => item.isOriginal)) {
+                const blocks = target.blocks;
+                const ids = Object.keys(blocks._blocks).filter(id => belongs(blocks.getBlock(id)));
+                if (ids.length) {
+                    for (const instance of this.targets.filter(item => item.blocks === blocks)) {
+                        this.stopForTarget(instance);
+                    }
+                }
+                for (const id of ids) {
+                    const block = blocks.getBlock(id);
+                    if (!block) continue;
+                    const parent = blocks.getBlock(block.parent);
+                    const next = blocks.getBlock(block.next);
+                    let replacement = next;
+                    if (parent) {
+                        if (parent.next === id) parent.next = next ? next.id : null;
+                        for (const input of Object.values(parent.inputs)) {
+                            if (input.shadow === id) input.shadow = null;
+                            if (input.block === id) {
+                                replacement = next || blocks.getBlock(input.shadow);
+                                input.block = replacement ? replacement.id : null;
+                            }
+                        }
+                    }
+                    if (replacement) {
+                        replacement.parent = parent ? parent.id : null;
+                        replacement.topLevel = !parent;
+                        if (!parent) {
+                            replacement.x = block.x || 0;
+                            replacement.y = block.y || 0;
+                        }
+                    }
+                    block.next = null;
+                    blocks.deleteBlock(id);
+                }
+                for (const [id, comment] of Object.entries(target.comments)) {
+                    if (comment.blockId && !blocks.getBlock(comment.blockId)) delete target.comments[id];
+                }
+                blocks._scripts = Object.values(blocks._blocks).filter(block => block.topLevel)
+                    .map(block => block.id);
+                blocks.resetCache();
+            }
+        }
+        this.emit(Runtime.EXTENSION_REMOVED, extensionId);
+        if (!preserveBlocks) {
+            this.emitProjectChanged();
+            this.emit(Runtime.BLOCKS_NEED_UPDATE);
+        }
     }
 
     /**
