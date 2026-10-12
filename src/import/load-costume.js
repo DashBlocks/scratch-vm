@@ -397,6 +397,7 @@ const handleCostumeLoadError = function (costume, runtime) {
  */
 const loadCostumeFromAsset = function (costume, runtime, optVersion) {
     costume.assetId = costume.asset.assetId;
+    costume.md5 = `${costume.assetId}.${costume.dataFormat}`;
     const renderer = runtime.renderer;
     if (!renderer) {
         log.warn('No rendering module present; cannot load costume: ', costume.name);
