@@ -12,6 +12,7 @@ npm-*
 # Editor
 /.idea
 /.vscode
+/.replit
 
 # Build
 /dist
