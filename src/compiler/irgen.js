@@ -1007,6 +1007,11 @@ class ScriptTreeGenerator {
                 elseBranch
             });
         }
+        case 'control_try_catch':
+            return new IntermediateStackBlock(StackOpcode.CONTROL_TRY_CATCH, {
+                try: this.descendSubstack(block, 'SUBSTACK'),
+                catch: this.descendSubstack(block, 'SUBSTACK2')
+            });
         case 'control_repeat':
             return new IntermediateStackBlock(StackOpcode.CONTROL_REPEAT, {
                 times: this.descendInputOfBlock(block, 'TIMES').toType(InputType.NUMBER),
