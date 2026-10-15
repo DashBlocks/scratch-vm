@@ -76,6 +76,12 @@ class _StackFrame {
          * @type {?Target}
          */
         this.substituteTarget = null;
+
+        /**
+         * Number of branch which will started when value throwed
+         * @type {number}
+         */
+        this.catcherBranchNum = null;
     }
 
     /**
@@ -84,7 +90,6 @@ class _StackFrame {
      * @return {_StackFrame} this
      */
     reset () {
-
         this.isLoop = false;
         this.warpMode = false;
         this.justReported = null;
@@ -94,6 +99,7 @@ class _StackFrame {
         this.executionContext = null;
         this.op = null;
         this.substituteTarget = null;
+        this.catcherBranchNum = null;
 
         return this;
     }
