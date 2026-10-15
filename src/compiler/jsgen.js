@@ -632,7 +632,8 @@ class JSGenerator {
         case InputOpcode.JSON_SET_BY_PATH:
             return `runtime.ext_dash_json.setByPath({ITEM: ${this.descendInput(node.item)}, PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
         case InputOpcode.JSON_STRINGIFY_SPACER:
-            return `JSON.stringify(${this.descendInput(node.value)}, null, ${this.descendInput(node.spacer)})`;
+            const value = this.localVariables.next();
+            return `JSON.stringify(${this.descendInput(node.value)}, (_, ${value}) => globalState.isCustomType(${value}) ? String(${value}) : globalState.isNormalObject(${value}) ? Object.fromEntries(${value}.entries().toArray()) : ${value}, ${this.descendInput(node.spacer)})`;
         case InputOpcode.JSON_ASSIGN: {
             const main = node.main;
             if (main.isAlwaysType(InputType.ARRAY)) {
