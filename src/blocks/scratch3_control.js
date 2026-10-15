@@ -34,6 +34,7 @@ class Scratch3ControlBlocks {
             control_if_else: this.ifElse,
             control_if_else_expandable: this.ifElseExpandable,
             control_if_then_else: this.ifThenElse,
+            control_try_catch: this.tryCatch,
             control_resume: this.resume,
             control_pause: this.pause,
             control_is_paused: this.isPaused,
@@ -167,6 +168,10 @@ class Scratch3ControlBlocks {
     ifThenElse (args) {
         const condition = Cast.toBoolean(args.CONDITION);
         return condition ? args.THEN : args.ELSE;
+    }
+
+    tryCatch () {
+        util.startBranch(1, false, {catcherBranchNum: 2});
     }
 
     resume () {
