@@ -251,7 +251,7 @@ class ScriptTreeGenerator {
         }
         case 'argument_reporter_array': {
             // see argument_reporter_string_number above
-            const name = block.fields.VALUE.value;
+            const name = String(block.fields.VALUE.value);
             const index = this.script.arguments.lastIndexOf(name);
             if (index === -1) {
                 return this.createConstantInput(0);
@@ -260,7 +260,7 @@ class ScriptTreeGenerator {
         }
         case 'argument_reporter_object': {
             // see argument_reporter_string_number above
-            const name = block.fields.VALUE.value;
+            const name = String(block.fields.VALUE.value);
             const index = this.script.arguments.lastIndexOf(name);
             if (index === -1) {
                 return this.createConstantInput(0);
