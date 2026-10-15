@@ -15,8 +15,8 @@ class CompatibilityLayerBlockUtility extends BlockUtility {
         return this.thread?.compatibilityStackFrame;
     }
 
-    startBranch (branchNumber, isLoop) {
-        this._startedBranch = [branchNumber, isLoop];
+    startBranch (branchNumber, isLoop, options) {
+        this._startedBranch = [branchNumber, isLoop, options];
     }
 
     startProcedure () {
