@@ -121,9 +121,16 @@ const handleReport = function (resolvedValue, sequencer, thread, blockCached, la
  * @param {!Thread} thread Thread containing the primitive.
  */
 const handleThrow = function (thrownValue, sequencer, thread) {
-    if (typeof thrownValue === 'string' || thrownValue instanceof DashError) {
-        // @todo Add the ability to catch thrown string value or DashError
-        // inside the 'try/catch' block.
+    const parentStackFrame = thread.peekParentStackFrame();
+    if (
+        (typeof thrownValue === 'string' || thrownValue instanceof DashError) &&
+        typeof parentStackFrame?.catcherBranchNum === 'number'
+    ) {
+        thread.popStack();
+        sequencer.stepToBranch(thread, parentStackFrame.catcherBranchNum, thread.peekStackFrame().isLoop);
+        parentStackFrame.catcherBranchNum = null;
+        thread.status = Thread.STATUS_RUNNING;
+        return;
     }
     
     // Uncaught thrown value: report the value visually at the top of
@@ -560,6 +567,7 @@ const execute = function (sequencer, thread) {
             primitiveReportedValue = blockFunction(argValues, blockUtility);
         } catch (thrownValue) {
             handleThrow(thrownValue, sequencer, thread);
+            break;
         }
 
         const primitiveIsPromise = isPromise(primitiveReportedValue);
