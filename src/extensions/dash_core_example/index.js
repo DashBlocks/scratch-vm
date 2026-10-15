@@ -264,6 +264,11 @@ class DashCoreExample {
                         </value>
                     </block>
                     `
+                },
+                '---',
+                {
+                    blockType: BlockType.XML,
+                    xml: '<block type="control_try_catch"/>'
                 }
             ]
         };
