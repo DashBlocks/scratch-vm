@@ -260,10 +260,16 @@ class Sequencer {
                 const stackFrame = thread.peekStackFrame();
                 isWarpMode = stackFrame.warpMode;
                 
-                if (stackFrame.spoofTarget) {
+                if (stackFrame.substituteTarget) {
                     // This level of the stack substituting target.
                     // Reset the substitute target.
                     stackFrame.substituteTarget = null;
+                }
+
+                if (stackFrame.catcherBranchNum) {
+                    // This level of the stack catching thrown values.
+                    // Reset the number of branch which will start when value throwed.
+                    stackFrame.catcherBranchNum = null;
                 }
                 
                 if (stackFrame.isLoop) {
@@ -298,8 +304,9 @@ class Sequencer {
      * @param {!Thread} thread Thread object to step to branch.
      * @param {number} branchNum Which branch to step to (i.e., 1, 2).
      * @param {boolean} isLoop Whether this block is a loop.
+     * @param {object} options Options of branch steping.
      */
-    stepToBranch (thread, branchNum, isLoop) {
+    stepToBranch (thread, branchNum, isLoop, options) {
         if (!branchNum) {
             branchNum = 1;
         }
@@ -310,6 +317,9 @@ class Sequencer {
         );
         thread.peekStackFrame().isLoop = isLoop;
         if (branchId) {
+            if (options?.catcherBranchNum) {
+                thread.peekStackFrame().catcherBranchNum = catcherBranchNum;
+            }
             // Push branch ID to the thread's stack.
             thread.pushStack(branchId);
         } else {
