@@ -121,6 +121,7 @@ class JSGenerator {
         this.localVariables = new VariablePool('a');
         this._setupVariablesPool = new VariablePool('b');
         this._setupVariables = {};
+        this.thrownValueProps = new VariablePool('err');
         this.usesTemporaryLocal = false;
 
         this.descendedIntoModulo = false;
@@ -874,6 +875,15 @@ class JSGenerator {
             this.source += `}\n`;
             break;
         }
+        case StackOpcode.CONTROL_TRY_CATCH:
+            this.source += `try {\n`;
+            this.descendStack(node.try, new Frame(false));
+            const thrownValue = this.thrownValueProps.next();
+            this.source += `} catch (${thrownValue}) {\n`;
+            this.source += `if (!(${thrownValue} instanceof globalState.DashError) && typeof ${thrownValue} !== "string") throw ${thrownValue};\n`;
+            this.descendStack(node.catch, new Frame(false));
+            this.source += `}\n`;
+            break;
         case StackOpcode.CONTROL_REPEAT: {
             const i = this.localVariables.next();
             if (node.times.isAlwaysType(InputType.NUMBER_INT | InputType.NUMBER_INF)) {
@@ -1508,7 +1518,7 @@ class JSGenerator {
 
         script += this.source;
 
-        const thrownValue = this.localVariables.next();
+        const thrownValue = this.thrownValueProps.next();
         script += `} catch (${thrownValue}) {\n`;
 
         script += 'if (thread.stackClick) {\n'
