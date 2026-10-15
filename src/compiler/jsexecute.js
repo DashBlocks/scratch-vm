@@ -12,6 +12,7 @@ const globalState = {
     Cast: require('../util/cast'),
     NormalArray: require('../data-types/dash-normal-array'),
     NormalObject: require('../data-types/dash-normal-object'),
+    DashError: require('../data-types/dash-error'),
     log: require('../util/log'),
     blockUtility: require('./compat-block-utility'),
     /** @type{import("../engine/thread")?} */
