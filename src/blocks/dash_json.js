@@ -8,6 +8,12 @@ const ExpandableBlocksUtil = require('../util/expandable-blocks-util');
 const NormalArray = require('../data-types/dash-normal-array');
 const NormalObject = require('../data-types/dash-normal-object');
 
+const clone = obj => (Cast.isNormalArray(obj) ?
+    new NormalArray(obj) :
+    Cast.isNormalObject(obj) ?
+        new NormalObject(obj) :
+        obj.slice());
+
 class DashJSONBlocks {
     constructor (runtime) {
         /**
@@ -82,77 +88,61 @@ class DashJSONBlocks {
 
     getByPath (args) {
         const path = Cast.toList(args.PATH);
-        const json = Cast.toJSON(args.VALUE, true);
-        let pathExist = true;
-        const result = path.reduce((acc, key) => {
-            if (!pathExist) return acc;
-            if (Cast.isNormalArray(acc)) {
-                key = Cast.toListIndex(key, acc.length, false);
+        let result = Cast.toJSON(args.VALUE, true);
+        for (const key of path) {
+            if (Cast.isNormalArray(result)) {
+                key = Cast.toListIndex(key, result.length, false);
                 if (key === Cast.LIST_INVALID) {
-                    pathExist = false;
-                    return acc;
+                    return '';
                 }
-                return acc[key - 1];
-            } else if (Cast.isNormalObject(acc)) {
+                result = result[key - 1];
+            } else if (Cast.isNormalObject(result)) {
                 key = Cast.toString(key);
-                if (!acc.has(key)) {
-                    pathExist = false;
-                    return acc;
+                if (!result.has(key)) {
+                    return '';
                 }
-                return acc.get(key);
+                result = result.get(key);
+            } else {
+                return '';
             }
-            pathExist = false;
-            return acc;
-            
-        }, json);
-        return pathExist ? result : '';
+        }
+        return result;
     }
 
     setByPath (args) {
         const path = Cast.toList(args.PATH);
-        const json = Cast.toJSON(args.VALUE, true);
-        const newJson = Array.isArray(json) ? new NormalArray(json) : new NormalObject(json);
-        let pathExist = true;
-        const result = path.reduce(([full, part], key, i) => {
-            if (!pathExist) return [full, part];
+        let json = part = Cast.toJSON(args.VALUE, true);
+        let result = resultPart = clone(json);
+        for (let i = 0; i < path.length; i++) {
             if (Cast.isNormalArray(part)) {
-                key = Cast.toListIndex(key, part.length, false);
+                const key = Cast.toListIndex(path[i], part.length + 1, false);
                 if (key === Cast.LIST_INVALID) {
-                    pathExist = false;
-                    return [full, part];
+                    return json;
+                } else if (i === path.length - 1) {
+                    part = args.ITEM;
+                } else if (key === part.length + 1) {
+                    part = typeof path[i + 1] === 'number' ? new NormalArray() : new NormalObject();
+                } else {
+                    part = clone(part[key - 1]);
                 }
-                if (i < path.length - 1 && !Cast.isNormalArray(part[key - 1]) &&
-                    !Cast.isNormalObject(part[key - 1])) {
-                    pathExist = false;
-                    return [full, part];
-                }
-                const child = part[key - 1];
-                part[key - 1] = i < path.length - 1 ?
-                    Cast.isNormalArray(child) ? new NormalArray(child) : new NormalObject(child) :
-                    args.ITEM;
-                return [full, part[key - 1]];
+                resultPart[key - 1] = part;
+                resultPart = resultPart[key - 1];
             } else if (Cast.isNormalObject(part)) {
-                key = Cast.toString(key);
-                if (!part.has(key)) {
-                    pathExist = false;
-                    return [full, part];
+                const key = Cast.toString(path[i]);
+                if (i === path.length - 1) {
+                    part = args.ITEM;
+                } else if (!part.has(key)) {
+                    part = typeof path[i + 1] === 'number' ? new NormalArray() : new NormalObject();
+                } else {
+                    part = clone(part.get(key));
                 }
-                if (i < path.length - 1 && !Cast.isNormalArray(part.get(key)) &&
-                    !Cast.isNormalObject(part.get(key))) {
-                    pathExist = false;
-                    return [full, part];
-                }
-                const child = part.get(key);
-                part.set(key, i < path.length - 1 ?
-                    Cast.isNormalArray(child) ? new NormalArray(child) : new NormalObject(child) :
-                    args.ITEM);
-                return [full, part.get(key)];
+                resultPart.set(key, part);
+                resultPart = resultPart.get(key);
+            } else {
+                return json;
             }
-            pathExist = false;
-            return [full, part];
-            
-        }, [newJson, newJson]);
-        return pathExist ? result[0] : json;
+        }
+        return result;
     }
 
     stringifySpacer (args) {
@@ -171,7 +161,6 @@ class DashJSONBlocks {
             return main.concat(...inputs.map(value => Cast.toList(value)));
         }
         return inputs.reduce((acc, value) => acc.assign(Cast.toJSON(value, true)), new NormalObject(main));
-        
     }
 
     arrayAddFront (args) {
