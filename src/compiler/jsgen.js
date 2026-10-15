@@ -621,11 +621,8 @@ class JSGenerator {
             if (value.isAlwaysType(InputType.OBJECT)) {
                 return `${this.descendInput(value)}.size`;
             }
-            const call = this.createFunctionCall(
-                {valueVar: this.descendInput(value)},
-                ({valueVar}) => `${valueVar}[Array.isArray(${valueVar}) ? "length" : "size"]`
-            );
-            return `(${call})`;
+            this.usesTemporaryLocal = true;
+            return `(t = ${this.descendInput(value)}, t[Array.isArray(t) ? "length" : "size"])`;
         }
         case InputOpcode.JSON_GET_BY_PATH:
             return `runtime.ext_dash_json.getByPath({PATH: ${this.descendInput(node.path)}, VALUE: ${this.descendInput(node.value)}})`;
@@ -642,12 +639,8 @@ class JSGenerator {
             if (main.isAlwaysType(InputType.OBJECT)) {
                 return `(new globalState.NormalObject(${this.descendInput(main)})${node.inputs.map(input => `.assign(${this.descendInput(input)})`).join('')})`;
             }
-            const call = this.createFunctionCall(
-                {mainVar: this.descendInput(main)},
-                ({mainVar}) => `Array.isArray(${mainVar}) ? ${mainVar}.concat(${node.inputs.map(input => this.descendInput(input.toType(InputType.ARRAY))).join(',')}) : new globalState.NormalObject(${mainVar})${node.inputs.map(input => `.assign(${this.descendInput(input)})`).join('')}`,
-                false
-            );
-            return `(${call})`;
+            this.usesTemporaryLocal = true;
+            return `(t = ${this.descendInput(main)}, Array.isArray(t) ? t.concat(${node.inputs.map(input => this.descendInput(input.toType(InputType.ARRAY))).join(',')}) : new globalState.NormalObject(t)${node.inputs.map(input => `.assign(${this.descendInput(input)})`).join('')})`;
         }
         case InputOpcode.JSON_ARRAY_EMPTY:
             return '(new globalState.NormalArray())';
@@ -694,12 +687,8 @@ class JSGenerator {
         case InputOpcode.JSON_OBJECT_SET:
             return `(new globalState.NormalObject(${this.descendInput(node.object)}).set(${this.descendInput(node.key)}, ${this.descendInput(node.item)}))`;
         case InputOpcode.JSON_OBJECT_DELETE: {
-            const call = this.createFunctionCall(
-                {value: `new globalState.NormalObject(${this.descendInput(node.object)})`},
-                ({value}) => `(${value}.delete(${this.descendInput(node.key)}), ${value})`,
-                false
-            );
-            return `(${call})`;
+            this.usesTemporaryLocal = true;
+            return `(t = new globalState.NormalObject(${this.descendInput(node.object)}), t.delete(${this.descendInput(node.key)}), t)`;
         }
         case InputOpcode.JSON_OBJECT_ENTRIES: {
             if (node.property === 'entries') {
@@ -1522,6 +1511,7 @@ class JSGenerator {
         const thrownValue = this.localVariables.next();
         script += `} catch (${thrownValue}) {\n`;
 
+        script += 'if (thread.stackClick) {\n'
         script += `runtime.visualReport(target, "${sanitize(this.script.topBlockId)}", ${thrownValue}, {isUncaught: true});\n`;
         if (this.isProcedure) {
             script += 'retire(); yield;\n';
@@ -1529,7 +1519,7 @@ class JSGenerator {
             script += 'retire(); return;\n';
         }
 
-        script += '}}; })';
+        script += '}}}; })';
 
         return script;
     }
