@@ -170,7 +170,7 @@ class Scratch3ControlBlocks {
         return condition ? args.THEN : args.ELSE;
     }
 
-    tryCatch () {
+    tryCatch (args, util) {
         util.startBranch(1, false, {catcherBranchNum: 2});
     }
 
