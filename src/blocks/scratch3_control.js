@@ -35,6 +35,7 @@ class Scratch3ControlBlocks {
             control_if_else_expandable: this.ifElseExpandable,
             control_if_then_else: this.ifThenElse,
             control_try_catch: this.tryCatch,
+            control_throw: this.throw,
             control_resume: this.resume,
             control_pause: this.pause,
             control_is_paused: this.isPaused,
@@ -172,6 +173,11 @@ class Scratch3ControlBlocks {
 
     tryCatch (args, util) {
         util.startBranch(1, false, {catcherBranchNum: 2});
+    }
+
+    throw (args) {
+        const value = args.VALUE;
+        throw Cast.isExpectedThrowable(args.VALUE) ? value : Cast.toString(value);
     }
 
     resume () {
