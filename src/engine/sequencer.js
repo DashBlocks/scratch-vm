@@ -318,7 +318,7 @@ class Sequencer {
         thread.peekStackFrame().isLoop = isLoop;
         if (branchId) {
             if (options?.catcherBranchNum) {
-                thread.peekStackFrame().catcherBranchNum = catcherBranchNum;
+                thread.peekStackFrame().catcherBranchNum = options.catcherBranchNum;
             }
             // Push branch ID to the thread's stack.
             thread.pushStack(branchId);
