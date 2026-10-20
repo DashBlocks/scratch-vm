@@ -120,6 +120,7 @@ const StackOpcode = {
     CONTROL_IF_ELSE: 'control.if',
     CONTROL_IF_ELSE_EXPANDABLE: 'control.ifElseExpandable',
     CONTROL_TRY_CATCH: 'control.tryCatch',
+    CONTROL_THROW: 'control.throw',
     CONTROL_CLONE_CREATE: 'control.createClone',
     CONTROL_CLONE_DELETE: 'control.deleteClone',
     CONTROL_WHILE: 'control.while',
