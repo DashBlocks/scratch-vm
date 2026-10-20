@@ -884,6 +884,18 @@ class JSGenerator {
             this.descendStack(node.catch, new Frame(false));
             this.source += `}\n`;
             break;
+        case StackOpcode.CONTROL_THROW: {
+            if (node.value.isAlwaysType(InputType.EXPECTED_THROWABLE)) {
+                this.source += `throw ${this.descendInput(node.value)};\n`;
+            } else if (node.value.isSometimesType(InputType.EXPECTED_THROWABLE)) {
+                const value = this.localVariables.next();
+                this.source += `const ${value} = ${this.descendInput(node.value)};\n`;
+                this.source += `throw ${value} instanceof globalState.DashError || typeof ${value} === "string" ? ${value} : toString(${value});\n`;
+            } else {
+                this.source += `throw ${this.descendInput(node.value.toType(InputType.STRING))};\n`;
+            }
+            break;
+        }
         case StackOpcode.CONTROL_REPEAT: {
             const i = this.localVariables.next();
             if (node.times.isAlwaysType(InputType.NUMBER_INT | InputType.NUMBER_INF)) {
