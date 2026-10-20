@@ -1012,6 +1012,10 @@ class ScriptTreeGenerator {
                 try: this.descendSubstack(block, 'SUBSTACK'),
                 catch: this.descendSubstack(block, 'SUBSTACK2')
             });
+        case 'control_throw':
+            return new IntermediateStackBlock(StackOpcode.CONTROL_THROW, {
+                value: this.descendInputOfBlock(block, 'VALUE')
+            });
         case 'control_repeat':
             return new IntermediateStackBlock(StackOpcode.CONTROL_REPEAT, {
                 times: this.descendInputOfBlock(block, 'TIMES').toType(InputType.NUMBER),
