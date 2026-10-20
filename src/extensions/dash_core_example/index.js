@@ -269,6 +269,18 @@ class DashCoreExample {
                 {
                     blockType: BlockType.XML,
                     xml: '<block type="control_try_catch"/>'
+                },
+                {
+                    blockType: BlockType.XML,
+                    xml: `
+                    <block type="control_throw">
+                        <value name="VALUE">
+                            <shadow type="text">
+                                <field name="TEXT">evil error</field>
+                            </shadow>
+                        </value>
+                    </block>
+                    `
                 }
             ]
         };
