@@ -894,14 +894,10 @@ class JSGenerator {
             this.source += `}\n`;
             break;
         case StackOpcode.CONTROL_THROW: {
-            if (node.value.isAlwaysType(InputType.EXPECTED_THROWABLE)) {
+            if (node.value.isAlwaysType(InputType.EXPECTED_ERROR)) {
                 this.source += `throw ${this.descendInput(node.value)};\n`;
-            } else if (node.value.isSometimesType(InputType.EXPECTED_THROWABLE)) {
-                const value = this.localVariables.next();
-                this.source += `const ${value} = ${this.descendInput(node.value)};\n`;
-                this.source += `throw ${value} instanceof globalState.DashError || typeof ${value} === "string" ? ${value} : toString(${value});\n`;
             } else {
-                this.source += `throw ${this.descendInput(node.value.toType(InputType.STRING))};\n`;
+                this.source += `throw globalState.DashError.asExpectedThrowable(${this.descendInput(node.value)});\n`;
             }
             break;
         }
