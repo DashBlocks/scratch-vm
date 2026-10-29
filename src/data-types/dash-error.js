@@ -15,6 +15,7 @@ class DashError extends Error {
     }
 
     static asExpectedThrowable (value) {
+        if (value instanceof DashError || value?.[EXPECTED_THROWABLE]) return value;
         return {
             value,
             [EXPECTED_THROWABLE]: true
