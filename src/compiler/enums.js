@@ -97,10 +97,8 @@ const InputType = {
 
     /** Any DashError or extended instance of it. */
     EXPECTED_ERROR: 0x10000,
-    /** Any expected throwable. Equal to STRING | EXPECTED_ERROR */
-    EXPECTED_THROWABLE: 0x10E00,
     
-    /** Any value type (a type a scratch variable can hold). Equal to NUMBER_OR_NAN | BOOLEAN | JSON | EXPECTED_THROWABLE */
+    /** Any value type (a type a scratch variable can hold). Equal to NUMBER_OR_NAN | STRING | BOOLEAN | JSON | EXPECTED_ERROR */
     ANY: 0x1FFFF
 };
 
