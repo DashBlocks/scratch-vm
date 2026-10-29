@@ -1,5 +1,4 @@
 const Color = require('./color');
-const DashError = require('../data-types/dash-error');
 let NormalArray; let NormalObject;
 
 /**
@@ -241,16 +240,6 @@ class Cast {
      */
     static isWhiteSpace (val) {
         return val === null || (typeof val === 'string' && val.trim().length === 0);
-    }
-
-    /**
-     * Determine if a Scratch argument is a expected throwable (DashError
-     * and extended instances of it, string).
-     * @param {*} val Value to check.
-     * @return {boolean} True if argument is a expected throwable.
-     */
-    static isExpectedThrowable (val) {
-        return typeof val === 'string' || val instanceof DashError;
     }
 
     /**
