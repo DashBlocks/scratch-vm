@@ -140,10 +140,12 @@ const handleThrow = function (thrownValue, sequencer, thread) {
     // Uncaught thrown value: report the value visually at the top of
     // the thread stack if necessary and stop the thread.
     if (thread.stackClick) {
-        sequencer.runtime.visualReport(thread.target, thread.topBlock, thrownValue, {
-            isUncaught: true,
-            isUnexpected: !isExpected
-        });
+        sequencer.runtime.visualReport(
+            thread.target,
+            thread.topBlock,
+            thrownValue?.[EXPECTED_THROWABLE] ? thrownValue?.value : thrownValue,
+            {isUncaught: true, isUnexpected: !isExpected}
+        );
     }
     sequencer.retireThread(thread);
 };
