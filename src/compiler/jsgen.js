@@ -733,7 +733,9 @@ class JSGenerator {
             } else if (blockType === BlockType.CONDITIONAL || blockType === BlockType.LOOP) {
                 const branchVariable = this.localVariables.next();
                 this.source += `const ${branchVariable} = createBranchInfo(${blockType === BlockType.LOOP});\n`;
-                this.source += `while (${branchVariable}.branch = +(${this.generateCompatibilityLayerCall(node, false, branchVariable)})) {\n`;
+                this.source += `while (${branchVariable}.branch = ${branchVariable}.runnedCatcherBranch || +(${this.generateCompatibilityLayerCall(node, false, branchVariable)})) {\n`;
+                this.source += `try {\n`;
+
                 this.source += `switch (${branchVariable}.branch) {\n`;
                 for (const index in node.substacks) {
                     this.source += `case ${+index}: {\n`;
@@ -741,10 +743,17 @@ class JSGenerator {
                     this.source += `break;\n`;
                     this.source += `}\n`; // close case
                 }
-                this.source += '}\n'; // close switch
+                this.source += `}\n`; // close switch
+                this.source += `if (${branchVariable}.runnedCatcherBranch) ${branchVariable}.runnedCatcherBranch = null;\n`;
                 this.source += `if (!${branchVariable}.isLoop) break;\n`;
+
+                const thrownValue = this.thrownValueProps.next();
+                this.source += `} catch (${thrownValue}) {\n`; // close try
+                this.source += `if (${branchVariable}.runnedCatcherBranch || typeof ${branchVariable}.options?.catcherBranchNum !== "number" || !(${thrownValue} instanceof globalState.DashError || ${thrownValue}?.[globalState.EXPECTED_THROWABLE])) throw ${thrownValue};\n`;
+                this.source += `${branchVariable}.runnedCatcherBranch = ${branchVariable}.options.catcherBranchNum;\n`;
+                this.source += `}\n`; // close catch
                 this.yieldLoop();
-                this.source += '}\n'; // close while
+                this.source += `}\n`; // close while
             } else {
                 throw new Error(`Unknown block type: ${blockType}`);
             }
@@ -880,7 +889,7 @@ class JSGenerator {
             this.descendStack(node.try, new Frame(false));
             const thrownValue = this.thrownValueProps.next();
             this.source += `} catch (${thrownValue}) {\n`;
-            this.source += `if (!(${thrownValue} instanceof globalState.DashError) && typeof ${thrownValue} !== "string") throw ${thrownValue};\n`;
+            this.source += `if (!(${thrownValue} instanceof globalState.DashError) && !${thrownValue}?.[globalState.EXPECTED_THROWABLE]) throw ${thrownValue};\n`;
             this.descendStack(node.catch, new Frame(false));
             this.source += `}\n`;
             break;
@@ -1534,7 +1543,7 @@ class JSGenerator {
         script += `} catch (${thrownValue}) {\n`;
 
         script += 'if (thread.stackClick) {\n'
-        script += `runtime.visualReport(target, "${sanitize(this.script.topBlockId)}", ${thrownValue}, {isUncaught: true});\n`;
+        script += `runtime.visualReport(target, "${sanitize(this.script.topBlockId)}", ${thrownValue}, {isUncaught: true, isUnexpected: !(${thrownValue} instanceof globalState.DashError) && !${thrownValue}?.[globalState.EXPECTED_THROWABLE]});\n`;
         if (this.isProcedure) {
             script += 'retire(); yield;\n';
         } else {
