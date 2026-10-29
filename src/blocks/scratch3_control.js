@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const {DashError} = require('../data-types/dash-error');
 
 class Scratch3ControlBlocks {
     constructor (runtime) {
@@ -101,7 +102,7 @@ class Scratch3ControlBlocks {
             util.stackFrame.index = 0;
         }
 
-        if (util.stackFrame.index < Number(args.VALUE)) {
+        if (util.stackFrame.index < Cast.toNumber(args.VALUE)) {
             util.stackFrame.index++;
             variable.value = util.stackFrame.index;
             util.startBranch(1, true);
@@ -176,8 +177,7 @@ class Scratch3ControlBlocks {
     }
 
     throw (args) {
-        const value = args.VALUE;
-        throw Cast.isExpectedThrowable(args.VALUE) ? value : Cast.toString(value);
+        throw DashError.asExpectedThrowable(args.VALUE);
     }
 
     resume () {
