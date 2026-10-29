@@ -3,7 +3,7 @@ const BlocksExecuteCache = require('./blocks-execute-cache');
 const log = require('../util/log');
 const Thread = require('./thread');
 const cast = require('../util/cast');
-const DashError = require('../data-types/dash-error');
+const {DashError, EXPECTED_THROWABLE} = require('../data-types/dash-error');
 
 /**
  * Single BlockUtility instance reused by execute for every pritimive ran.
@@ -121,7 +121,8 @@ const handleReport = function (resolvedValue, sequencer, thread, blockCached, la
  * @param {!Thread} thread Thread containing the primitive.
  */
 const handleThrow = function (thrownValue, sequencer, thread) {
-    if (typeof thrownValue === 'string' || thrownValue instanceof DashError) {
+    const isExpected = thrownValue instanceof DashError || thrownValue?.[EXPECTED_THROWABLE];
+    if (isExpected) {
         // Try to find catchers
         while (thread.stackFrames.length > 1) {
             thread.popStack();
@@ -129,6 +130,7 @@ const handleThrow = function (thrownValue, sequencer, thread) {
             if (typeof stackFrame.catcherBranchNum === 'number') {
                 sequencer.stepToBranch(thread, stackFrame.catcherBranchNum, stackFrame.isLoop);
                 stackFrame.catcherBranchNum = null;
+                stackFrame.thrownValue = thrownValue?.[EXPECTED_THROWABLE] ? thrownValue?.value : thrownValue;
                 thread.status = Thread.STATUS_RUNNING;
                 return;
             }
@@ -138,7 +140,10 @@ const handleThrow = function (thrownValue, sequencer, thread) {
     // Uncaught thrown value: report the value visually at the top of
     // the thread stack if necessary and stop the thread.
     if (thread.stackClick) {
-        sequencer.runtime.visualReport(thread.target, thread.topBlock, thrownValue, {isUncaught: true});
+        sequencer.runtime.visualReport(thread.target, thread.topBlock, thrownValue, {
+            isUncaught: true,
+            isUnexpected: !isExpected
+        });
     }
     sequencer.retireThread(thread);
 };
@@ -182,8 +187,8 @@ const handlePromise = (primitiveReportedValue, sequencer, thread, blockCached, l
         handlePromiseResolution(resolvedValue, sequencer, thread, blockCached, lastOperation);
     }, rejectionReason => {
         // Promise rejected: the primitive had some error.
-        // For compatibility, handle as thrown the DashError values only.
-        if (rejectionReason instanceof DashError) {
+        // For compatibility, handle as thrown the DashError values and expected throwable wrappers only.
+        if (rejectionReason instanceof DashError || rejectionReason?.[EXPECTED_THROWABLE]) {
             handleThrow(rejectionReason, sequencer, thread);
         } else {
             log.warn('Primitive rejected promise: ', rejectionReason);
