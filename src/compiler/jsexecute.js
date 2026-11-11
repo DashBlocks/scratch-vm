@@ -697,13 +697,13 @@ runtimeFunctions.arrayInsert = `const arrayInsert = (array, idx, value) => {
  */
 runtimeFunctions.arrayDelete = `const arrayDelete = (array, idx, value) => {
     if (idx === 'all') {
-        return [];
+        return new globalState.NormalArray();
     }
     const index = listIndex(idx, array.length);
     if (index === -1) {
         return array;
     }
-    return array.toSpliced(index, 1);
+    return new globalState.NormalArray(array.toSpliced(index, 1));
 }`;
 
 /**
