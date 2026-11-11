@@ -199,7 +199,7 @@ class DashJSONBlocks {
         } else if (index === Cast.LIST_INVALID) {
             return array;
         }
-        return array.toSpliced(index - 1, 1);
+        return new NormalArray(array.toSpliced(index - 1, 1));
     }
 
     arrayReplace (args) {
