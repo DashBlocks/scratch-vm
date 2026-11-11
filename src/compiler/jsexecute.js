@@ -671,7 +671,7 @@ runtimeFunctions.arrayReplace = `const arrayReplace = (array, idx, value) => {
     if (index === -1) {
         return array;
     }
-    return [...array.slice(0, index), value, ...array.slice(index + 1)];
+    return array.slice(0, index).concat([value]).concat(array.slice(index + 1));
 }`;
 
 /**
@@ -686,7 +686,7 @@ runtimeFunctions.arrayInsert = `const arrayInsert = (array, idx, value) => {
     if (index === -1) {
         return array;
     }
-    return array.toSpliced(index, 0, value);
+    return new globalState.NormalArray(array.toSpliced(index, 0, value));
 }`;
 
 /**
