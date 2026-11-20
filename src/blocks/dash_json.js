@@ -111,7 +111,8 @@ class DashJSONBlocks {
 
     setByPath (args) {
         const path = Cast.toList(args.PATH);
-        let json = part = Cast.toJSON(args.VALUE, true);
+        let json = Cast.toJSON(args.VALUE, true);
+        let part = json;
         let result = resultPart = clone(json);
         for (let i = 0; i < path.length; i++) {
             if (Cast.isNormalArray(part)) {
