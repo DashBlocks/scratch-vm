@@ -173,7 +173,7 @@ class DashJSONBlocks {
     arrayAddBack (args) {
         const array = Cast.toList(args.ARRAY);
         const item = args.ITEM;
-        return [item].concat(array);
+        return new NormalArray([item]).concat(array);
     }
 
     arrayInsertAt (args) {
