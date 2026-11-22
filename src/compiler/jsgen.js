@@ -661,7 +661,7 @@ class JSGenerator {
         case InputOpcode.JSON_ARRAY_IN_FRONT_OF:
             return `${this.descendInput(node.array)}.concat([${this.descendInput(node.item)}])`;
         case InputOpcode.JSON_ARRAY_BEHIND:
-            return `[${this.descendInput(node.item)}].concat(${this.descendInput(node.array)})`;
+            return `(new globalState.NormalArray([${this.descendInput(node.item)}]).concat(${this.descendInput(node.array)}))`;
         case InputOpcode.JSON_ARRAY_AT:
             return `arrayInsert(${this.descendInput(node.array)}, ${this.descendInput(node.index)}, ${this.descendInput(node.item)})`;
         case InputOpcode.JSON_ARRAY_SPLIT:
