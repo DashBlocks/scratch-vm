@@ -179,71 +179,38 @@ class DashCoreExample {
                 {
                     opcode: 'exJoinExpandable',
                     blockType: BlockType.REPORTER,
-                    text: 'example expandable join [REMOVE] [ADD]',
+                    text: 'example expandable join [EXPANDABLE]',
                     arguments: {
-                        REMOVE: {
-                            type: ArgumentType.BUTTON_EXPANDABLE_REMOVE
-                        },
-                        ADD: {
-                            type: ArgumentType.BUTTON_EXPANDABLE_ADD
+                        EXPANDABLE: {
+                            type: ArgumentType.EXPANDABLE,
+                            defaultValue: 2
                         }
                     },
                     hideFromPalette: true,
                     afterJsonInit: function (ScratchBlocks) {
-                        this.messageList = [
+                        this.possibleStrings = [
                             'script ', 'block ', 'comment ', 'sprite ', 'costume ',
                             'backdrop ', 'sound ', 'font ', 'extension '
                         ];
-                        this.inputs = 0;
-                        
-                        // if (!ScratchBlocks) return;
-                        this.fillInBlock = ScratchBlocks.scratchBlocksUtils.generateMutatorShadow;
-                        this.mutationToDom = function () {
-                            const container = document.createElement('mutation');
-                            container.setAttribute('inputcount', String(this.inputs_));
-                            return container;
-                        };
-                        this.domToMutation = function (xmlElement) {
-                            const inputCount = Number(xmlElement.getAttribute('inputcount'));
-                            if (this.inputList.length > 1) {
-                                // This was a control Z action
-                                if (this.inputs_ > inputCount) {
-                                    const lastInput = this.inputList[this.inputList.length - 1];
-                                    const innerBlock = lastInput.connection.targetBlock();
-                                    if (innerBlock.isShadow()) innerBlock.dispose();
-                                    this.removeInput(lastInput.name);
+
+                        this.expandableCallback = function (field, oldValue, newValue, createShadows) {
+                            if (oldValue < newValue) {
+                                for (let i = oldValue; i < newValue; i++) {
+                                    var type = createShadows ? 'text' : null;
+                                    ScratchBlocks.scratchBlocksUtils.newBlockParam(
+                                        this, 'INPUT' + (i + 1), type,
+                                        ['TEXT', this.possibleStrings[i] || '...'],
+                                        (input) => input.setAlign(ScratchBlocks.ALIGN_RIGHT)
+                                    );
+                              }
+                            } else {
+                                for (let i = newValue; i < oldValue; i++) {
+                                    this.removeInput('INPUT' + (i + 1));
                                 }
                             }
                         
-                            this.inputs_ = isNaN(inputCount) ? 0 : inputCount;
-                            for (let i = 0; i < this.inputs_; i++) {
-                                // VM will automatically replace empty inputs with saved shadows
-                                if (!this.getInput(`INPUT${i + 1}`)) this.appendValueInput(`INPUT${i + 1}`);
-                            }
-                        };
-                        this.onExpandableButtonClicked_ = function (isAdding) {
-                            // Create an event group to keep field value and mutator in sync
-                            // Return null at the end because setValue is called here already.
-                            ScratchBlocks.Events.setGroup(true);
-                            const oldMutation = ScratchBlocks.Xml.domToText(this.mutationToDom());
-                            if (isAdding) {
-                                this.inputs_++;
-                                const number = this.inputs_;
-                                const newInput = this.appendValueInput(`INPUT${number}`);
-                                const text = this.messageList[number - 1];
-                                this.fillInBlock(newInput.connection, 'text', text ? text : '... ', 'TEXT');
-                            } else if (this.inputs_ > 1) {
-                                this.removeInput(`INPUT${this.inputs_}`);
-                                this.inputs_--;
-                            }
                             this.initSvg();
                             if (this.rendered) this.render();
-
-                            const newMutation = ScratchBlocks.Xml.domToText(this.mutationToDom());
-                            ScratchBlocks.Events.fire(new ScratchBlocks.Events.BlockChange(
-                                this, 'mutation', null, oldMutation, newMutation
-                            ));
-                            ScratchBlocks.Events.setGroup(false);
                         };
                     }
                 },
@@ -251,7 +218,7 @@ class DashCoreExample {
                     blockType: BlockType.XML,
                     xml: `
                     <block type="coreExample_exJoinExpandable">
-                        <mutation inputcount="2"></mutation>
+                        <field name="EXPANDABLE">2</field>
                         <value name="INPUT1">
                             <shadow type="text">
                                 <field name="TEXT">script </field>
