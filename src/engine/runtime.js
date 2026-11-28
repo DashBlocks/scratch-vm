@@ -1561,24 +1561,26 @@ class Runtime extends EventEmitter {
             }
             break;
         case BlockType.REPORTER:
-            blockInfo.branchCount = blockInfo.branchCount || 0;
-            blockJSON.output = blockInfo.allowDropAnywhere ? null : 'String'; // TODO: distinguish number & string here?
-            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_ROUND;
-            break;
         case BlockType.BOOLEAN:
-            blockInfo.branchCount = blockInfo.branchCount || 0;
-            blockJSON.output = 'Boolean';
-            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_HEXAGONAL;
-            break;
         case BlockType.ARRAY:
-            blockInfo.branchCount = blockInfo.branchCount || 0;
-            blockJSON.output = 'Array';
-            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE;
-            break;
         case BlockType.OBJECT:
+            const reporterOutput = ({
+                [BlockType.REPORTER]: [
+                    blockInfo.allowDropAnywhere ? null : 'String', // TODO: distinguish number & string here?
+                    ScratchBlocksConstants.OUTPUT_SHAPE_ROUND
+                ],
+                [BlockType.BOOLEAN]: ['Boolean', ScratchBlocksConstants.OUTPUT_SHAPE_HEXAGONAL],
+                [BlockType.ARRAY]: ['Array', ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE],
+                [BlockType.OBJECT]: ['Object', ScratchBlocksConstants.OUTPUT_SHAPE_PLUS]
+            })[blockInfo.blockType];
+
             blockInfo.branchCount = blockInfo.branchCount || 0;
-            blockJSON.output = 'Object';
-            blockJSON.outputShape = ScratchBlocksConstants.OUTPUT_SHAPE_PLUS;
+            blockJSON.output = reporterOutput[0];
+            blockJSON.outputShape = reporterOutput[1];
+            if (blockInfo.dualBlock) {
+                blockJSON.previousStatement = null; // null = available connection; undefined = hat
+                blockJSON.nextStatement = null; // null = available connection; undefined = terminal
+            }
             break;
         case BlockType.HAT:
         case BlockType.EVENT:
@@ -1654,12 +1656,7 @@ class Runtime extends EventEmitter {
             ) {
                 blockJSON.checkboxInFlyout = true;
             }
-        } else if (
-            blockInfo.branchIconURI || (
-                blockInfo.blockType === BlockType.LOOP &&
-                !Object.prototype.hasOwnProperty.call(blockInfo, 'branchIconURI')
-            )
-        ) {
+        } else if (blockInfo.branchIconURI || blockInfo.blockType === BlockType.LOOP) {
             // Add icon to the bottom right of a loop block
             blockJSON[`lastDummyAlign${outLineNum}`] = 'RIGHT';
             blockJSON[`message${outLineNum}`] = '%1';
