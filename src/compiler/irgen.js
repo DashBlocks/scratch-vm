@@ -83,6 +83,8 @@ class ScriptTreeGenerator {
 
         this.usesTimer = false;
 
+        this.usesCompiledExtPrimitives = true;
+
         this.namesOfCostumesAndSounds = new Set();
         for (const target of this.runtime.targets) {
             if (target.isOriginal) {
@@ -890,30 +892,32 @@ class ScriptTreeGenerator {
                         type === BlockType.REPORTER || type === BlockType.BOOLEAN ||
                         type === BlockType.ARRAY || type === BlockType.OBJECT
                     ) {
-                        const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
-                        // eslint-disable-next-line no-use-before-define
-                        const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
-                        if (!irFunc) return this.descendCompatLayerInput(block);
-                        try {
-                            const [returnType, inputs, yields] = irFunc.call(this, block, {
-                                IntermediateInput,
-                                IntermediateStackBlock,
-                                IntermediateStack,
-                                InputOpcode,
-                                StackOpcode,
-                                InputType,
-                                SCALAR_TYPE,
-                                LIST_TYPE
-                            });
-                            return new IntermediateInput(
-                                InputOpcode.COMPILED_EXT_PRIMITIVE,
-                                returnType in InputType ? returnType : InputType.ANY,
-                                {category, opcode, inputs: inputs ?? {}},
-                                yields ?? false
-                            );
-                        } catch {
-                            return this.descendCompatLayerInput(block);
+                        if (this.usesCompiledExtPrimitives) {
+                            const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
+                            // eslint-disable-next-line no-use-before-define
+                            const irFunc = IRGenerator.getExtensionIR(category)?.reporter?.[opcode];
+                            if (irFunc) {
+                                try {
+                                    const [returnType, inputs, yields] = irFunc(this, block, {
+                                        IntermediateInput,
+                                        IntermediateStackBlock,
+                                        IntermediateStack,
+                                        InputOpcode,
+                                        StackOpcode,
+                                        InputType,
+                                        SCALAR_TYPE,
+                                        LIST_TYPE
+                                    });
+                                    return new IntermediateInput(
+                                        InputOpcode.COMPILED_EXT_PRIMITIVE,
+                                        returnType in InputType ? returnType : InputType.ANY,
+                                        {category, opcode, inputs: inputs ?? {}},
+                                        yields ?? false
+                                    );
+                                } catch { /* ignore */ }
+                            }
                         }
+                        return this.descendCompatLayerInput(block);
                     }
                 }
             }
@@ -1374,32 +1378,31 @@ class ScriptTreeGenerator {
                 // It might be an extension block.
                 const blockInfo = this.getBlockInfo(block.opcode);
                 if (blockInfo) {
-                    const type = blockInfo.info.blockType;
-                    if (type === BlockType.COMMAND || type === BlockType.CONDITIONAL || type === BlockType.LOOP) {
+                    if (this.usesCompiledExtPrimitives) {
                         const [category, opcode] = StringUtil.splitFirst(block.opcode, '_');
                         // eslint-disable-next-line no-use-before-define
-                        const irFunc = IRGenerator.getExtensionIR(category)?.[opcode];
-                        if (!irFunc) return this.descendCompatLayerStack(block);
-                        try {
-                            const [inputs, yields] = irFunc.call(this, block, {
-                                IntermediateInput,
-                                IntermediateStackBlock,
-                                IntermediateStack,
-                                InputOpcode,
-                                StackOpcode,
-                                InputType,
-                                SCALAR_TYPE,
-                                LIST_TYPE
-                            });
-                            return new IntermediateStackBlock(
-                                StackOpcode.COMPILED_EXT_PRIMITIVE,
-                                {category, opcode, inputs: inputs ?? {}},
-                                yields ?? false
-                            );
-                        } catch {
-                            return this.descendCompatLayerStack(block);
+                        const irFunc = IRGenerator.getExtensionIR(category)?.command?.[opcode];
+                        if (irFunc) {
+                            try {
+                                const [inputs, yields] = irFunc(this, block, {
+                                    IntermediateInput,
+                                    IntermediateStackBlock,
+                                    IntermediateStack,
+                                    InputOpcode,
+                                    StackOpcode,
+                                    InputType,
+                                    SCALAR_TYPE,
+                                    LIST_TYPE
+                                });
+                                return new IntermediateStackBlock(
+                                    StackOpcode.COMPILED_EXT_PRIMITIVE,
+                                    {category, opcode, inputs: inputs ?? {}},
+                                    yields ?? false
+                                );
+                            } catch { /* ignore */ }
                         }
                     }
+                    return this.descendCompatLayerStack(block);
                 }
             }
 
@@ -1779,6 +1782,8 @@ class ScriptTreeGenerator {
                 switch (flag) {
                 case 'nocompile':
                     throw new Error('Script explicitly disables compilation');
+                case 'nocompiledextprimitives':
+                    this.usesCompiledExtPrimitives = false;
                 case 'stuck':
                     this.script.warpTimer = true;
                     break;
@@ -1902,7 +1907,9 @@ class IRGenerator {
 
     static _extensionIRInfo = {};
     static setExtensionIR (id, info) {
-        IRGenerator._extensionIRInfo[id] = info;
+        IRGenerator._extensionIRInfo[id] = {};
+        if ('command' in info) IRGenerator._extensionIRInfo[id].command = info.command;
+        if ('reporter' in info) IRGenerator._extensionIRInfo[id].reporter = info.reporter;
     }
     static getExtensionIR (id) {
         return IRGenerator._extensionIRInfo[id];
