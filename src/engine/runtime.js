@@ -1602,6 +1602,10 @@ class Runtime extends EventEmitter {
             break;
         }
 
+        // Allow extensions to override inputsInline
+        if (Object.prototype.hasOwnProperty.call(blockInfo, 'inputsInline')) {
+            blockJSON.inputsInline = blockInfo.inputsInline;
+        }
         // Allow extensions to override outputShape
         if (blockInfo.blockShape) {
             blockJSON.outputShape = blockInfo.blockShape;
