@@ -251,13 +251,13 @@ class JSGenerator {
             delete node.opcode;
             delete node.inputs;
             Object.assign(node, inputs);
-            const jsFunc = JSGenerator.getExtensionJS(category)?.[opcode];
+            const jsFunc = JSGenerator.getExtensionJS(category)?.reporter?.[opcode];
             if (!jsFunc) {
                 log.warn(`JS: Unknown extension primitive: ${category}_${opcode}`, node);
                 throw new Error(`JS: Unknown extension primitive: ${category}_${opcode}`);
             }
             try {
-                return jsFunc.call(this, block, node, {...JSGenerator.unstable_exports, InputType});
+                return jsFunc(this, block, node, {...JSGenerator.unstable_exports, InputType});
             } catch {
                 log.warn(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`, node);
                 throw new Error(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`);
@@ -728,9 +728,7 @@ class JSGenerator {
             const isLastInLoop = this.isLastBlockInLoop();
 
             const blockType = node.blockType;
-            if (blockType === BlockType.COMMAND || blockType === BlockType.HAT) {
-                this.source += `${this.generateCompatibilityLayerCall(node, isLastInLoop)};\n`;
-            } else if (blockType === BlockType.CONDITIONAL || blockType === BlockType.LOOP) {
+            if (blockType === BlockType.CONDITIONAL || blockType === BlockType.LOOP) {
                 const branchVariable = this.localVariables.next();
                 this.source += `const ${branchVariable} = createBranchInfo(${blockType === BlockType.LOOP});\n`;
                 this.source += `while (${branchVariable}.branch = ${branchVariable}.runnedCatcherBranch || +(${this.generateCompatibilityLayerCall(node, false, branchVariable)})) {\n`;
@@ -755,7 +753,7 @@ class JSGenerator {
                 this.yieldLoop();
                 this.source += `}\n`; // close while
             } else {
-                throw new Error(`Unknown block type: ${blockType}`);
+                this.source += `${this.generateCompatibilityLayerCall(node, isLastInLoop)};\n`;
             }
 
             if (isLastInLoop) {
@@ -773,13 +771,13 @@ class JSGenerator {
             delete node.opcode;
             delete node.inputs;
             Object.assign(node, inputs);
-            const jsFunc = JSGenerator.getExtensionJS(category)?.[opcode];
+            const jsFunc = JSGenerator.getExtensionJS(category)?.command?.[opcode];
             if (!jsFunc) {
                 log.warn(`JS: Unknown extension primitive: ${category}_${opcode}`, node);
                 throw new Error(`JS: Unknown extension primitive: ${category}_${opcode}`);
             }
             try {
-                jsFunc.call(this, block, node, {...JSGenerator.unstable_exports, InputType});
+                jsFunc(this, block, node, {...JSGenerator.unstable_exports, InputType});
             } catch {
                 log.warn(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`, node);
                 throw new Error(`JS: Cannot generate JS for extension primitive: ${category}_${opcode}`);
@@ -1577,7 +1575,9 @@ class JSGenerator {
 
     static _extensionJSInfo = {};
     static setExtensionJS (id, info) {
-        JSGenerator._extensionJSInfo[id] = info;
+        JSGenerator._extensionJSInfo[id] = {};
+        if ('command' in info) JSGenerator._extensionJSInfo[id].command = info.command;
+        if ('reporter' in info) JSGenerator._extensionJSInfo[id].reporter = info.reporter;
     }
     static getExtensionJS (id) {
         return JSGenerator._extensionJSInfo[id];
